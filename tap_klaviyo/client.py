@@ -70,9 +70,6 @@ class KlaviyoStream(RESTStream):
         Returns:
             The next pagination token.
         """
-        # TODO: If pagination is required, return a token which can be used to get the
-        #       next page. If this is the final page, return "None" to end the
-        #       pagination loop.
         if self.next_page_token_jsonpath:
             all_matches = extract_jsonpath(
                 self.next_page_token_jsonpath, response.json()
@@ -101,6 +98,10 @@ class KlaviyoStream(RESTStream):
         params: dict = {}
         if next_page_token:
             params["page[cursor]"] = next_page_token
+
+        # Temporary filter for the events stream:
+        params["filter"] = "greater-than(datetime,2023-03-15T00:00:00Z)"
+
         return params
 
     def prepare_request_payload(
