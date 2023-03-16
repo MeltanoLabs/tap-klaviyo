@@ -25,7 +25,7 @@ class TapKlaviyo(Tap):
         ),
         th.Property(
             "revision",
-            th.ArrayType(th.StringType),
+            th.StringType,
             required=True,
             description="Klaviyo API endpoint revision. https://developers.klaviyo.com/en/docs/api_versioning_and_deprecation_policy#versioning",
         ),
