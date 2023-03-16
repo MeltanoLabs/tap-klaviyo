@@ -25,8 +25,8 @@ class KlaviyoStream(RESTStream):
     #     """Return the API URL root, configurable via tap settings."""
     #     return self.config["api_url"]
 
-    records_jsonpath = "$[*]"  # Or override `parse_response`.
-    next_page_token_jsonpath = "$.next_page"  # Or override `get_next_page_token`.
+    records_jsonpath = "$[data][*]"
+    next_page_token_jsonpath = "$[links].next"
 
     @property
     def authenticator(self) -> APIKeyAuthenticator:
@@ -37,7 +37,7 @@ class KlaviyoStream(RESTStream):
         """
         return APIKeyAuthenticator.create_for_stream(
             self,
-            key="x-api-key",
+            key="Klaviyo-API-key",
             value=self.config.get("auth_token", ""),
             location="header",
         )
@@ -52,8 +52,8 @@ class KlaviyoStream(RESTStream):
         headers = {}
         if "user_agent" in self.config:
             headers["User-Agent"] = self.config.get("user_agent")
-        # If not using an authenticator, you may also provide inline auth headers:
-        # headers["Private-Token"] = self.config.get("auth_token")
+        if "revision" in self.config:
+            headers["revision"] = self.config.get("revision")
         return headers
 
     def get_next_page_token(
@@ -100,10 +100,7 @@ class KlaviyoStream(RESTStream):
         """
         params: dict = {}
         if next_page_token:
-            params["page"] = next_page_token
-        if self.replication_key:
-            params["sort"] = "asc"
-            params["order_by"] = self.replication_key
+            params["page[cursor]"] = next_page_token
         return params
 
     def prepare_request_payload(
