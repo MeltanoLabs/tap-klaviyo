@@ -17,8 +17,7 @@ SCHEMAS_DIR = Path(__file__).parent / Path("./schemas")
 class KlaviyoStream(RESTStream):
     """Klaviyo stream class."""
 
-    # TODO: Set the API's base URL here:
-    url_base = "https://api.mysample.com"
+    url_base = "https://a.klaviyo.com/api"
 
     # OR use a dynamic url_base:
     # @property
