@@ -81,28 +81,14 @@ class KlaviyoStream(RESTStream):
 
         return next_page_token
 
-    def get_url_params(
-        self,
-        context: dict | None,
-        next_page_token: Any | None,
-    ) -> dict[str, Any]:
-        """Return a dictionary of values to be used in URL parameterization.
-
-        Args:
-            context: The stream context.
-            next_page_token: The next page index or value.
-
-        Returns:
-            A dictionary of URL query parameters.
-        """
+    @property
+    def base_url_params(self) -> dict[str, str]:
+        # TODO: Add global params here
         params: dict = {}
-        if next_page_token:
-            params["page[cursor]"] = next_page_token
-
-        # Temporary filter for the events stream:
-        params["filter"] = "greater-than(datetime,2023-03-15T00:00:00Z)"
 
         return params
+
+
 
     def prepare_request_payload(
         self,

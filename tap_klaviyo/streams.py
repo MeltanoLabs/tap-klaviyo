@@ -21,6 +21,7 @@ class EventsStream(KlaviyoStream):
     path = "/events"
     primary_keys = ["id"]
     replication_key = None
+    # TODO: Finish building out all properties
     schema = th.PropertiesList(
         th.Property("name", th.StringType),
         th.Property(
@@ -54,6 +55,32 @@ class EventsStream(KlaviyoStream):
             ),
         ),
     ).to_dict()
+
+    def get_url_params(
+        self,
+        context: dict | None,
+        next_page_token: Any | None,
+    ) -> dict[str, Any]:
+        """Return a dictionary of values to be used in URL parameterization.
+
+        Args:
+            context: The stream context.
+            next_page_token: The next page index or value.
+
+        Returns:
+            A dictionary of URL query parameters.
+        """
+        params: dict = {
+            **self.base_url_params,
+        }
+
+        if next_page_token:
+            params["page[cursor]"] = next_page_token
+
+        # TODO: Convert this to a config var
+        params["filter"] = "greater-than(datetime,2023-03-15T00:00:00Z)"
+
+        return params
 
 # TODO: Change to CampaignsStream
 class GroupsStream(KlaviyoStream):
