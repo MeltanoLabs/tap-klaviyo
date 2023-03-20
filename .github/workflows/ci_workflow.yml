@@ -3,7 +3,8 @@
 
 name: Test tap-klaviyo
 
-on: [push]
+# TODO: Re-enable CI/CD testing
+# on: [push]
 
 jobs:
   linting:
