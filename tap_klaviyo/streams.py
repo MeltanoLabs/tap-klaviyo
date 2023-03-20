@@ -43,7 +43,7 @@ class EventsStream(KlaviyoStream):
                 ),
                 th.Property(
                     "timestamp",
-                    th.StringType,
+                    th.IntegerType,
                     description="Event timestamp in seconds"
                 ),
                 th.Property(
