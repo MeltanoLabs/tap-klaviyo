@@ -17,8 +17,7 @@ SCHEMAS_DIR = Path(__file__).parent / Path("./schemas")
 class KlaviyoStream(RESTStream):
     """Klaviyo stream class."""
 
-    # TODO: Set the API's base URL here:
-    url_base = "https://api.mysample.com"
+    url_base = "https://a.klaviyo.com/api"
 
     # OR use a dynamic url_base:
     # @property
@@ -26,8 +25,8 @@ class KlaviyoStream(RESTStream):
     #     """Return the API URL root, configurable via tap settings."""
     #     return self.config["api_url"]
 
-    records_jsonpath = "$[*]"  # Or override `parse_response`.
-    next_page_token_jsonpath = "$.next_page"  # Or override `get_next_page_token`.
+    records_jsonpath = "$[data][*]"
+    next_page_token_jsonpath = "$[links].next"
 
     @property
     def authenticator(self) -> APIKeyAuthenticator:
@@ -38,8 +37,8 @@ class KlaviyoStream(RESTStream):
         """
         return APIKeyAuthenticator.create_for_stream(
             self,
-            key="x-api-key",
-            value=self.config.get("auth_token", ""),
+            key="Authorization",
+            value=f'Klaviyo-API-Key {self.config.get("auth_token", "")}',
             location="header",
         )
 
@@ -53,8 +52,8 @@ class KlaviyoStream(RESTStream):
         headers = {}
         if "user_agent" in self.config:
             headers["User-Agent"] = self.config.get("user_agent")
-        # If not using an authenticator, you may also provide inline auth headers:
-        # headers["Private-Token"] = self.config.get("auth_token")
+        if "revision" in self.config:
+            headers["revision"] = self.config.get("revision")
         return headers
 
     def get_next_page_token(
@@ -71,9 +70,6 @@ class KlaviyoStream(RESTStream):
         Returns:
             The next pagination token.
         """
-        # TODO: If pagination is required, return a token which can be used to get the
-        #       next page. If this is the final page, return "None" to end the
-        #       pagination loop.
         if self.next_page_token_jsonpath:
             all_matches = extract_jsonpath(
                 self.next_page_token_jsonpath, response.json()
@@ -85,27 +81,14 @@ class KlaviyoStream(RESTStream):
 
         return next_page_token
 
-    def get_url_params(
-        self,
-        context: dict | None,
-        next_page_token: Any | None,
-    ) -> dict[str, Any]:
-        """Return a dictionary of values to be used in URL parameterization.
-
-        Args:
-            context: The stream context.
-            next_page_token: The next page index or value.
-
-        Returns:
-            A dictionary of URL query parameters.
-        """
+    @property
+    def base_url_params(self) -> dict[str, str]:
+        # TODO: Add global params here
         params: dict = {}
-        if next_page_token:
-            params["page"] = next_page_token
-        if self.replication_key:
-            params["sort"] = "asc"
-            params["order_by"] = self.replication_key
+
         return params
+
+
 
     def prepare_request_payload(
         self,

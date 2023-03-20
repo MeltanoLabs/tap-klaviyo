@@ -24,21 +24,15 @@ class TapKlaviyo(Tap):
             description="The token to authenticate against the API service",
         ),
         th.Property(
-            "project_ids",
-            th.ArrayType(th.StringType),
+            "revision",
+            th.StringType,
             required=True,
-            description="Project IDs to replicate",
+            description="Klaviyo API endpoint revision. https://developers.klaviyo.com/en/docs/api_versioning_and_deprecation_policy#versioning",
         ),
         th.Property(
             "start_date",
             th.DateTimeType,
             description="The earliest record date to sync",
-        ),
-        th.Property(
-            "api_url",
-            th.StringType,
-            default="https://api.mysample.com",
-            description="The url for the API service",
         ),
     ).to_dict()
 
@@ -49,8 +43,7 @@ class TapKlaviyo(Tap):
             A list of discovered streams.
         """
         return [
-            streams.GroupsStream(self),
-            streams.UsersStream(self),
+            streams.EventsStream(self),
         ]
 
 

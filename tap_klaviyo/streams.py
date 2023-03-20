@@ -14,43 +14,75 @@ SCHEMAS_DIR = Path(__file__).parent / Path("./schemas")
 #       - Copy-paste as many times as needed to create multiple stream types.
 
 
-class UsersStream(KlaviyoStream):
+class EventsStream(KlaviyoStream):
     """Define custom stream."""
 
-    name = "users"
-    path = "/users"
+    name = "events"
+    path = "/events"
     primary_keys = ["id"]
     replication_key = None
-    # Optionally, you may also use `schema_filepath` in place of `schema`:
-    # schema_filepath = SCHEMAS_DIR / "users.json"
+    # TODO: Finish building out all properties
     schema = th.PropertiesList(
         th.Property("name", th.StringType),
         th.Property(
             "id",
             th.StringType,
-            description="The user's system ID",
+            description="The event ID",
         ),
         th.Property(
-            "age",
-            th.IntegerType,
-            description="The user's age in years",
-        ),
-        th.Property(
-            "email",
+            "type",
             th.StringType,
-            description="The user's email address",
+            description="The event type",
         ),
-        th.Property("street", th.StringType),
-        th.Property("city", th.StringType),
         th.Property(
-            "state",
-            th.StringType,
-            description="State name in ISO 3166-2 format",
+            "attributes",
+            th.ObjectType(
+                th.Property(
+                    "metric_id",
+                    th.StringType,
+                    description="The metric ID"
+                ),
+                th.Property(
+                    "timestamp",
+                    th.IntegerType,
+                    description="Event timestamp in seconds"
+                ),
+                th.Property(
+                    "datetime",
+                    th.DateTimeType,
+                    description="Event timestamp in ISO 8601 format (YYYY-MM-DDTHH:MM:SS.mmmmmm)"
+                ),
+            ),
         ),
-        th.Property("zip", th.StringType),
     ).to_dict()
 
+    def get_url_params(
+        self,
+        context: dict | None,
+        next_page_token: Any | None,
+    ) -> dict[str, Any]:
+        """Return a dictionary of values to be used in URL parameterization.
 
+        Args:
+            context: The stream context.
+            next_page_token: The next page index or value.
+
+        Returns:
+            A dictionary of URL query parameters.
+        """
+        params: dict = {
+            **self.base_url_params,
+        }
+
+        if next_page_token:
+            params["page[cursor]"] = next_page_token
+
+        # TODO: Convert this to a config var
+        params["filter"] = "greater-than(datetime,2023-03-15T00:00:00Z)"
+
+        return params
+
+# TODO: Change to CampaignsStream
 class GroupsStream(KlaviyoStream):
     """Define custom stream."""
 
