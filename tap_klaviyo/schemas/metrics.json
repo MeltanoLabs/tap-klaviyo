@@ -1,0 +1,57 @@
+{
+    "properties": {
+        "id": {
+            "description": "The metric ID",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "type": {
+            "description": "The metric type",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+
+        "attributes": {
+            "properties": {
+                "name": {
+                    "description": "The metric name",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "created": {
+                    "description": "Timestamp when the metric was created",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "integration": {
+                    "properties": {
+                        "id": {
+                            "description": "The integration ID",
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    "type": [
+                        "object",
+                        "null"
+                    ]
+                }
+
+            },
+            "type": [
+                "object",
+                "null"
+            ]
+        }
+    }
+}

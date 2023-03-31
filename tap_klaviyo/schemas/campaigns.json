@@ -1,0 +1,100 @@
+{
+    "properties": {
+        "id": {
+            "description": "The campaign ID",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "updated_at": {
+            "description": "Timestamp when the campaign was updated",
+            "format": "date-time",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "attributes": {
+            "properties": {
+                "name": {
+                    "description": "The campaign name",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "type": {
+                    "description": "The campaign type",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "status": {
+                    "description": "The campaign status",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "archived": {
+                    "description": "Whether the campaign has been archived or not",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "channel": {
+                    "description": "The campaign channel",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "message": {
+                    "description": "The campaign message (id?)",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "created_at": {
+                    "description": "Timestamp when the campaign was created",
+                    "format": "date-time",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "scheduled_at": {
+                    "description": "Timestamp when the campaign was scheduled",
+                    "format": "date-time",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "updated_at": {
+                    "description": "Timestamp when the campaign was updated",
+                    "format": "date-time",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "send_time": {
+                    "description": "The campaign time when the campaign was sent",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "type": [
+                "object",
+                "null"
+            ]
+        }
+    }
+}
