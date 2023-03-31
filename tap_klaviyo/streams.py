@@ -58,19 +58,52 @@ class EventsStream(KlaviyoStream):
         row["datetime"] = row["attributes"]["datetime"]
         return row
 
-# TODO: Change to CampaignsStream
-class GroupsStream(KlaviyoStream):
+class CampaignsStream(KlaviyoStream):
     """Define custom stream."""
 
-    name = "groups"
-    path = "/groups"
+    name = "campaigns"
+    path = "/campaigns"
     primary_keys = ["id"]
-    replication_key = "modified"
-    schema = th.PropertiesList(
-        th.Property("name", th.StringType),
-        th.Property("id", th.StringType),
-        th.Property("modified", th.DateTimeType),
-    ).to_dict()
+    replication_key = "updated_at"
+    schema_filepath = SCHEMAS_DIR / "campaigns.json"
+
+    def get_url_params(
+        self,
+        context: dict | None,
+        next_page_token: Any | None,
+    ) -> dict[str, Any]:
+        """Return a dictionary of values to be used in URL parameterization.
+
+        Args:
+            context: The stream context.
+            next_page_token: The next page index or value.
+
+        Returns:
+            A dictionary of URL query parameters.
+        """
+
+        params: dict = {
+            **self.base_url_params,
+        }
+
+        if next_page_token:
+            params["page[cursor]"] = next_page_token
+
+        if self.replication_key:
+            if self.get_starting_timestamp(context):
+                filter_timestamp = self.get_starting_timestamp(context)
+            elif self.config.get("start_date"):
+                filter_timestamp = datetime.strptime(self.config("start_date"), "%Y-%m-%d").isoformat()
+            else:
+                filter_timestamp = datetime(2000,1,1).isoformat()
+
+            params["filter"] = f"greater-than({self.replication_key},{filter_timestamp})"
+
+        return params
+
+    def post_process(self, row: dict, context: dict | None = None) -> dict | None:
+        row["updated_at"] = row["attributes"]["updated_at"]
+        return row
 
 
 class ProfilesStream(KlaviyoStream):
@@ -111,8 +144,45 @@ class ProfilesStream(KlaviyoStream):
                 filter_timestamp = datetime.strptime(self.config("start_date"), "%Y-%m-%d").isoformat()
             else:
                 filter_timestamp = datetime(2000,1,1).isoformat()
-            
+
             params["filter"] = f"greater-than({self.replication_key},{filter_timestamp})"
+
+        return params
+
+    def post_process(self, row: dict, context: dict | None = None) -> dict | None:
+        row["updated"] = row["attributes"]["updated"]
+        return row
+
+class MetricsStream(KlaviyoStream):
+    """Define custom stream."""
+
+    name = "metrics"
+    path = "/metrics"
+    primary_keys = ["id"]
+    replication_key = None
+    schema_filepath = SCHEMAS_DIR / "metrics.json"
+
+    def get_url_params(
+        self,
+        context: dict | None,
+        next_page_token: Any | None,
+    ) -> dict[str, Any]:
+        """Return a dictionary of values to be used in URL parameterization.
+
+        Args:
+            context: The stream context.
+            next_page_token: The next page index or value.
+
+        Returns:
+            A dictionary of URL query parameters.
+        """
+
+        params: dict = {
+            **self.base_url_params,
+        }
+
+        if next_page_token:
+            params["page[cursor]"] = next_page_token
 
         return params
 

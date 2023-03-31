@@ -44,7 +44,9 @@ class TapKlaviyo(Tap):
         """
         return [
             streams.EventsStream(self),
-            streams.ProfilesStream(self),
+            streams.CampaignsStream(self),
+            streams.MetricsStream(self),
+            streams.ProfilesStream(self)
         ]
 
 

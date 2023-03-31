@@ -1,0 +1,100 @@
+{
+    "properties": {
+        "id": {
+            "description": "The campaign ID",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "updated_at": {
+            "description": "The datetime when the campaign was last updated by a user or the system",
+            "format": "date-time",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "attributes": {
+            "properties": {
+                "name": {
+                    "description": "The campaign name",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "type": {
+                    "description": "The campaign type",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "status": {
+                    "description": "The current status of the campaign",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "archived": {
+                    "description": "Whether the campaign has been archived or not",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "channel": {
+                    "description": "The type of campaign",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "message": {
+                    "description": "The id of the message associated with the campaign",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "created_at": {
+                    "description": "The datetime when the campaign was created",
+                    "format": "date-time",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "scheduled_at": {
+                    "description": "The datetime when the campaign was scheduled for future sending",
+                    "format": "date-time",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "updated_at": {
+                    "description": "The datetime when the campaign was last updated by a user or the system",
+                    "format": "date-time",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "send_time": {
+                    "description": "The datetime when the campaign will be / was sent or None if not yet scheduled by a send_job",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "type": [
+                "object",
+                "null"
+            ]
+        }
+    }
+}
