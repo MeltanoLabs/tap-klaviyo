@@ -150,7 +150,7 @@ class ProfilesStream(KlaviyoStream):
         return params
 
     def post_process(self, row: dict, context: dict | None = None) -> dict | None:
-        row["updated_at"] = row["attributes"]["updated_at"]
+        row["updated"] = row["attributes"]["updated"]
         return row
 
 class MetricsStream(KlaviyoStream):
