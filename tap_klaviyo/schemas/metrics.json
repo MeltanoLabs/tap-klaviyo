@@ -14,7 +14,13 @@
                 "null"
             ]
         },
-
+        "created": {
+            "description": "Timestamp when the metric was created",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
         "attributes": {
             "properties": {
                 "name": {
