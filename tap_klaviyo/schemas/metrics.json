@@ -16,6 +16,7 @@
         },
         "created": {
             "description": "Timestamp when the metric was created",
+            "format": "date-time",
             "type": [
                 "string",
                 "null"
@@ -32,6 +33,7 @@
                 },
                 "created": {
                     "description": "Timestamp when the metric was created",
+                    "format": "date-time",
                     "type": [
                         "string",
                         "null"

@@ -240,5 +240,5 @@ class MetricsStream(KlaviyoStream):
         return params
 
     def post_process(self, row: dict, context: dict | None = None) -> dict | None:
-        row["updated_at"] = row["attributes"]["updated_at"]
+        row["created"] = row["attributes"]["created"]
         return row
