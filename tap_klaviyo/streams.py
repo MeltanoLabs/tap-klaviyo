@@ -172,7 +172,7 @@ class MetricsStream(KlaviyoStream):
     name = "metrics"
     path = "/metrics"
     primary_keys = ["id"]
-    replication_key = "created"
+    replication_key = "updated"
     schema_filepath = SCHEMAS_DIR / "metrics.json"
 
     # schema = th.PropertiesList(
@@ -194,7 +194,12 @@ class MetricsStream(KlaviyoStream):
     #             ),
     #             th.Property(
     #                 "created",
-    #                 th.StringType,
+    #                 th.DateTimeType,
+    #                 description="Timestamp when the metric was created"
+    #             ),
+    #             th.Property(
+    #                 "updated",
+    #                 th.DateTimeType,
     #                 description="Timestamp when the metric was created"
     #             ),
     #             th.Property(
@@ -246,5 +251,5 @@ class MetricsStream(KlaviyoStream):
         return params
 
     def post_process(self, row: dict, context: dict | None = None) -> dict | None:
-        row["created"] = row["attributes"]["created"]
+        row["updated"] = row["attributes"]["updated"]
         return row
