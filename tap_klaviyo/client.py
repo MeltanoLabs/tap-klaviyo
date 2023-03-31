@@ -18,13 +18,6 @@ class KlaviyoStream(RESTStream):
     """Klaviyo stream class."""
 
     url_base = "https://a.klaviyo.com/api"
-
-    # OR use a dynamic url_base:
-    # @property
-    # def url_base(self) -> str:
-    #     """Return the API URL root, configurable via tap settings."""
-    #     return self.config["api_url"]
-
     records_jsonpath = "$[data][*]"
     next_page_token_jsonpath = "$[links].next"
 

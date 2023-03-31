@@ -9,11 +9,7 @@ from singer_sdk import typing as th  # JSON Schema typing helpers
 
 from tap_klaviyo.client import KlaviyoStream
 
-# TODO: Delete this is if not using json files for schema definition
 SCHEMAS_DIR = Path(__file__).parent / Path("./schemas")
-# TODO: - Override `UsersStream` and `GroupsStream` with your own stream definition.
-#       - Copy-paste as many times as needed to create multiple stream types.
-
 
 class EventsStream(KlaviyoStream):
     """Define custom stream."""
@@ -21,41 +17,8 @@ class EventsStream(KlaviyoStream):
     name = "events"
     path = "/events"
     primary_keys = ["id"]
-    replication_key = None
-    # TODO: Finish building out all properties
-    schema = th.PropertiesList(
-        th.Property("name", th.StringType),
-        th.Property(
-            "id",
-            th.StringType,
-            description="The event ID",
-        ),
-        th.Property(
-            "type",
-            th.StringType,
-            description="The event type",
-        ),
-        th.Property(
-            "attributes",
-            th.ObjectType(
-                th.Property(
-                    "metric_id",
-                    th.StringType,
-                    description="The metric ID"
-                ),
-                th.Property(
-                    "timestamp",
-                    th.IntegerType,
-                    description="Event timestamp in seconds"
-                ),
-                th.Property(
-                    "datetime",
-                    th.DateTimeType,
-                    description="Event timestamp in ISO 8601 format (YYYY-MM-DDTHH:MM:SS.mmmmmm)"
-                ),
-            ),
-        ),
-    ).to_dict()
+    replication_key = "datetime"
+    schema_filepath = SCHEMAS_DIR / "event.json"
 
     def get_url_params(
         self,
@@ -71,6 +34,7 @@ class EventsStream(KlaviyoStream):
         Returns:
             A dictionary of URL query parameters.
         """
+
         params: dict = {
             **self.base_url_params,
         }
@@ -78,10 +42,21 @@ class EventsStream(KlaviyoStream):
         if next_page_token:
             params["page[cursor]"] = next_page_token
 
-        # TODO: Convert this to a config var
-        params["filter"] = "greater-than(datetime,2023-03-15T00:00:00Z)"
+        if self.replication_key:
+            if self.get_starting_timestamp(context):
+                filter_timestamp = self.get_starting_timestamp(context)
+            elif self.config.get("start_date"):
+                filter_timestamp = datetime.strptime(self.config("start_date"), "%Y-%m-%d").isoformat()
+            else:
+                filter_timestamp = datetime(2000,1,1).isoformat()
+
+            params["filter"] = f"greater-than({self.replication_key},{filter_timestamp})"
 
         return params
+
+    def post_process(self, row: dict, context: dict | None = None) -> dict | None:
+        row["datetime"] = row["attributes"]["datetime"]
+        return row
 
 # TODO: Change to CampaignsStream
 class GroupsStream(KlaviyoStream):
@@ -97,6 +72,53 @@ class GroupsStream(KlaviyoStream):
         th.Property("modified", th.DateTimeType),
     ).to_dict()
 
+
+class ProfilesStream(KlaviyoStream):
+    """Define custom stream."""
+
+    name = "profiles"
+    path = "/profiles"
+    primary_keys = ["id"]
+    replication_key = "updated"
+    schema_filepath = SCHEMAS_DIR / "profiles.json"
+
+    def get_url_params(
+        self,
+        context: dict | None,
+        next_page_token: Any | None,
+    ) -> dict[str, Any]:
+        """Return a dictionary of values to be used in URL parameterization.
+
+        Args:
+            context: The stream context.
+            next_page_token: The next page index or value.
+
+        Returns:
+            A dictionary of URL query parameters.
+        """
+
+        params: dict = {
+            **self.base_url_params,
+        }
+
+        if next_page_token:
+            params["page[cursor]"] = next_page_token
+
+        if self.replication_key:
+            if self.get_starting_timestamp(context):
+                filter_timestamp = self.get_starting_timestamp(context)
+            elif self.config.get("start_date"):
+                filter_timestamp = datetime.strptime(self.config("start_date"), "%Y-%m-%d").isoformat()
+            else:
+                filter_timestamp = datetime(2000,1,1).isoformat()
+            
+            params["filter"] = f"greater-than({self.replication_key},{filter_timestamp})"
+
+        return params
+
+    def post_process(self, row: dict, context: dict | None = None) -> dict | None:
+        row["updated"] = row["attributes"]["updated"]
+        return row
 class FlowsStream(KlaviyoStream):
     """Define custom stream."""
 
