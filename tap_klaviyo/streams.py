@@ -43,8 +43,14 @@ class EventsStream(KlaviyoStream):
             params["page[cursor]"] = next_page_token
 
         if self.replication_key:
-            filter_timestamp = self.get_starting_timestamp(context)
-            params["filter"] = f"greater-than(datetime,{filter_timestamp})"
+            if self.get_starting_timestamp(context):
+                filter_timestamp = self.get_starting_timestamp(context)
+            elif self.config.get("start_date"):
+                filter_timestamp = datetime.strptime(self.config("start_date"), "%Y-%m-%d").isoformat()
+            else:
+                filter_timestamp = datetime(2000,1,1).isoformat()
+
+            params["filter"] = f"greater-than({self.replication_key},{filter_timestamp})"
 
         return params
 
