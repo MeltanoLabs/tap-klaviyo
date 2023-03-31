@@ -18,14 +18,14 @@
         "attributes": {
             "properties": {
                 "name": {
-                    "description": "The metric name",
+                    "description": "The name of the metric",
                     "type": [
                         "string",
                         "null"
                     ]
                 },
                 "created": {
-                    "description": "Timestamp when the metric was created",
+                    "description": "Creation time in ISO 8601 format (YYYY-MM-DDTHH:MM:SS.mmmmmm)",
                     "format": "date-time",
                     "type": [
                         "string",
@@ -33,7 +33,7 @@
                     ]
                 },
                 "updated": {
-                    "description": "Timestamp when the metric was updated",
+                    "description": "Creation time in ISO 8601 format (YYYY-MM-DDTHH:MM:SS.mmmmmm)",
                     "format": "date-time",
                     "type": [
                         "string",
@@ -43,7 +43,7 @@
                 "integration": {
                     "properties": {
                         "id": {
-                            "description": "The integration ID",
+                            "description": "The id of the integration associated with the event",
                             "type": [
                                 "string",
                                 "null"

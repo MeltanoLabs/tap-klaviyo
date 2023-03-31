@@ -67,67 +67,6 @@ class CampaignsStream(KlaviyoStream):
     replication_key = "updated_at"
     schema_filepath = SCHEMAS_DIR / "campaigns.json"
 
-    # schema = th.PropertiesList(
-    #     th.Property(
-    #         "id",
-    #         th.StringType,
-    #         description="The campaign ID"),
-    #     th.Property(
-    #         "attributes",
-    #         th.ObjectType(
-    #             th.Property("name",
-    #                 th.StringType,
-    #                 description="The campaign name"
-    #             ),
-    #             th.Property(
-    #                 "type",
-    #                 th.StringType,
-    #                 description="The campaign type"
-    #             ),
-    #             th.Property(
-    #                 "status",
-    #                 th.StringType,
-    #                 description="The campaign status"
-    #             ),
-    #             th.Property(
-    #                 "archived",
-    #                 th.BooleanType,
-    #                 description="Whether the campaign has been archived or not"
-    #             ),
-    #             th.Property(
-    #                 "channel",
-    #                 th.StringType,
-    #                 description="The campaign channel"
-    #             ),
-    #             th.Property(
-    #                 "message",
-    #                 th.StringType,
-    #                 description="The campaign message (id?)"
-    #             ), #TODO: validate
-    #             th.Property(
-    #                 "created_at",
-    #                 th.DateTimeType,
-    #                 description="Timestamp when the campaign was created"
-    #             ),
-    #             th.Property(
-    #                 "scheduled_at",
-    #                 th.DateTimeType,
-    #                 description="Timestamp when the campaign was scheduled"
-    #             ),
-    #             th.Property(
-    #                 "updated_at",
-    #                 th.DateTimeType,
-    #                 description="Timestamp when the campaign was updated"
-    #             ),
-    #             th.Property(
-    #                 "send_time",
-    #                 th.StringType,
-    #                 description="The campaign time when the campaign was sent"
-    #             ),
-    #         ),
-    #     ),
-    # ).to_dict()
-
     def get_url_params(
         self,
         context: dict | None,
@@ -175,47 +114,6 @@ class MetricsStream(KlaviyoStream):
     replication_key = "updated"
     schema_filepath = SCHEMAS_DIR / "metrics.json"
 
-    # schema = th.PropertiesList(
-    #     th.Property(
-    #         "id",
-    #         th.StringType,
-    #         description="The metric ID"),
-    #     th.Property(
-    #         "type",
-    #         th.StringType,
-    #         description="The metric type"),
-    #     th.Property(
-    #         "attributes",
-    #         th.ObjectType(
-    #             th.Property(
-    #                 "name",
-    #                 th.StringType,
-    #                 description="The metric name"
-    #             ),
-    #             th.Property(
-    #                 "created",
-    #                 th.DateTimeType,
-    #                 description="Timestamp when the metric was created"
-    #             ),
-    #             th.Property(
-    #                 "updated",
-    #                 th.DateTimeType,
-    #                 description="Timestamp when the metric was created"
-    #             ),
-    #             th.Property(
-    #                 "integration",
-    #                 th.ObjectType(
-    #                     th.Property(
-    #                         "id",
-    #                         th.StringType,
-    #                         description="The name of the integration"
-    #                     )
-    #                 ),
-    #             ),
-    #         ),
-    #     ),
-    # ).to_dict()
-
     def get_url_params(
         self,
         context: dict | None,
@@ -237,16 +135,6 @@ class MetricsStream(KlaviyoStream):
 
         if next_page_token:
             params["page[cursor]"] = next_page_token
-
-        if self.replication_key:
-            if self.get_starting_timestamp(context):
-                filter_timestamp = self.get_starting_timestamp(context)
-            elif self.config.get("start_date"):
-                filter_timestamp = datetime.strptime(self.config("start_date"), "%Y-%m-%d").isoformat()
-            else:
-                filter_timestamp = datetime(2000,1,1).isoformat()
-
-            params["filter"] = f"greater-than({self.replication_key},{filter_timestamp})"
 
         return params
 

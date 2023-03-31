@@ -8,7 +8,7 @@
             ]
         },
         "updated_at": {
-            "description": "Timestamp when the campaign was updated",
+            "description": "The datetime when the campaign was last updated by a user or the system",
             "format": "date-time",
             "type": [
                 "string",
@@ -32,7 +32,7 @@
                     ]
                 },
                 "status": {
-                    "description": "The campaign status",
+                    "description": "The current status of the campaign",
                     "type": [
                         "string",
                         "null"
@@ -46,21 +46,21 @@
                     ]
                 },
                 "channel": {
-                    "description": "The campaign channel",
+                    "description": "The type of campaign",
                     "type": [
                         "string",
                         "null"
                     ]
                 },
                 "message": {
-                    "description": "The campaign message (id?)",
+                    "description": "The id of the message associated with the campaign",
                     "type": [
                         "string",
                         "null"
                     ]
                 },
                 "created_at": {
-                    "description": "Timestamp when the campaign was created",
+                    "description": "The datetime when the campaign was created",
                     "format": "date-time",
                     "type": [
                         "string",
@@ -68,7 +68,7 @@
                     ]
                 },
                 "scheduled_at": {
-                    "description": "Timestamp when the campaign was scheduled",
+                    "description": "The datetime when the campaign was scheduled for future sending",
                     "format": "date-time",
                     "type": [
                         "string",
@@ -76,7 +76,7 @@
                     ]
                 },
                 "updated_at": {
-                    "description": "Timestamp when the campaign was updated",
+                    "description": "The datetime when the campaign was last updated by a user or the system",
                     "format": "date-time",
                     "type": [
                         "string",
@@ -84,7 +84,7 @@
                     ]
                 },
                 "send_time": {
-                    "description": "The campaign time when the campaign was sent",
+                    "description": "The datetime when the campaign will be / was sent or None if not yet scheduled by a send_job",
                     "type": [
                         "string",
                         "null"
