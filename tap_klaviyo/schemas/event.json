@@ -1,0 +1,83 @@
+{
+    "properties": {
+        "name": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "id": {
+            "description": "The event ID",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "type": {
+            "description": "The event type",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "datetime": {
+            "description": "Event timestamp in ISO 8601 format (YYYY-MM-DDTHH:MM:SS.mmmmmm)",
+            "format": "date-time",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "attributes": {
+            "properties": {
+                "metric_id": {
+                    "description": "The metric ID",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "profile_id": {
+                    "description": "Profile ID of the associated profile, if available",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "timestamp": {
+                    "description": "Event timestamp in seconds",
+                    "type": [
+                        "integer",
+                        "null"
+                    ]
+                },
+                "event_properties": {
+                    "description": "Event properties, can include attribution data, identifiers and extra properties",
+                    "type": [
+                        "null",
+                        "object"
+                    ]
+                },
+                "datetime": {
+                    "description": "Event timestamp in ISO 8601 format (YYYY-MM-DDTHH:MM:SS.mmmmmm)",
+                    "format": "date-time",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "uuid": {
+                    "description": "A unique identifier for the event, this can be used as a cursor in pagination",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "type": [
+                "object",
+                "null"
+            ]
+        }
+    }
+}
