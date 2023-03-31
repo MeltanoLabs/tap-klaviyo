@@ -159,7 +159,7 @@ class MetricsStream(KlaviyoStream):
     name = "metrics"
     path = "/metrics"
     primary_keys = ["id"]
-    replication_key = "updated"
+    replication_key = None
     schema_filepath = SCHEMAS_DIR / "metrics.json"
 
     def get_url_params(
