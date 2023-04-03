@@ -189,3 +189,50 @@ class MetricsStream(KlaviyoStream):
     def post_process(self, row: dict, context: dict | None = None) -> dict | None:
         row["updated"] = row["attributes"]["updated"]
         return row
+
+class ListsStream(KlaviyoStream):
+    """Define custom stream."""
+
+    name = "lists"
+    path = "/lists"
+    primary_keys = ["id"]
+    replication_key = "updated"
+    schema_filepath = SCHEMAS_DIR / "lists.json"
+
+    def get_url_params(
+        self,
+        context: dict | None,
+        next_page_token: Any | None,
+    ) -> dict[str, Any]:
+        """Return a dictionary of values to be used in URL parameterization.
+
+        Args:
+            context: The stream context.
+            next_page_token: The next page index or value.
+
+        Returns:
+            A dictionary of URL query parameters.
+        """
+
+        params: dict = {
+            **self.base_url_params,
+        }
+
+        if next_page_token:
+            params["page[cursor]"] = next_page_token
+
+        if self.replication_key:
+            if self.get_starting_timestamp(context):
+                filter_timestamp = self.get_starting_timestamp(context)
+            elif self.config.get("start_date"):
+                filter_timestamp = datetime.strptime(self.config("start_date"), "%Y-%m-%d").isoformat()
+            else:
+                filter_timestamp = datetime(2000,1,1).isoformat()
+
+            params["filter"] = f"greater-than({self.replication_key},{filter_timestamp})"
+
+        return params
+
+    def post_process(self, row: dict, context: dict | None = None) -> dict | None:
+        row["updated"] = row["attributes"]["updated"]
+        return row

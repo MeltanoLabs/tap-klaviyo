@@ -48,6 +48,20 @@
                                 "string",
                                 "null"
                             ]
+                        },
+                        "name": {
+                            "description": "The name of the integration",
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "category": {
+                            "description": "The category of the integration",
+                            "type": [
+                                "string",
+                                "null"
+                            ]
                         }
                     },
                     "type": [
