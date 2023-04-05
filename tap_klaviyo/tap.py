@@ -5,9 +5,7 @@ from __future__ import annotations
 from singer_sdk import Tap
 from singer_sdk import typing as th  # JSON schema typing helpers
 
-# TODO: Import your custom stream types here:
 from tap_klaviyo import streams
-
 
 class TapKlaviyo(Tap):
     """Klaviyo tap class."""
@@ -47,7 +45,7 @@ class TapKlaviyo(Tap):
             streams.CampaignsStream(self),
             streams.MetricsStream(self),
             streams.ProfilesStream(self),
-            streams.ListsStream(self)
+            streams.ListsStream(self),
             streams.FlowsStream(self),
         ]
 

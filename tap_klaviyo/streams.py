@@ -242,22 +242,7 @@ class FlowsStream(KlaviyoStream):
     name = "flows"
     path = "/flows"
     primary_keys = ["id"]
-    replication_key = "updated"
-    # schema_filepath = SCHEMAS_DIR / "profiles.json"
-
-    schema = th.PropertiesList(
-        th.Property("id", th.StringType, required=True),
-        th.Property("type", th.StringType, required=True),
-        th.Property("updated", th.DateTimeType, required=False),
-        th.Property("attributes", th.ObjectType(
-            th.Property("name", th.StringType, required=False),
-            th.Property("status", th.StringType, required=False),
-            th.Property("archived", th.BooleanType, required=False),
-            th.Property("created", th.DateTimeType, required=False),
-            th.Property("updated", th.DateTimeType, required=False),
-            th.Property("trigger_type", th.StringType, required=False),
-        ), required=True)
-    ).to_dict()
+    schema_filepath = SCHEMAS_DIR / "flows.json"
 
     def get_url_params(
         self,
@@ -279,18 +264,4 @@ class FlowsStream(KlaviyoStream):
         if next_page_token:
             params["page[cursor]"] = next_page_token
 
-        if self.replication_key:
-            if self.get_starting_timestamp(context):
-                filter_timestamp = self.get_starting_timestamp(context)
-            elif self.config.get("start_date"):
-                filter_timestamp = datetime.strptime(self.config("start_date"), "%Y-%m-%d").isoformat()
-            else:
-                filter_timestamp = datetime(2000,1,1).isoformat()
-            
-            params["filter"] = f"greater-than({self.replication_key},{filter_timestamp})"
-
         return params
-
-    def post_process(self, row: dict, context: dict | None = None) -> dict | None:
-        row["updated"] = row["attributes"]["updated"]
-        return row
