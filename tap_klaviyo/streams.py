@@ -236,3 +236,34 @@ class ListsStream(KlaviyoStream):
     def post_process(self, row: dict, context: dict | None = None) -> dict | None:
         row["updated"] = row["attributes"]["updated"]
         return row
+    
+class FlowsStream(KlaviyoStream):
+    """Define custom stream."""
+
+    name = "flows"
+    path = "/flows"
+    primary_keys = ["id"]
+    replication_key = None
+    schema_filepath = SCHEMAS_DIR / "flows.json"
+
+    def get_url_params(
+        self,
+        context: dict | None,
+        next_page_token: Any | None,
+    ) -> dict[str, Any]:
+        """Return a dictionary of values to be used in URL parameterization.
+        Args:
+            context: The stream context.
+            next_page_token: The next page index or value.
+        Returns:
+            A dictionary of URL query parameters.
+        """
+
+        params: dict = {
+            **self.base_url_params,
+        }
+
+        if next_page_token:
+            params["page[cursor]"] = next_page_token
+
+        return params

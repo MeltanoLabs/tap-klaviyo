@@ -1,0 +1,63 @@
+{
+    "properties": {
+        "id": {
+            "type": [
+                "string"
+            ]
+        },
+        "type": {
+            "type": [
+                "string"
+            ]
+        },
+        "attributes": {
+            "properties": {
+                "name": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "status": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "archived": {
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "created": {
+                    "format": "date-time",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "updated": {
+                    "format": "date-time",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "trigger_type": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "type": "object"
+        }
+    },
+    "type": "object",
+    "required": [
+        "id",
+        "type",
+        "attributes"
+    ]
+}
