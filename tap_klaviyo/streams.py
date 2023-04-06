@@ -236,12 +236,14 @@ class ListsStream(KlaviyoStream):
     def post_process(self, row: dict, context: dict | None = None) -> dict | None:
         row["updated"] = row["attributes"]["updated"]
         return row
+    
 class FlowsStream(KlaviyoStream):
     """Define custom stream."""
 
     name = "flows"
     path = "/flows"
     primary_keys = ["id"]
+    replication_key = None
     schema_filepath = SCHEMAS_DIR / "flows.json"
 
     def get_url_params(
