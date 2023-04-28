@@ -173,13 +173,19 @@
                     ]
                 },
                 "properties": {
-                    "properties": {},
                     "description": "An object containing key/value pairs for any custom properties assigned to this profile",
-                    "type": [
-                        "object",
-                        "null"
-                    ],
-                    "additionalProperties": true
+                    "patternProperties": {
+                        "^.*$": {
+                          "anyOf": [
+                            {"type": "object"},
+                            {"type": "string"},
+                            {"type": "number"},
+                            {"type": "boolean"},
+                            {"type": "null"}
+                          ]
+                        }
+                      },
+                    "additionalProperties": false
                 },
                 "subscriptions": {
                     "properties": {

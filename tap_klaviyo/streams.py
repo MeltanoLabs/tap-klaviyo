@@ -233,10 +233,55 @@ class ListsStream(KlaviyoStream):
 
         return params
 
+    def get_child_context(self, record: dict, context: dict | None) -> dict:
+        context = context or {}
+        context["list_id"] = record["id"]
+
+        return super().get_child_context(record, context)
+
     def post_process(self, row: dict, context: dict | None = None) -> dict | None:
         row["updated"] = row["attributes"]["updated"]
         return row
     
+class ListPersonStream(KlaviyoStream):
+    """Define custom stream."""
+
+    name = "listperson"
+    path = "/lists/{list_id}/relationships/profiles/"
+    primary_keys = ["id"]
+    replication_key = None
+    parent_stream_type = ListsStream
+    schema_filepath = SCHEMAS_DIR / "listperson.json"
+
+    def get_url_params(
+        self,
+        context: dict | None,
+        next_page_token: Any | None,
+    ) -> dict[str, Any]:
+        """Return a dictionary of values to be used in URL parameterization.
+
+        Args:
+            context: The stream context.
+            next_page_token: The next page index or value.
+
+        Returns:
+            A dictionary of URL query parameters.
+        """
+
+        params: dict = {
+            **self.base_url_params,
+        }
+
+        if next_page_token:
+            params["page[cursor]"] = next_page_token
+
+        return params
+    
+    def post_process(self, row: dict, context: dict | None = None) -> dict | None:
+        row["list_id"] = context["list_id"]
+        return row
+    
+
 class FlowsStream(KlaviyoStream):
     """Define custom stream."""
 

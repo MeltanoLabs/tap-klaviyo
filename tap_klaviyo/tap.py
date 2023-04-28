@@ -46,6 +46,7 @@ class TapKlaviyo(Tap):
             streams.MetricsStream(self),
             streams.ProfilesStream(self),
             streams.ListsStream(self),
+            streams.ListPersonStream(self),
             streams.FlowsStream(self),
             streams.TemplatesStream(self),
         ]
