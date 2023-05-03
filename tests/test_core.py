@@ -6,9 +6,8 @@ from singer_sdk.testing import get_tap_test_class
 
 from tap_klaviyo.tap import TapKlaviyo
 
-
 SAMPLE_CONFIG = {
-    "start_date": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d")
+    "start_date": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d"),
     # TODO: Initialize minimal tap config
 }
 
@@ -16,7 +15,7 @@ SAMPLE_CONFIG = {
 # Run standard built-in tap tests from the SDK:
 TestTapKlaviyo = get_tap_test_class(
     tap_class=TapKlaviyo,
-    config=SAMPLE_CONFIG
+    config=SAMPLE_CONFIG,
 )
 
 

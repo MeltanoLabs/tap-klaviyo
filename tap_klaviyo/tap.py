@@ -7,6 +7,7 @@ from singer_sdk import typing as th  # JSON schema typing helpers
 
 from tap_klaviyo import streams
 
+
 class TapKlaviyo(Tap):
     """Klaviyo tap class."""
 

@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
+import typing as t
 from pathlib import Path
-from datetime import datetime
-
-from singer_sdk import typing as th  # JSON Schema typing helpers
 
 from tap_klaviyo.client import KlaviyoStream
 
 SCHEMAS_DIR = Path(__file__).parent / Path("./schemas")
+
 
 class EventsStream(KlaviyoStream):
     """Define custom stream."""
@@ -23,8 +22,8 @@ class EventsStream(KlaviyoStream):
     def get_url_params(
         self,
         context: dict | None,
-        next_page_token: Any | None,
-    ) -> dict[str, Any]:
+        next_page_token: t.Any | None,
+    ) -> dict[str, t.Any]:
         """Return a dictionary of values to be used in URL parameterization.
 
         Args:
@@ -34,29 +33,21 @@ class EventsStream(KlaviyoStream):
         Returns:
             A dictionary of URL query parameters.
         """
-
-        params: dict = {
-            **self.base_url_params,
-        }
+        params = super().get_url_params(context, next_page_token)
 
         if next_page_token:
             params["page[cursor]"] = next_page_token
 
-        if self.replication_key:
-            if self.get_starting_timestamp(context):
-                filter_timestamp = self.get_starting_timestamp(context)
-            elif self.config.get("start_date"):
-                filter_timestamp = datetime.strptime(self.config("start_date"), "%Y-%m-%d").isoformat()
-            else:
-                filter_timestamp = datetime(2000,1,1).isoformat()
-
-            params["filter"] = f"greater-than({self.replication_key},{filter_timestamp})"
-
         return params
 
-    def post_process(self, row: dict, context: dict | None = None) -> dict | None:
+    def post_process(
+        self,
+        row: dict,
+        context: dict | None = None,  # noqa: ARG002
+    ) -> dict | None:
         row["datetime"] = row["attributes"]["datetime"]
         return row
+
 
 class CampaignsStream(KlaviyoStream):
     """Define custom stream."""
@@ -70,8 +61,8 @@ class CampaignsStream(KlaviyoStream):
     def get_url_params(
         self,
         context: dict | None,
-        next_page_token: Any | None,
-    ) -> dict[str, Any]:
+        next_page_token: t.Any | None,
+    ) -> dict[str, t.Any]:
         """Return a dictionary of values to be used in URL parameterization.
 
         Args:
@@ -81,27 +72,18 @@ class CampaignsStream(KlaviyoStream):
         Returns:
             A dictionary of URL query parameters.
         """
-
-        params: dict = {
-            **self.base_url_params,
-        }
+        params = super().get_url_params(context, next_page_token)
 
         if next_page_token:
             params["page[cursor]"] = next_page_token
 
-        if self.replication_key:
-            if self.get_starting_timestamp(context):
-                filter_timestamp = self.get_starting_timestamp(context)
-            elif self.config.get("start_date"):
-                filter_timestamp = datetime.strptime(self.config("start_date"), "%Y-%m-%d").isoformat()
-            else:
-                filter_timestamp = datetime(2000,1,1).isoformat()
-
-            params["filter"] = f"greater-than({self.replication_key},{filter_timestamp})"
-
         return params
 
-    def post_process(self, row: dict, context: dict | None = None) -> dict | None:
+    def post_process(
+        self,
+        row: dict,
+        context: dict | None = None,  # noqa: ARG002
+    ) -> dict | None:
         row["updated_at"] = row["attributes"]["updated_at"]
         return row
 
@@ -118,8 +100,8 @@ class ProfilesStream(KlaviyoStream):
     def get_url_params(
         self,
         context: dict | None,
-        next_page_token: Any | None,
-    ) -> dict[str, Any]:
+        next_page_token: t.Any | None,
+    ) -> dict[str, t.Any]:
         """Return a dictionary of values to be used in URL parameterization.
 
         Args:
@@ -129,29 +111,21 @@ class ProfilesStream(KlaviyoStream):
         Returns:
             A dictionary of URL query parameters.
         """
-
-        params: dict = {
-            **self.base_url_params,
-        }
+        params = super().get_url_params(context, next_page_token)
 
         if next_page_token:
             params["page[cursor]"] = next_page_token
 
-        if self.replication_key:
-            if self.get_starting_timestamp(context):
-                filter_timestamp = self.get_starting_timestamp(context)
-            elif self.config.get("start_date"):
-                filter_timestamp = datetime.strptime(self.config("start_date"), "%Y-%m-%d").isoformat()
-            else:
-                filter_timestamp = datetime(2000,1,1).isoformat()
-
-            params["filter"] = f"greater-than({self.replication_key},{filter_timestamp})"
-
         return params
 
-    def post_process(self, row: dict, context: dict | None = None) -> dict | None:
+    def post_process(
+        self,
+        row: dict,
+        context: dict | None = None,  # noqa: ARG002
+    ) -> dict | None:
         row["updated"] = row["attributes"]["updated"]
         return row
+
 
 class MetricsStream(KlaviyoStream):
     """Define custom stream."""
@@ -165,8 +139,8 @@ class MetricsStream(KlaviyoStream):
     def get_url_params(
         self,
         context: dict | None,
-        next_page_token: Any | None,
-    ) -> dict[str, Any]:
+        next_page_token: t.Any | None,
+    ) -> dict[str, t.Any]:
         """Return a dictionary of values to be used in URL parameterization.
 
         Args:
@@ -176,19 +150,21 @@ class MetricsStream(KlaviyoStream):
         Returns:
             A dictionary of URL query parameters.
         """
-
-        params: dict = {
-            **self.base_url_params,
-        }
+        params = super().get_url_params(context, next_page_token)
 
         if next_page_token:
             params["page[cursor]"] = next_page_token
 
         return params
 
-    def post_process(self, row: dict, context: dict | None = None) -> dict | None:
+    def post_process(
+        self,
+        row: dict,
+        context: dict | None = None,  # noqa: ARG002
+    ) -> dict | None:
         row["updated"] = row["attributes"]["updated"]
         return row
+
 
 class ListsStream(KlaviyoStream):
     """Define custom stream."""
@@ -202,8 +178,8 @@ class ListsStream(KlaviyoStream):
     def get_url_params(
         self,
         context: dict | None,
-        next_page_token: Any | None,
-    ) -> dict[str, Any]:
+        next_page_token: t.Any | None,
+    ) -> dict[str, t.Any]:
         """Return a dictionary of values to be used in URL parameterization.
 
         Args:
@@ -213,23 +189,10 @@ class ListsStream(KlaviyoStream):
         Returns:
             A dictionary of URL query parameters.
         """
-
-        params: dict = {
-            **self.base_url_params,
-        }
+        params = super().get_url_params(context, next_page_token)
 
         if next_page_token:
             params["page[cursor]"] = next_page_token
-
-        if self.replication_key:
-            if self.get_starting_timestamp(context):
-                filter_timestamp = self.get_starting_timestamp(context)
-            elif self.config.get("start_date"):
-                filter_timestamp = datetime.strptime(self.config("start_date"), "%Y-%m-%d").isoformat()
-            else:
-                filter_timestamp = datetime(2000,1,1).isoformat()
-
-            params["filter"] = f"greater-than({self.replication_key},{filter_timestamp})"
 
         return params
 
@@ -239,10 +202,15 @@ class ListsStream(KlaviyoStream):
 
         return super().get_child_context(record, context)
 
-    def post_process(self, row: dict, context: dict | None = None) -> dict | None:
+    def post_process(
+        self,
+        row: dict,
+        context: dict | None = None,  # noqa: ARG002
+    ) -> dict | None:
         row["updated"] = row["attributes"]["updated"]
         return row
-    
+
+
 class ListPersonStream(KlaviyoStream):
     """Define custom stream."""
 
@@ -256,8 +224,8 @@ class ListPersonStream(KlaviyoStream):
     def get_url_params(
         self,
         context: dict | None,
-        next_page_token: Any | None,
-    ) -> dict[str, Any]:
+        next_page_token: t.Any | None,
+    ) -> dict[str, t.Any]:
         """Return a dictionary of values to be used in URL parameterization.
 
         Args:
@@ -267,20 +235,17 @@ class ListPersonStream(KlaviyoStream):
         Returns:
             A dictionary of URL query parameters.
         """
-
-        params: dict = {
-            **self.base_url_params,
-        }
+        params = super().get_url_params(context, next_page_token)
 
         if next_page_token:
             params["page[cursor]"] = next_page_token
 
         return params
-    
-    def post_process(self, row: dict, context: dict | None = None) -> dict | None:
+
+    def post_process(self, row: dict, context: dict) -> dict | None:
         row["list_id"] = context["list_id"]
         return row
-    
+
 
 class FlowsStream(KlaviyoStream):
     """Define custom stream."""
@@ -294,26 +259,25 @@ class FlowsStream(KlaviyoStream):
     def get_url_params(
         self,
         context: dict | None,
-        next_page_token: Any | None,
-    ) -> dict[str, Any]:
+        next_page_token: t.Any | None,
+    ) -> dict[str, t.Any]:
         """Return a dictionary of values to be used in URL parameterization.
+
         Args:
             context: The stream context.
             next_page_token: The next page index or value.
+
         Returns:
             A dictionary of URL query parameters.
         """
-
-        params: dict = {
-            **self.base_url_params,
-        }
+        params = super().get_url_params(context, next_page_token)
 
         if next_page_token:
             params["page[cursor]"] = next_page_token
 
         return params
-    
-       
+
+
 class TemplatesStream(KlaviyoStream):
     """Define custom stream."""
 
@@ -326,35 +290,28 @@ class TemplatesStream(KlaviyoStream):
     def get_url_params(
         self,
         context: dict | None,
-        next_page_token: Any | None,
-    ) -> dict[str, Any]:
+        next_page_token: t.Any | None,
+    ) -> dict[str, t.Any]:
         """Return a dictionary of values to be used in URL parameterization.
+
         Args:
             context: The stream context.
             next_page_token: The next page index or value.
+
         Returns:
             A dictionary of URL query parameters.
         """
-
-        params: dict = {
-            **self.base_url_params,
-        }
+        params = super().get_url_params(context, next_page_token)
 
         if next_page_token:
             params["page[cursor]"] = next_page_token
 
-        if self.replication_key:
-            if self.get_starting_timestamp(context):
-                filter_timestamp = self.get_starting_timestamp(context)
-            elif self.config.get("start_date"):
-                filter_timestamp = datetime.strptime(self.config("start_date"), "%Y-%m-%d").isoformat()
-            else:
-                filter_timestamp = datetime(2000,1,1).isoformat()
-
-            params["filter"] = f"greater-than({self.replication_key},{filter_timestamp})"
-
         return params
 
-    def post_process(self, row: dict, context: dict | None = None) -> dict | None:
+    def post_process(
+        self,
+        row: dict,
+        context: dict | None = None,  # noqa: ARG002
+    ) -> dict | None:
         row["updated"] = row["attributes"]["updated"]
         return row
