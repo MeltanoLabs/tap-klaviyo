@@ -7,11 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from singer_sdk.authenticators import APIKeyAuthenticator
-from singer_sdk.helpers.jsonpath import extract_jsonpath
 from singer_sdk.streams import RESTStream
-
-if t.TYPE_CHECKING:
-    import requests
 
 SCHEMAS_DIR = Path(__file__).parent / Path("./schemas")
 UTC = timezone.utc
