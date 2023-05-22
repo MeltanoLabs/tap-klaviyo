@@ -12,6 +12,8 @@ from singer_sdk.pagination import BaseHATEOASPaginator
 from singer_sdk.streams import RESTStream
 
 if t.TYPE_CHECKING:
+    from urllib.parse import ParseResult
+
     import requests
 
 SCHEMAS_DIR = Path(__file__).parent / Path("./schemas")
@@ -79,7 +81,7 @@ class KlaviyoStream(RESTStream):
     def get_url_params(
         self,
         context: dict | None,
-        next_page_token: str | None,
+        next_page_token: ParseResult | None,
     ) -> dict[str, t.Any]:
         # TODO: Add global params here
         params: dict[str, t.Any] = {}
