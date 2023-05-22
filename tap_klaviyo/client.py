@@ -11,6 +11,9 @@ from singer_sdk.authenticators import APIKeyAuthenticator
 from singer_sdk.pagination import BaseHATEOASPaginator
 from singer_sdk.streams import RESTStream
 
+if t.TYPE_CHECKING:
+    import requests
+
 SCHEMAS_DIR = Path(__file__).parent / Path("./schemas")
 UTC = timezone.utc
 DEFAULT_START_DATE = datetime(2000, 1, 1, tzinfo=UTC).isoformat()
