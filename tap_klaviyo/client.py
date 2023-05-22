@@ -83,7 +83,6 @@ class KlaviyoStream(RESTStream):
         context: dict | None,
         next_page_token: ParseResult | None,
     ) -> dict[str, t.Any]:
-        # TODO: Add global params here
         params: dict[str, t.Any] = {}
 
         if next_page_token:
