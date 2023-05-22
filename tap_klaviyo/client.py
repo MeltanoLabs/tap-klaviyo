@@ -8,8 +8,8 @@ from pathlib import Path
 from urllib.parse import parse_qsl
 
 from singer_sdk.authenticators import APIKeyAuthenticator
-from singer_sdk.streams import RESTStream
 from singer_sdk.pagination import BaseHATEOASPaginator
+from singer_sdk.streams import RESTStream
 
 SCHEMAS_DIR = Path(__file__).parent / Path("./schemas")
 UTC = timezone.utc
@@ -27,10 +27,12 @@ def _isodate_from_date_string(date_string: str) -> str:
     """
     return datetime.strptime(date_string, "%Y-%m-%d").replace(tzinfo=UTC).isoformat()
 
+
 class KlaviyoPaginator(BaseHATEOASPaginator):
     def get_next_url(self, response, previous_token=None):
         data = response.json()
         return data.get("links").get("next")
+
 
 class KlaviyoStream(RESTStream):
     """Klaviyo stream class."""
@@ -72,7 +74,7 @@ class KlaviyoStream(RESTStream):
     def get_url_params(
         self,
         context: dict | None,
-        next_page_token: str | None,  # noqa: ARG002
+        next_page_token: str | None,
     ) -> dict[str, t.Any]:
         # TODO: Add global params here
         params = {}
