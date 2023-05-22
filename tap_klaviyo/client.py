@@ -82,7 +82,7 @@ class KlaviyoStream(RESTStream):
         next_page_token: str | None,
     ) -> dict[str, t.Any]:
         # TODO: Add global params here
-        params = {}
+        params: dict[str, t.Any] = {}
 
         if next_page_token:
             params.update(parse_qsl(next_page_token.query))
