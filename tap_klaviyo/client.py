@@ -29,7 +29,9 @@ def _isodate_from_date_string(date_string: str) -> str:
 
 
 class KlaviyoPaginator(BaseHATEOASPaginator):
-    def get_next_url(self, response, previous_token=None):
+    """HATEOAS paginator for the Klaviyo API."""
+
+    def get_next_url(self, response: requests.Response) -> str:
         data = response.json()
         return data.get("links").get("next")
 
