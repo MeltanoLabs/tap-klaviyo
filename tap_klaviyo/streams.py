@@ -34,10 +34,6 @@ class EventsStream(KlaviyoStream):
             A dictionary of URL query parameters.
         """
         params = super().get_url_params(context, next_page_token)
-
-        if next_page_token:
-            params["page[cursor]"] = next_page_token
-
         return params
 
     def post_process(
@@ -73,10 +69,6 @@ class CampaignsStream(KlaviyoStream):
             A dictionary of URL query parameters.
         """
         params = super().get_url_params(context, next_page_token)
-
-        if next_page_token:
-            params["page[cursor]"] = next_page_token
-
         return params
 
     def post_process(
@@ -112,10 +104,6 @@ class ProfilesStream(KlaviyoStream):
             A dictionary of URL query parameters.
         """
         params = super().get_url_params(context, next_page_token)
-
-        if next_page_token:
-            params["page[cursor]"] = next_page_token
-
         return params
 
     def post_process(
@@ -151,10 +139,6 @@ class MetricsStream(KlaviyoStream):
             A dictionary of URL query parameters.
         """
         params = super().get_url_params(context, next_page_token)
-
-        if next_page_token:
-            params["page[cursor]"] = next_page_token
-
         return params
 
     def post_process(
@@ -190,10 +174,6 @@ class ListsStream(KlaviyoStream):
             A dictionary of URL query parameters.
         """
         params = super().get_url_params(context, next_page_token)
-
-        if next_page_token:
-            params["page[cursor]"] = next_page_token
-
         return params
 
     def get_child_context(self, record: dict, context: dict | None) -> dict:
@@ -236,10 +216,6 @@ class ListPersonStream(KlaviyoStream):
             A dictionary of URL query parameters.
         """
         params = super().get_url_params(context, next_page_token)
-
-        if next_page_token:
-            params["page[cursor]"] = next_page_token
-
         return params
 
     def post_process(self, row: dict, context: dict) -> dict | None:
@@ -271,10 +247,6 @@ class FlowsStream(KlaviyoStream):
             A dictionary of URL query parameters.
         """
         params = super().get_url_params(context, next_page_token)
-
-        if next_page_token:
-            params["page[cursor]"] = next_page_token
-
         return params
 
 
@@ -302,10 +274,6 @@ class TemplatesStream(KlaviyoStream):
             A dictionary of URL query parameters.
         """
         params = super().get_url_params(context, next_page_token)
-
-        if next_page_token:
-            params["page[cursor]"] = next_page_token
-
         return params
 
     def post_process(

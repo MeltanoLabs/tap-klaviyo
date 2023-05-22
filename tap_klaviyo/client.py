@@ -5,9 +5,11 @@ from __future__ import annotations
 import typing as t
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import parse_qsl
 
 from singer_sdk.authenticators import APIKeyAuthenticator
 from singer_sdk.streams import RESTStream
+from singer_sdk.pagination import BaseHATEOASPaginator
 
 SCHEMAS_DIR = Path(__file__).parent / Path("./schemas")
 UTC = timezone.utc
@@ -25,13 +27,16 @@ def _isodate_from_date_string(date_string: str) -> str:
     """
     return datetime.strptime(date_string, "%Y-%m-%d").replace(tzinfo=UTC).isoformat()
 
+class KlaviyoPaginator(BaseHATEOASPaginator):
+    def get_next_url(self, response, previous_token=None):
+        data = response.json()
+        return data.get("links").get("next")
 
 class KlaviyoStream(RESTStream):
     """Klaviyo stream class."""
 
     url_base = "https://a.klaviyo.com/api"
     records_jsonpath = "$[data][*]"
-    next_page_token_jsonpath = "$[links].next"  # noqa: S105
 
     @property
     def authenticator(self) -> APIKeyAuthenticator:
@@ -61,6 +66,9 @@ class KlaviyoStream(RESTStream):
             headers["revision"] = self.config.get("revision")
         return headers
 
+    def get_new_paginator(self) -> BaseHATEOASPaginator:
+        return KlaviyoPaginator()
+
     def get_url_params(
         self,
         context: dict | None,
@@ -68,6 +76,9 @@ class KlaviyoStream(RESTStream):
     ) -> dict[str, t.Any]:
         # TODO: Add global params here
         params = {}
+
+        if next_page_token:
+            params.update(parse_qsl(next_page_token.query))
 
         if self.replication_key:
             if self.get_starting_timestamp(context):
