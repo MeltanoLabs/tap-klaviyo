@@ -8,7 +8,6 @@ from tap_klaviyo.tap import TapKlaviyo
 
 SAMPLE_CONFIG = {
     "start_date": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d"),
-    # TODO: Initialize minimal tap config
 }
 
 
@@ -17,6 +16,3 @@ TestTapKlaviyo = get_tap_test_class(
     tap_class=TapKlaviyo,
     config=SAMPLE_CONFIG,
 )
-
-
-# TODO: Create additional tests as appropriate for your tap.

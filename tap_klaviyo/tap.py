@@ -13,7 +13,6 @@ class TapKlaviyo(Tap):
 
     name = "tap-klaviyo"
 
-    # TODO: Update this section with the actual config values you expect:
     config_jsonschema = th.PropertiesList(
         th.Property(
             "auth_token",
