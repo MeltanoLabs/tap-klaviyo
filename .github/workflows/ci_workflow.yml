@@ -3,8 +3,10 @@
 
 name: Test tap-klaviyo
 
-# TODO: Re-enable CI/CD testing
-# on: [push]
+on:
+  push:
+    branches: [main]
+  pull_request: {}
 
 jobs:
   pytest:
