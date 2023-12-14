@@ -30,6 +30,10 @@ class EventsStream(KlaviyoStream):
         row["datetime"] = row["attributes"]["datetime"]
         return row
 
+    @property
+    def is_sorted(self) -> bool:
+        return True
+
 
 class CampaignsStream(KlaviyoStream):
     """Define custom stream."""
@@ -73,6 +77,10 @@ class CampaignsStream(KlaviyoStream):
         row["updated_at"] = row["attributes"]["updated_at"]
         return row
 
+    @property
+    def is_sorted(self) -> bool:
+        return True
+
 
 class ProfilesStream(KlaviyoStream):
     """Define custom stream."""
@@ -90,6 +98,10 @@ class ProfilesStream(KlaviyoStream):
     ) -> dict | None:
         row["updated"] = row["attributes"]["updated"]
         return row
+
+    @property
+    def is_sorted(self) -> bool:
+        return True
 
 
 class MetricsStream(KlaviyoStream):
@@ -175,3 +187,7 @@ class TemplatesStream(KlaviyoStream):
     ) -> dict | None:
         row["updated"] = row["attributes"]["updated"]
         return row
+
+    @property
+    def is_sorted(self) -> bool:
+        return True
