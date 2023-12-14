@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
+import typing as t
 from pathlib import Path
 
 from tap_klaviyo.client import KlaviyoStream
+
+if t.TYPE_CHECKING:
+    from urllib.parse import ParseResult
 
 SCHEMAS_DIR = Path(__file__).parent / Path("./schemas")
 
@@ -39,6 +43,31 @@ class CampaignsStream(KlaviyoStream):
     primary_keys = ["id"]
     replication_key = "updated_at"
     schema_filepath = SCHEMAS_DIR / "campaigns.json"
+
+    @property
+    def partitions(self) -> list[dict] | None:
+        return [
+            {
+                "filter": "equals(messages.channel,'email')",
+            },
+            {
+                "filter": "equals(messages.channel,'sms')",
+            },
+        ]
+
+    def get_url_params(
+        self,
+        context: dict | None,
+        next_page_token: ParseResult | None,
+    ) -> dict[str, t.Any]:
+        url_params = super().get_url_params(context, next_page_token)
+
+        # Apply channel filters
+        if context:
+            parent_filter = url_params["filter"]
+            url_params["filter"] = f"and({parent_filter},{context['filter']})"
+
+        return url_params
 
     def post_process(
         self,
@@ -106,7 +135,7 @@ class ListsStream(KlaviyoStream):
         context = context or {}
         context["list_id"] = record["id"]
 
-        return super().get_child_context(record, context)
+        return super().get_child_context(record, context)  # type: ignore[no-any-return]
 
     def post_process(
         self,

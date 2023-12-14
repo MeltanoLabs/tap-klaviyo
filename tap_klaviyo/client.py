@@ -38,7 +38,7 @@ class KlaviyoPaginator(BaseHATEOASPaginator):
 
     def get_next_url(self, response: requests.Response) -> str:
         data = response.json()
-        return data.get("links").get("next")
+        return data.get("links").get("next")  # type: ignore[no-any-return]
 
 
 class KlaviyoStream(RESTStream):
@@ -99,8 +99,6 @@ class KlaviyoStream(RESTStream):
             if self.is_sorted:
                 params["sort"] = self.replication_key
 
-            params[
-                "filter"
-            ] = f"greater-than({self.replication_key},{filter_timestamp})"
+            params["filter"] = f"greater-than({self.replication_key},{filter_timestamp})"
 
         return params
