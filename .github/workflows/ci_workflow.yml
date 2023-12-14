@@ -1,31 +1,37 @@
-### A CI workflow template that runs linting and python testing
-### TODO: Modify as needed or as desired.
-
 name: Test tap-klaviyo
 
-# TODO: Re-enable CI/CD testing
-# on: [push]
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    paths:
+    - "tap_klaviyo/**"
+    - "tests/**"
+    - "pyproject.toml"
+    - "poetry.lock"
+    - ".github/workflows/ci_workflow.yml"
 
 jobs:
   pytest:
     runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
     strategy:
       matrix:
         python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install Poetry
       run: |
-        pip install poetry
+        pipx install poetry
     - name: Install dependencies
       run: |
         poetry install
     - name: Test with pytest
+      env:
+        TAP_KLAVIYO_AUTH_TOKEN: ${{ secrets.TAP_KLAVIYO_AUTH_TOKEN }}
+        TAP_KLAVIYO_REVISION: ${{ secrets.TAP_KLAVIYO_REVISION }}
       run: |
         poetry run pytest

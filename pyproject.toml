@@ -8,46 +8,42 @@ keywords = [
     "ELT",
     "Klaviyo",
 ]
-license = "Apache 2.0"
+license = "Apache-2.0"
 
 [tool.poetry.dependencies]
-python = "<3.12,>=3.7.1"
+python = ">=3.7.1"
 fs-s3fs = { version = "^1.1.1", optional = true }
-requests = "^2.31.0"
-singer-sdk = { version="^0.26.0" }
+requests = ">=2,<3"
+singer-sdk = { version="~0.34.0" }
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.3.1"
-singer-sdk = { version="^0.26.0", extras = ["testing"] }
+singer-sdk = { version="~0.34.0", extras = ["testing"] }
 
 [tool.poetry.extras]
 s3 = ["fs-s3fs"]
 
-[tool.isort]
-profile = "black"
-multi_line_output = 3 # Vertical Hanging Indent
-src_paths = "tap_klaviyo"
-
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.11"
+warn_redundant_casts = true
+warn_return_any = true
 warn_unused_configs = true
+warn_unused_ignores = true
 
 [build-system]
 requires = ["poetry-core>=1.0.8"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-# CLI declaration
 tap-klaviyo = 'tap_klaviyo.tap:TapKlaviyo.cli'
 
-[tool.black]
-max-line-length = 100
-
 [tool.ruff]
-ignore = ["ANN101", "DJ", "PD", "D102"]
 line-length = 100
-select = ["ALL"]
 target-version = "py37"
+
+[tool.ruff.lint]
+ignore = ["ANN101", "DJ", "PD", "D102", "COM812", "ISC001", "FIX002"]
+select = ["ALL"]
 
 [tool.ruff.flake8-import-conventions]
 banned-from = ["typing"]
