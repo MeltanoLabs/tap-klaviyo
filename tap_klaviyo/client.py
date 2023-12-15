@@ -96,6 +96,9 @@ class KlaviyoStream(RESTStream):
             else:
                 filter_timestamp = DEFAULT_START_DATE
 
+            if self.is_sorted:
+                params["sort"] = self.replication_key
+
             params["filter"] = f"greater-than({self.replication_key},{filter_timestamp})"
 
         return params
