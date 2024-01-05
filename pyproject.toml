@@ -11,7 +11,7 @@ keywords = [
 license = "Apache-2.0"
 
 [tool.poetry.dependencies]
-python = ">=3.7.1"
+python = ">=3.8"
 fs-s3fs = { version = "^1.1.1", optional = true }
 requests = ">=2,<3"
 singer-sdk = { version="~0.34.0" }
@@ -39,7 +39,7 @@ tap-klaviyo = 'tap_klaviyo.tap:TapKlaviyo.cli'
 
 [tool.ruff]
 line-length = 100
-target-version = "py37"
+target-version = "py38"
 
 [tool.ruff.lint]
 ignore = ["ANN101", "DJ", "PD", "D102", "COM812", "ISC001", "FIX002"]
