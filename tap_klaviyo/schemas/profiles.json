@@ -186,6 +186,7 @@
                           ]
                         }
                       },
+                    "type": [],
                     "additionalProperties": false
                 },
                 "subscriptions": {
@@ -326,6 +327,7 @@
                                             "format": "date-time",
                                             "type": [
                                                 "string",
+                                                "number",
                                                 "null"
                                             ]
                                         },
@@ -333,6 +335,7 @@
                                             "description": "The method by which the profile was subscribed to SMS marketing.",
                                             "type": [
                                                 "string",
+                                                "number",
                                                 "null"
                                             ]
                                         },
