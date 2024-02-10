@@ -188,7 +188,7 @@
                     "type": [
                         "object",
                         "null"
-                    ]
+                    ],
                     "additionalProperties": false
                 },
                 "subscriptions": {
