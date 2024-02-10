@@ -134,6 +134,7 @@
                         "latitude": {
                             "description": "Latitude coordinate. We recommend providing a precision of four decimal places.",
                             "type": [
+                                "string",
                                 "number",
                                 "null"
                             ]
@@ -141,6 +142,7 @@
                         "longitude": {
                             "description": "Longitude coordinate. We recommend providing a precision of four decimal places.",
                             "type": [
+                                "string",
                                 "number",
                                 "null"
                             ]
@@ -327,7 +329,6 @@
                                             "format": "date-time",
                                             "type": [
                                                 "string",
-                                                "number",
                                                 "null"
                                             ]
                                         },
@@ -335,7 +336,6 @@
                                             "description": "The method by which the profile was subscribed to SMS marketing.",
                                             "type": [
                                                 "string",
-                                                "number",
                                                 "null"
                                             ]
                                         },
