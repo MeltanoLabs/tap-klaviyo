@@ -189,7 +189,7 @@
                         }
                       },
                     "type": ["object", "null"],
-                    "additionalProperties": false
+                    "additionalProperties": true
                 },
                 "subscriptions": {
                     "properties": {
