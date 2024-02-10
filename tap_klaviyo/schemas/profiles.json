@@ -178,7 +178,6 @@
                         "object",
                         "null"
                     ],
-                    "additionalProperties": false
                 },
                 "subscriptions": {
                     "properties": {
