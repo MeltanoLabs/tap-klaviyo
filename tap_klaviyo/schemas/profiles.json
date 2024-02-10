@@ -188,8 +188,7 @@
                           ]
                         }
                       },
-                    "type": ["object", "null"],
-                    "additionalProperties": true
+                    "additionalProperties": false
                 },
                 "subscriptions": {
                     "properties": {
