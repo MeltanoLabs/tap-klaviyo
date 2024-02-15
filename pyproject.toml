@@ -59,3 +59,17 @@ typing = "t"
 
 [tool.ruff.pydocstyle]
 convention = "google"
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "error",
+    "ignore:Fields in transformed catalog but not in records:UserWarning",
+    "ignore:No records were available to test:UserWarning",
+    "ignore:No records returned in stream 'campaigns':UserWarning",
+    "ignore:No records returned in stream 'events':UserWarning",
+    "ignore:No records returned in stream 'flows':UserWarning",
+    "ignore:No records returned in stream 'listperson':UserWarning",
+    "ignore:No records returned in stream 'lists':UserWarning",
+    "ignore:No records returned in stream 'profiles':UserWarning",
+    "ignore:No records returned in stream 'templates':UserWarning",
+]
