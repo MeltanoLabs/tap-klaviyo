@@ -135,6 +135,7 @@
                             "description": "Latitude coordinate. We recommend providing a precision of four decimal places.",
                             "type": [
                                 "string",
+                                "number",
                                 "null"
                             ]
                         },
@@ -142,6 +143,7 @@
                             "description": "Longitude coordinate. We recommend providing a precision of four decimal places.",
                             "type": [
                                 "string",
+                                "number",
                                 "null"
                             ]
                         },
@@ -178,6 +180,7 @@
                         "^.*$": {
                           "anyOf": [
                             {"type": "object"},
+                            {"type": "array"},
                             {"type": "string"},
                             {"type": "number"},
                             {"type": "boolean"},
@@ -185,7 +188,11 @@
                           ]
                         }
                       },
-                    "additionalProperties": false
+                    "additionalProperties": false,
+                    "type": [
+                        "object",
+                        "null"
+                    ]
                 },
                 "subscriptions": {
                     "properties": {
