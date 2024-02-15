@@ -176,6 +176,19 @@
                 },
                 "properties": {
                     "description": "An object containing key/value pairs for any custom properties assigned to this profile",
+                    "patternProperties": {
+                        "^.*$": {
+                          "anyOf": [
+                            {"type": "object"},
+                            {"type": "array"},
+                            {"type": "string"},
+                            {"type": "number"},
+                            {"type": "boolean"},
+                            {"type": "null"}
+                          ]
+                        }
+                      },
+                    "additionalProperties": false,
                     "type": [
                         "object",
                         "null"
