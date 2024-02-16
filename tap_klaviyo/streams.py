@@ -100,15 +100,6 @@ class ProfilesStream(KlaviyoStream):
         row["updated"] = row["attributes"]["updated"]
         return row
 
-    def get_url_params(
-        self,
-        context: dict | None,
-        next_page_token: ParseResult | None,
-    ) -> dict[str, t.Any]:
-        url_params = super().get_url_params(context, next_page_token)
-        url_params["page[size]"] = self.max_page_size
-        return url_params
-
     @property
     def is_sorted(self) -> bool:
         return True
@@ -165,6 +156,7 @@ class ListPersonStream(KlaviyoStream):
     replication_key = None
     parent_stream_type = ListsStream
     schema_filepath = SCHEMAS_DIR / "listperson.json"
+    max_page_size = 1000
 
     def post_process(self, row: dict, context: dict) -> dict | None:
         row["list_id"] = context["list_id"]
