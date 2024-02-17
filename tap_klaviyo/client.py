@@ -46,6 +46,7 @@ class KlaviyoStream(RESTStream):
 
     url_base = "https://a.klaviyo.com/api"
     records_jsonpath = "$[data][*]"
+    max_page_size = None
 
     @property
     def authenticator(self) -> APIKeyAuthenticator:
@@ -101,4 +102,6 @@ class KlaviyoStream(RESTStream):
 
             params["filter"] = f"greater-than({self.replication_key},{filter_timestamp})"
 
+        if self.max_page_size:
+            params["page[size]"] = self.max_page_size
         return params

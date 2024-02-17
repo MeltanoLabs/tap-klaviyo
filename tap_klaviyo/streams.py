@@ -90,6 +90,7 @@ class ProfilesStream(KlaviyoStream):
     primary_keys = ["id"]
     replication_key = "updated"
     schema_filepath = SCHEMAS_DIR / "profiles.json"
+    max_page_size = 100
 
     def post_process(
         self,
@@ -155,6 +156,7 @@ class ListPersonStream(KlaviyoStream):
     replication_key = None
     parent_stream_type = ListsStream
     schema_filepath = SCHEMAS_DIR / "listperson.json"
+    max_page_size = 1000
 
     def post_process(self, row: dict, context: dict) -> dict | None:
         row["list_id"] = context["list_id"]
