@@ -7,6 +7,7 @@ from singer_sdk.testing import SuiteConfig, get_tap_test_class
 from tap_klaviyo.tap import TapKlaviyo
 
 SAMPLE_CONFIG = {
+    "revision": "2024-02-15",
     "start_date": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d"),
 }
 
