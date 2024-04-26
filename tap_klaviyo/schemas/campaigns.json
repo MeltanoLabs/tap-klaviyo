@@ -16,24 +16,16 @@
             ]
         },
         "relationships": {
-            "description": "The relationships associated with the campaign",
+            "description": "",
             "type": [
-                "string",
+                "object",
                 "null"
             ]
         },
         "links": {
-            "description": "The relationships associated with the campaign",
+            "description": "",
             "type": [
-                "string",
-                "null"
-            ]
-        },
-        "filter": {
-            "description": "The relationships associated with the campaign",
-            "type": [
-                "string",
-                "null"
+                "object"
             ]
         },
         "attributes": {
@@ -53,31 +45,27 @@
                     ]
                 },
                 "audiences": {
-                    "description": "The audiences associated with the campaign",
+                    "description": "The audiences to be included and/or excluded from the campaign",
                     "type": [
-                        "array",
-                        "null"
+                        "object"
                     ]
                 },
                 "send_options": {
-                    "description": "The send options associated with the campaign",
+                    "description": "Options to use when sending a campaign",
                     "type": [
-                        "array",
-                        "null"
+                        "object"
                     ]
                 },
                 "tracking_options": {
                     "description": "The tracking options associated with the campaign",
                     "type": [
-                        "array",
-                        "null"
+                        "object"
                     ]
                 },
                 "send_strategy": {
-                    "description": "The send strategy associated with the campaign",
+                    "description": "The send strategy the campaign will send with",
                     "type": [
-                        "array",
-                        "null"
+                        "object"
                     ]
                 },
                 "status": {

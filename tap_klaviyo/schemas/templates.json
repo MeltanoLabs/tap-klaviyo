@@ -24,8 +24,7 @@
         "links": {
             "description": "Links",
             "type": [
-                "object",
-                "null"
+                "object"
             ]
         },
         "attributes": {

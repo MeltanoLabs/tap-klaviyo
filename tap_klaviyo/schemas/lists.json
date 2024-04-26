@@ -39,7 +39,7 @@
                     ]
                 },
                 "opt_in_process": {
-                    "description": "The method by which contacts are added to the list",
+                    "description": "The opt-in process for this list. Could be either 'single_opt_in' or 'double_opt_in'.",
                     "type": [
                         "string",
                         "null"
