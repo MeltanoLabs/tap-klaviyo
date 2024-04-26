@@ -20,26 +20,20 @@
             ]
         },
         "relationships": {
-            "description": "Relationships to other resources",
+            "description": "",
             "type": [
+                "null",
                 "object"
             ]
         },
         "links": {
-            "description": "Relationships to other resources",
+            "description": "",
             "type": [
                 "object"
             ]
         },
         "attributes": {
             "properties": {
-                "anonymous_id": {
-                    "description": "A unique identify set by klaviyo to identify the profile",
-                    "type": [
-                        "string",
-                        "null"
-                    ]
-                },
                 "email": {
                     "description": "Individual's email address",
                     "type": [
@@ -188,10 +182,10 @@
                             ]
                         },
                         "ip": {
-                            "description": "Location's associated IP address",
+                            "description": "IP address",
                             "type": [
-                                "string",
-                                "null"
+                                "null",
+                                "string"
                             ]
                         }
                     },

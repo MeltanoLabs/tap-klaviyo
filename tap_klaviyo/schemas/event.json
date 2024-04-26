@@ -32,19 +32,11 @@
         "links": {
             "description": "links",
             "type": [
-                "null",
                 "object"
             ]
         },
         "attributes": {
             "properties": {
-                "profile_id": {
-                    "description": "Profile ID of the associated profile, if available",
-                    "type": [
-                        "string",
-                        "null"
-                    ]
-                },
                 "timestamp": {
                     "description": "Event timestamp in seconds",
                     "type": [
@@ -76,7 +68,7 @@
                 }
             },
             "included": {
-                "description": "included",
+                "description": "",
                 "type": [
                     "null",
                     "array"

@@ -11,17 +11,16 @@
             ]
         },
         "relationships": {
-            "description": "this",
+            "description": "",
             "type": [
                 "null",
-                "string"
+                "object"
             ]
         },
         "links": {
-            "description": "this",
+            "description": "",
             "type": [
-                "null",
-                "string"
+                "object"
             ]
         },
         "attributes": {
