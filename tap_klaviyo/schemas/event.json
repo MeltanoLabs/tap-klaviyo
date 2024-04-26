@@ -1,11 +1,5 @@
 {
     "properties": {
-        "name": {
-            "type": [
-                "string",
-                "null"
-            ]
-        },
         "id": {
             "description": "The event ID",
             "type": [
@@ -28,15 +22,21 @@
                 "null"
             ]
         },
-        "attributes": {
-            "properties": {
-                "metric_id": {
-                    "description": "The metric ID",
-                    "type": [
-                        "string",
-                        "null"
-                    ]
-                },
+        "relationships": {
+            "description": "Event relationships",
+            "type": [
+                "null",
+                "object"
+            ]
+        },
+        "links": {
+            "description": "links",
+            "type": [
+                "null",
+                "object"
+            ],
+            "attributes": {
+                "properties": {
                 "profile_id": {
                     "description": "Profile ID of the associated profile, if available",
                     "type": [
@@ -73,6 +73,13 @@
                         "null"
                     ]
                 }
+            },
+            "included": {
+                "description": "included",
+                "type": [
+                    "null",
+                    "array"
+                ]
             },
             "type": [
                 "object",
