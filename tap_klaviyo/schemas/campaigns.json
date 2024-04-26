@@ -15,6 +15,27 @@
                 "null"
             ]
         },
+        "relationships": {
+            "description": "The relationships associated with the campaign",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "links": {
+            "description": "The relationships associated with the campaign",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "filter": {
+            "description": "The relationships associated with the campaign",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
         "attributes": {
             "properties": {
                 "name": {
@@ -28,6 +49,34 @@
                     "description": "The campaign type",
                     "type": [
                         "string",
+                        "null"
+                    ]
+                },
+                "audiences": {
+                    "description": "The audiences associated with the campaign",
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "send_options": {
+                    "description": "The send options associated with the campaign",
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "tracking_options": {
+                    "description": "The tracking options associated with the campaign",
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "send_strategy": {
+                    "description": "The send strategy associated with the campaign",
+                    "type": [
+                        "array",
                         "null"
                     ]
                 },

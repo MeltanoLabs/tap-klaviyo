@@ -19,8 +19,27 @@
                 "null"
             ]
         },
+        "relationships": {
+            "description": "Relationships to other resources",
+            "type": [
+                "object"
+            ]
+        },
+        "links": {
+            "description": "Relationships to other resources",
+            "type": [
+                "object"
+            ]
+        },
         "attributes": {
             "properties": {
+                "anonymous_id": {
+                    "description": "A unique identify set by klaviyo to identify the profile",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
                 "email": {
                     "description": "Individual's email address",
                     "type": [
@@ -163,6 +182,13 @@
                         },
                         "timezone": {
                             "description": "Time zone name. We recommend using time zones from the IANA Time Zone Database.",
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "ip": {
+                            "description": "Location's associated IP address",
                             "type": [
                                 "string",
                                 "null"

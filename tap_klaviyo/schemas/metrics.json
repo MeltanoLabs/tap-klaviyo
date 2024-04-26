@@ -40,6 +40,13 @@
                         "null"
                     ]
                 },
+                "links": {
+                    "description": "Links related to the metric",
+                    "type": [
+                        "object",
+                        "null"
+                    ]
+                },
                 "integration": {
                     "properties": {
                         "id": {
@@ -60,6 +67,20 @@
                             "description": "The category of the integration",
                             "type": [
                                 "string",
+                                "null"
+                            ]
+                        },
+                        "object": {
+                            "description": "The object of the integration",
+                            "type": [
+                                "object",
+                                "null"
+                            ]
+                        },
+                        "key": {
+                            "description": "The object of the integration",
+                            "type": [
+                                "object",
                                 "null"
                             ]
                         }

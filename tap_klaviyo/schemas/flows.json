@@ -10,6 +10,20 @@
                 "string"
             ]
         },
+        "relationships": {
+            "description": "this",
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "links": {
+            "description": "this",
+            "type": [
+                "null",
+                "string"
+            ]
+        },
         "attributes": {
             "properties": {
                 "name": {
