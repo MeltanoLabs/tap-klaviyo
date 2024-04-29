@@ -10,6 +10,19 @@
                 "string"
             ]
         },
+        "relationships": {
+            "description": "",
+            "type": [
+                "null",
+                "object"
+            ]
+        },
+        "links": {
+            "description": "",
+            "type": [
+                "object"
+            ]
+        },
         "attributes": {
             "properties": {
                 "name": {
