@@ -169,7 +169,7 @@ class FlowsStream(KlaviyoStream):
     name = "flows"
     path = "/flows"
     primary_keys = ["id"]
-    replication_key = None
+    replication_key = "updated"
     schema_filepath = SCHEMAS_DIR / "flows.json"
 
     def post_process(
