@@ -172,6 +172,14 @@ class FlowsStream(KlaviyoStream):
     replication_key = None
     schema_filepath = SCHEMAS_DIR / "flows.json"
 
+    def post_process(
+        self,
+        row: dict,
+        context: dict | None = None,  # noqa: ARG002
+    ) -> dict | None:
+        row["updated"] = row["attributes"]["updated"]
+        return row
+
 
 class TemplatesStream(KlaviyoStream):
     """Define custom stream."""
