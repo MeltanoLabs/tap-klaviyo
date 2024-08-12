@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import typing as t
+from datetime import datetime
 from pathlib import Path
 
 from tap_klaviyo.client import KlaviyoStream
@@ -66,6 +67,7 @@ class CampaignsStream(KlaviyoStream):
         if context:
             parent_filter = url_params["filter"]
             url_params["filter"] = f"and({parent_filter},{context['filter']})"
+            url_params["include"] = "tags,campaign-messages"
 
         return url_params
 
@@ -80,6 +82,74 @@ class CampaignsStream(KlaviyoStream):
     @property
     def is_sorted(self) -> bool:
         return True
+
+    def get_child_context(self, record: dict, context: t.Optional[dict]) -> dict:
+        """Return a context dictionary for child streams."""
+        return {
+            "campaign_id": record["id"],
+            "campaign_status": record["attributes"]["status"],
+        }
+
+
+class CampaignValuesReportsStream(KlaviyoStream):
+    name = "campaign_values_reports"
+    path = "/campaign-values-reports"
+    rest_method = "POST"
+    primary_keys = ["id"]
+    replication_key = None
+    parent_stream_type = CampaignsStream
+    schema_filepath = SCHEMAS_DIR / "campaign_values_reports.json"
+
+    def post_process(self, row: dict, context: dict | None = None) -> dict | None:
+        row["campaign_id"] = context["campaign_id"]
+        row["campaign_status"] = context["campaign_status"]
+        row["generated_at"] = datetime.now().isoformat()
+        return row
+
+    def prepare_request_payload(
+            self,
+            context: dict | None,
+            next_page_token: t.Optional[t.Any],
+    ) -> dict | None:
+        return {
+            "data": {
+                "type": "campaign-values-report",
+                "attributes": {
+                    "statistics": [
+                        "click_rate",
+                        "click_to_open_rate",
+                        "clicks",
+                        "clicks_unique",
+                        "delivered",
+                        "delivery_rate",
+                        "open_rate",
+                        "opens",
+                        "opens_unique",
+                        "recipients",
+                        "unsubscribe_rate",
+                        "unsubscribe_uniques",
+                        "unsubscribes",
+                        ],
+                    "timeframe": {
+                        "key": "last_30_days"
+                    },
+                    "conversion_metric_id": "WcGvVS",
+                    "filter": f"equals(campaign_id,\"{context['campaign_id']}\")"
+                }
+            }
+        }
+
+    def backoff_wait_generator(self) -> t.Generator[float, None, None]:
+        def _backoff_from_headers(retriable_api_error):
+            response_headers = retriable_api_error.response.headers
+            return int(response_headers.get("Retry-After", 60))
+
+        return self.backoff_runtime(value=_backoff_from_headers)
+
+    def get_records(self, context: dict | None) -> t.Iterable[dict[str, t.Any]]:
+        # Only fetch records if the campaign has been sent
+        if context['campaign_status'] == 'Sent':
+            yield from super().get_records(context)
 
 
 class ProfilesStream(KlaviyoStream):
