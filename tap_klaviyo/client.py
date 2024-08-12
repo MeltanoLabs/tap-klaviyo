@@ -46,7 +46,7 @@ class KlaviyoStream(RESTStream):
 
     url_base = "https://a.klaviyo.com/api"
     records_jsonpath = "$[data][*]"
-    max_page_size = None
+    max_page_size: int | None = None
 
     @property
     def authenticator(self) -> APIKeyAuthenticator:
