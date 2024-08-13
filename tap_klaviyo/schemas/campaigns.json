@@ -7,6 +7,13 @@
                 "null"
             ]
         },
+        "type": {
+            "description": "The campaign type",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
         "updated_at": {
             "description": "The datetime when the campaign was last updated by a user or the system",
             "format": "date-time",
@@ -32,13 +39,6 @@
             "properties": {
                 "name": {
                     "description": "The campaign name",
-                    "type": [
-                        "string",
-                        "null"
-                    ]
-                },
-                "type": {
-                    "description": "The campaign type",
                     "type": [
                         "string",
                         "null"
@@ -79,20 +79,6 @@
                     "description": "Whether the campaign has been archived or not",
                     "type": [
                         "boolean",
-                        "null"
-                    ]
-                },
-                "channel": {
-                    "description": "The type of campaign",
-                    "type": [
-                        "string",
-                        "null"
-                    ]
-                },
-                "message": {
-                    "description": "The id of the message associated with the campaign",
-                    "type": [
-                        "string",
                         "null"
                     ]
                 },

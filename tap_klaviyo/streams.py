@@ -47,7 +47,7 @@ class CampaignsStream(KlaviyoStream):
     primary_keys = ["id"]
     replication_key = "updated_at"
     schema_filepath = SCHEMAS_DIR / "campaigns.json"
-    included_jsonpath = "$.included[*]"
+    included_jsonpath = "$[included][*]"
     included_map = {}
 
     @property
@@ -72,7 +72,7 @@ class CampaignsStream(KlaviyoStream):
         if context:
             parent_filter = url_params["filter"]
             url_params["filter"] = f"and({parent_filter},{context['filter']})"
-            url_params["include"] = "tags,campaign-messages"
+        url_params["include"] = "tags,campaign-messages"
 
         return url_params
 
@@ -149,7 +149,7 @@ class CampaignValuesReportsStream(KlaviyoStream):
                         "unsubscribes",
                         ],
                     "timeframe": {
-                        "key": "last_30_days"
+                        "key": "last_12_months"
                     },
                     "conversion_metric_id": "WcGvVS",
                     "filter": f"equals(campaign_id,\"{context['campaign_id']}\")"
