@@ -117,6 +117,7 @@ class CampaignValuesReportsStream(KlaviyoStream):
     replication_key = None
     parent_stream_type = CampaignsStream
     schema_filepath = SCHEMAS_DIR / "campaign_values_reports.json"
+    backoff_max_tries = 10
 
     def post_process(self, row: dict, context: dict | None = None) -> dict | None:
         row["campaign_id"] = context["campaign_id"]
