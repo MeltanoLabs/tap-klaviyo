@@ -147,3 +147,5 @@ dmypy.json
 
 # Built Visual Studio Code Extensions
 *.vsix
+
+config.json

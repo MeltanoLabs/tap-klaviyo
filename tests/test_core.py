@@ -1,16 +1,15 @@
 """Tests standard tap features using the built-in SDK tests library."""
-
-import datetime
+import json
+from pathlib import Path
 
 from singer_sdk.testing import SuiteConfig, get_tap_test_class
 
 from tap_klaviyo.tap import TapKlaviyo
 
-SAMPLE_CONFIG = {
-    "revision": "2024-02-15",
-    "start_date": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d"),
-}
-
+current_path = Path(__file__).resolve().parent
+config_path = current_path / ".." / "config.json"
+# create a config object to run the core tests
+SAMPLE_CONFIG = json.loads(config_path.read_text())
 
 # Run standard built-in tap tests from the SDK:
 TestTapKlaviyo = get_tap_test_class(
@@ -21,6 +20,7 @@ TestTapKlaviyo = get_tap_test_class(
         # https://github.com/MeltanoLabs/tap-klaviyo/pull/34
         ignore_no_records_for_streams=[
             "campaigns",
+            "campaign_values_reports"
             "events",
             "flows",
             "listperson",
