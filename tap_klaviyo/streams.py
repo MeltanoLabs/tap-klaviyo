@@ -6,6 +6,9 @@ import typing as t
 from datetime import datetime
 from pathlib import Path
 
+import requests
+from singer_sdk.helpers.jsonpath import extract_jsonpath
+
 from tap_klaviyo.client import KlaviyoStream
 
 if t.TYPE_CHECKING:
@@ -44,6 +47,8 @@ class CampaignsStream(KlaviyoStream):
     primary_keys = ["id"]
     replication_key = "updated_at"
     schema_filepath = SCHEMAS_DIR / "campaigns.json"
+    included_jsonpath = "$.included[*]"
+    included_map = {}
 
     @property
     def partitions(self) -> list[dict] | None:
@@ -77,6 +82,11 @@ class CampaignsStream(KlaviyoStream):
         context: dict | None = None,  # noqa: ARG002
     ) -> dict | None:
         row["updated_at"] = row["attributes"]["updated_at"]
+        row["tags"] = [self.included_map[tag["id"]]
+                       for tag in row.get("relationships", {}).get("tags", {}).get("data", [])]
+        row["campaign_messages"] = [self.included_map[campaign_message["id"]]
+                                    for campaign_message in
+                                    row.get("relationships", {}).get("campaign-messages", {}).get("data", [])]
         return row
 
     @property
@@ -89,6 +99,14 @@ class CampaignsStream(KlaviyoStream):
             "campaign_id": record["id"],
             "campaign_status": record["attributes"]["status"],
         }
+
+    def parse_response(self, response: requests.Response) -> t.Iterable[dict]:
+        self.process_included(response)
+        yield from super().parse_response(response)
+
+    def process_included(self, response: requests.Response):
+        self.included_map = {included['id']: included for included in
+                             extract_jsonpath(self.included_jsonpath, input=response.json())}
 
 
 class CampaignValuesReportsStream(KlaviyoStream):

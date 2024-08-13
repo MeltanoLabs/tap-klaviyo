@@ -132,6 +132,20 @@
                 "object",
                 "null"
             ]
+        },
+        "tags": {
+            "description": "The tags associated with the campaign",
+            "type": [
+                "array",
+                "null"
+            ]
+        },
+        "campaign_messages": {
+            "description": "The messages associated with the campaign",
+            "type": [
+                "array",
+                "null"
+            ]
         }
     }
 }
