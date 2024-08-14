@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import typing as t
-from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import parse_qsl
 
@@ -17,20 +16,6 @@ if t.TYPE_CHECKING:
     import requests
 
 SCHEMAS_DIR = Path(__file__).parent / Path("./schemas")
-UTC = timezone.utc
-DEFAULT_START_DATE = datetime(2000, 1, 1, tzinfo=UTC).isoformat()
-
-
-def _isodate_from_date_string(date_string: str) -> str:
-    """Convert a date string to an ISO date string.
-
-    Args:
-        date_string: The date string to convert.
-
-    Returns:
-        An ISO date string.
-    """
-    return datetime.strptime(date_string, "%Y-%m-%d").replace(tzinfo=UTC).isoformat()
 
 
 class KlaviyoPaginator(BaseHATEOASPaginator):
@@ -90,17 +75,12 @@ class KlaviyoStream(RESTStream):
             params.update(parse_qsl(next_page_token.query))
 
         if self.replication_key:
-            if self.get_starting_timestamp(context):
-                filter_timestamp = self.get_starting_timestamp(context)
-            elif self.config.get("start_date"):
-                filter_timestamp = _isodate_from_date_string(self.config("start_date"))
-            else:
-                filter_timestamp = DEFAULT_START_DATE
+            filter_timestamp = self.get_starting_timestamp(context)
 
             if self.is_sorted:
                 params["sort"] = self.replication_key
 
-            params["filter"] = f"greater-than({self.replication_key},{filter_timestamp})"
+            params["filter"] = f"greater-than({self.replication_key},{filter_timestamp.isoformat()})"
 
         if self.max_page_size:
             params["page[size]"] = self.max_page_size

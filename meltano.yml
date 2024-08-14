@@ -23,6 +23,8 @@ plugins:
       value: '2024-07-15'
     - name: start_date
       value: '2000-01-01'
+    - name: report_campaigns_sent_last_n_days
+      kind: integer
   loaders:
   - name: target-jsonl
     variant: andyh1203
