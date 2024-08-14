@@ -40,7 +40,7 @@ class TapKlaviyo(Tap):
             th.IntegerType,
             description="As the number of requests in the reports are limited, "
                         "this config specifies the number of days to consider when generating a report "
-                        "on the total number of campaigns sent. Default is 60 days.",
+                        "on the total number of campaigns sent.",
                 ),
     ).to_dict()
 
