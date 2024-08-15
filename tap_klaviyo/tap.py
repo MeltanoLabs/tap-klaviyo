@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
+
 from singer_sdk import Tap
 from singer_sdk import typing as th  # JSON schema typing helpers
 
@@ -31,7 +33,15 @@ class TapKlaviyo(Tap):
             "start_date",
             th.DateTimeType,
             description="The earliest record date to sync",
+            default=datetime(2000, 1, 1, tzinfo=timezone.utc).isoformat()
         ),
+        th.Property(
+            "report_campaigns_sent_last_n_days",
+            th.IntegerType,
+            description="As the number of requests in the reports are limited, "
+                        "this config specifies the number of days to consider when generating a report "
+                        "on the total number of campaigns sent.",
+                ),
     ).to_dict()
 
     def discover_streams(self) -> list[streams.KlaviyoStream]:
@@ -43,6 +53,7 @@ class TapKlaviyo(Tap):
         return [
             streams.EventsStream(self),
             streams.CampaignsStream(self),
+            streams.CampaignValuesReportsStream(self),
             streams.MetricsStream(self),
             streams.ProfilesStream(self),
             streams.ListsStream(self),

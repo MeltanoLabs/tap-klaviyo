@@ -1,0 +1,72 @@
+{
+    "properties": {
+        "id": {
+            "description": "The unique identifier for the report",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "campaign_id": {
+            "description": "The campaign ID",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "campaign_status": {
+            "description": "The status of the campaign",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "type": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "generated_at": {
+            "description": "The date and time the report was generated",
+            "format": "date-time",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "attributes": {
+            "properties": {
+                "results": {
+                    "description": "An array of all the returned values data.\nEach object in the array represents one unique grouping and the results for that grouping.",
+                    "type": [
+                        "array",
+                        "null"
+                    ],
+                    "items": {
+                        "type": ["null", "object"],
+                        "additionalProperties": false,
+                        "properties": {
+                            "groupings": {
+                                "type": [
+                                    "object",
+                                    "null"
+                                ]
+                            },
+                            "statistics": {
+                                "type": [
+                                    "object",
+                                    "null"
+                                ]
+                            }
+                        }
+                    }
+                }
+            },
+            "type": [
+                "object",
+                "null"
+            ]
+        }
+    }
+}

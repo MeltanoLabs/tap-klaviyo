@@ -7,12 +7,32 @@
                 "null"
             ]
         },
+        "type": {
+            "description": "The campaign type",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
         "updated_at": {
             "description": "The datetime when the campaign was last updated by a user or the system",
             "format": "date-time",
             "type": [
                 "string",
                 "null"
+            ]
+        },
+        "relationships": {
+            "description": "",
+            "type": [
+                "object",
+                "null"
+            ]
+        },
+        "links": {
+            "description": "",
+            "type": [
+                "object"
             ]
         },
         "attributes": {
@@ -24,11 +44,28 @@
                         "null"
                     ]
                 },
-                "type": {
-                    "description": "The campaign type",
+                "audiences": {
+                    "description": "The audiences to be included and/or excluded from the campaign",
                     "type": [
-                        "string",
-                        "null"
+                        "object"
+                    ]
+                },
+                "send_options": {
+                    "description": "Options to use when sending a campaign",
+                    "type": [
+                        "object"
+                    ]
+                },
+                "tracking_options": {
+                    "description": "The tracking options associated with the campaign",
+                    "type": [
+                        "object"
+                    ]
+                },
+                "send_strategy": {
+                    "description": "The send strategy the campaign will send with",
+                    "type": [
+                        "object"
                     ]
                 },
                 "status": {
@@ -42,20 +79,6 @@
                     "description": "Whether the campaign has been archived or not",
                     "type": [
                         "boolean",
-                        "null"
-                    ]
-                },
-                "channel": {
-                    "description": "The type of campaign",
-                    "type": [
-                        "string",
-                        "null"
-                    ]
-                },
-                "message": {
-                    "description": "The id of the message associated with the campaign",
-                    "type": [
-                        "string",
                         "null"
                     ]
                 },
@@ -93,6 +116,20 @@
             },
             "type": [
                 "object",
+                "null"
+            ]
+        },
+        "tags": {
+            "description": "The tags associated with the campaign",
+            "type": [
+                "array",
+                "null"
+            ]
+        },
+        "campaign_messages": {
+            "description": "The messages associated with the campaign",
+            "type": [
+                "array",
                 "null"
             ]
         }

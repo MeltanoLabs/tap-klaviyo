@@ -20,10 +20,15 @@ plugins:
     - name: auth_token
       kind: password
     - name: revision
-      value: '2023-02-22'
+      value: '2024-07-15'
     - name: start_date
       value: '2000-01-01'
+    - name: report_campaigns_sent_last_n_days
+      kind: integer
   loaders:
   - name: target-jsonl
     variant: andyh1203
     pip_url: target-jsonl
+  - name: target-parquet
+    variant: automattic
+    pip_url: git+https://github.com/Automattic/target-parquet.git
