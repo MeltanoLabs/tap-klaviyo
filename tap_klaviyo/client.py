@@ -32,6 +32,7 @@ class KlaviyoStream(RESTStream):
     url_base = "https://a.klaviyo.com/api"
     records_jsonpath = "$[data][*]"
     max_page_size: int | None = None
+    filter_compare = "greater-than"
 
     @property
     def authenticator(self) -> APIKeyAuthenticator:
@@ -80,8 +81,9 @@ class KlaviyoStream(RESTStream):
             if self.is_sorted:
                 params["sort"] = self.replication_key
 
-            params["filter"] = f"greater-than({self.replication_key},{filter_timestamp.isoformat()})"
+            params["filter"] = f"{self.filter_compare}({self.replication_key},{filter_timestamp.isoformat()})"
 
         if self.max_page_size:
             params["page[size]"] = self.max_page_size
+        self.logger.info("QUERY PARAMS: %s", params)
         return params

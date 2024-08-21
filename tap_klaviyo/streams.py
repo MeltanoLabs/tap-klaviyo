@@ -264,6 +264,32 @@ class ListPersonStream(KlaviyoStream):
         return row
 
 
+class ListPersonIncrementalStream(KlaviyoStream):
+    """Incremental implementation of ListPersonStream.
+    This stream is used to fetch incremental data from the ListPersonStream.
+    Note: This stream doesn't detect removed records, to get the removed records you
+    should consider using the EventsStream getting the Unsubscribed events."""
+
+    name = "listperson-incremental"
+    path = "/lists/{list_id}/relationships/profiles/"
+    primary_keys = ["id"]
+    replication_key = 'joined_group_at'
+    parent_stream_type = ListsStream
+    schema_filepath = SCHEMAS_DIR / "listperson_incremental.json"
+    max_page_size = 1000
+    filter_compare = "greater-or-equal"
+
+    def __init__(self, tap, name=None, schema=None, path=None):
+        super().__init__(tap, name, schema, path)
+        self.sync_started = datetime.now(timezone.utc)
+
+    def post_process(self, row: dict, context: dict) -> dict | None:
+        row["list_id"] = context["list_id"]
+        row["joined_group_at"] = self.sync_started
+        return row
+
+
+
 class FlowsStream(KlaviyoStream):
     """Define custom stream."""
 
