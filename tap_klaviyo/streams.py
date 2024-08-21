@@ -268,7 +268,7 @@ class ListPersonIncrementalStream(KlaviyoStream):
     """Incremental implementation of ListPersonStream.
     This stream is used to fetch incremental data from the ListPersonStream.
     Note: This stream doesn't detect removed records, to get the removed records you
-    should consider using the EventsStream getting the Unsubscribed events."""
+    should consider using the EventsStream to get the Unsubscribed events."""
 
     name = "listperson-incremental"
     path = "/lists/{list_id}/relationships/profiles/"
