@@ -273,6 +273,7 @@ class ListPersonIncrementalStream(KlaviyoStream):
     name = "listperson-incremental"
     path = "/lists/{list_id}/relationships/profiles/"
     primary_keys = ["id"]
+    ignore_parent_replication_key = True
     replication_key = 'joined_group_at'
     parent_stream_type = ListsStream
     schema_filepath = SCHEMAS_DIR / "listperson_incremental.json"
