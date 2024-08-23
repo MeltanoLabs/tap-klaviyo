@@ -272,7 +272,6 @@ class ListPersonStream(KlaviyoStream):
     ) -> dict[str, t.Any]:
         params = super().get_url_params(context, next_page_token)
         params["sort"] = "joined_group_at"
-        self.logger.info("QUERY PARAMS: %s", params)
         return params
 
 
