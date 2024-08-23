@@ -265,6 +265,16 @@ class ListPersonStream(KlaviyoStream):
         row["list_id"] = context["list_id"]
         return row
 
+    def get_url_params(
+            self,
+            context: dict | None,
+            next_page_token: ParseResult | None,
+    ) -> dict[str, t.Any]:
+        params = super().get_url_params(context, next_page_token)
+        params["sort"] = "joined_group_at"
+        self.logger.info("QUERY PARAMS: %s", params)
+        return params
+
 
 class ListPersonIncrementalStream(KlaviyoStream):
     """Incremental implementation of ListPersonStream.
