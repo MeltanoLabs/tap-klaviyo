@@ -254,6 +254,8 @@ class ListPersonStream(KlaviyoStream):
     name = "listperson"
     path = "/lists/{list_id}/relationships/profiles/"
     primary_keys = ["id"]
+    # the parent stream’s replication key won’t get updated when child items are changed
+    ignore_parent_replication_key = True
     replication_key = None
     parent_stream_type = ListsStream
     schema_filepath = SCHEMAS_DIR / "listperson.json"
