@@ -85,5 +85,5 @@ class KlaviyoStream(RESTStream):
 
         if self.max_page_size:
             params["page[size]"] = self.max_page_size
-        self.logger.info("QUERY PARAMS: %s", params)
+        self.logger.debug("QUERY PARAMS: %s", params)
         return params
