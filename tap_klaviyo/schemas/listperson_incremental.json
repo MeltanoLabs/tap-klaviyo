@@ -1,0 +1,25 @@
+{
+    "properties": {
+        "list_id": {
+            "type": [
+                "string"
+            ]
+        },
+        "id": {
+            "type": [
+                "string"
+            ]
+        },
+        "type": {
+            "type": [
+                "string"
+            ]
+        },
+        "joined_group_at": {
+            "type": [
+                "string"
+            ],
+            "format": "date-time"
+        }
+    }
+}

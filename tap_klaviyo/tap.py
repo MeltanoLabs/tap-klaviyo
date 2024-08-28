@@ -41,7 +41,13 @@ class TapKlaviyo(Tap):
             description="As the number of requests in the reports are limited, "
                         "this config specifies the number of days to consider when generating a report "
                         "on the total number of campaigns sent.",
-                ),
+        ),
+        th.Property(
+            "metrics_log_level",
+            th.StringType,
+            description="The log level for the metrics stream",
+            default="INFO"
+        )
     ).to_dict()
 
     def discover_streams(self) -> list[streams.KlaviyoStream]:
@@ -57,6 +63,7 @@ class TapKlaviyo(Tap):
             streams.MetricsStream(self),
             streams.ProfilesStream(self),
             streams.ListsStream(self),
+            streams.ListPersonIncrementalStream(self),
             streams.ListPersonStream(self),
             streams.FlowsStream(self),
             streams.TemplatesStream(self),

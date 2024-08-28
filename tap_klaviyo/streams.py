@@ -254,6 +254,8 @@ class ListPersonStream(KlaviyoStream):
     name = "listperson"
     path = "/lists/{list_id}/relationships/profiles/"
     primary_keys = ["id"]
+    # the parent stream’s replication key won’t get updated when child items are changed
+    ignore_parent_replication_key = True
     replication_key = None
     parent_stream_type = ListsStream
     schema_filepath = SCHEMAS_DIR / "listperson.json"
@@ -262,6 +264,44 @@ class ListPersonStream(KlaviyoStream):
     def post_process(self, row: dict, context: dict) -> dict | None:
         row["list_id"] = context["list_id"]
         return row
+
+    def get_url_params(
+            self,
+            context: dict | None,
+            next_page_token: ParseResult | None,
+    ) -> dict[str, t.Any]:
+        params = super().get_url_params(context, next_page_token)
+        # The filter improves the performance of the API call
+        params["filter"] = f"greater-or-equal(joined_group_at,1900-01-01T00:00:00+00:00)"
+        params["sort"] = "joined_group_at"
+        return params
+
+
+class ListPersonIncrementalStream(KlaviyoStream):
+    """Incremental implementation of ListPersonStream.
+    This stream is used to fetch incremental data from the ListPersonStream.
+    Note: This stream doesn't detect removed records, to get the removed records you
+    should consider using the EventsStream to get the Unsubscribed events."""
+
+    name = "listperson-incremental"
+    path = "/lists/{list_id}/relationships/profiles/"
+    primary_keys = ["id"]
+    ignore_parent_replication_key = True
+    replication_key = 'joined_group_at'
+    parent_stream_type = ListsStream
+    schema_filepath = SCHEMAS_DIR / "listperson_incremental.json"
+    max_page_size = 1000
+    filter_compare = "greater-or-equal"
+
+    def __init__(self, tap, name=None, schema=None, path=None):
+        super().__init__(tap, name, schema, path)
+        self.sync_started = datetime.now(timezone.utc)
+
+    def post_process(self, row: dict, context: dict) -> dict | None:
+        row["list_id"] = context["list_id"]
+        row["joined_group_at"] = self.sync_started
+        return row
+
 
 
 class FlowsStream(KlaviyoStream):

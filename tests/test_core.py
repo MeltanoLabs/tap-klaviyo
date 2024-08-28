@@ -24,6 +24,7 @@ TestTapKlaviyo = get_tap_test_class(
             "events",
             "flows",
             "listperson",
+            "listperson-incremental",
             "lists",
             "profiles",
             "templates",
