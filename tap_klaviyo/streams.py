@@ -271,6 +271,7 @@ class ListPersonStream(KlaviyoStream):
             next_page_token: ParseResult | None,
     ) -> dict[str, t.Any]:
         params = super().get_url_params(context, next_page_token)
+        # The filter improves the performance of the API call
         params["filter"] = f"greater-or-equal(joined_group_at,1900-01-01T00:00:00+00:00)"
         params["sort"] = "joined_group_at"
         return params
