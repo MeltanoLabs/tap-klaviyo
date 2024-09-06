@@ -334,3 +334,23 @@ class TemplatesStream(KlaviyoStream):
     @property
     def is_sorted(self) -> bool:
         return True
+
+
+class SegmentsStream(KlaviyoStream):
+    name = "segments"
+    path = "/segments"
+    primary_keys = ["id"]
+    replication_key = "updated"
+    schema_filepath = SCHEMAS_DIR / "segments.json"
+
+    def post_process(
+        self,
+        row: dict,
+        context: dict | None = None,  # noqa: ARG002
+    ) -> dict | None:
+        row["updated"] = row["attributes"]["updated"]
+        return row
+
+    @property
+    def is_sorted(self) -> bool:
+        return True
