@@ -10,6 +10,14 @@
                 "string"
             ]
         },
+        "updated": {
+            "description": "Date and time when the segment was last updated, in ISO 8601 format (YYYY-MM-DDTHH:MM:SS.mmmmmm)",
+            "format": "date-time",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
         "attributes": {
             "properties": {
                 "name": {
@@ -52,6 +60,19 @@
                 }
             },
             "type": "object"
+        },
+        "relationships": {
+            "description": "",
+            "type": [
+                "object",
+                "null"
+            ]
+        },
+        "links": {
+            "description": "",
+            "type": [
+                "object"
+            ]
         }
     },
     "type": "object",

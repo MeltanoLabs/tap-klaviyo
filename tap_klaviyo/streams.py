@@ -150,6 +150,8 @@ class CampaignValuesReportsStream(KlaviyoStream):
                         "unsubscribe_rate",
                         "unsubscribe_uniques",
                         "unsubscribes",
+                        "bounced",
+                        "bounce_rate"
                         ],
                     "timeframe": {
                         "key": "last_12_months"
@@ -310,8 +312,16 @@ class FlowsStream(KlaviyoStream):
     name = "flows"
     path = "/flows"
     primary_keys = ["id"]
-    replication_key = None
+    replication_key = "updated"
     schema_filepath = SCHEMAS_DIR / "flows.json"
+
+    def post_process(
+        self,
+        row: dict,
+        context: dict | None = None,  # noqa: ARG002
+    ) -> dict | None:
+        row["updated"] = row["attributes"]["updated"]
+        return row
 
 
 class TemplatesStream(KlaviyoStream):
