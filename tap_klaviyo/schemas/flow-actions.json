@@ -1,0 +1,101 @@
+{
+    "properties": {
+        "id": {
+            "type": [
+                "string"
+            ]
+        },
+        "flow_id": {
+            "type": [
+                "string"
+            ]
+        },
+        "type": {
+            "type": [
+                "string"
+            ]
+        },
+        "updated": {
+            "description": "Date and time when the flow-action was last updated, in ISO 8601 format (YYYY-MM-DDTHH:MM:SS.mmmmmm)",
+            "format": "date-time",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "attributes": {
+            "properties": {
+                "action_type": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "status": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "created": {
+                    "format": "date-time",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "updated": {
+                    "format": "date-time",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "settings": {
+                    "type": [
+                        "object",
+                        "null"
+                    ]
+                },
+                "tracking_options": {
+                    "type": [
+                        "object",
+                        "null"
+                    ]
+                },
+                "send_options": {
+                    "type": [
+                        "object",
+                        "null"
+                    ]
+                },
+                "render_options": {
+                    "type": [
+                        "object",
+                        "null"
+                    ]
+                }
+            },
+            "type": "object"
+        },
+        "relationships": {
+            "description": "",
+            "type": [
+                "object",
+                "null"
+            ]
+        },
+        "links": {
+            "description": "",
+            "type": [
+                "object"
+            ]
+        }
+    },
+    "type": "object",
+    "required": [
+        "id",
+        "type",
+        "attributes"
+    ]
+}

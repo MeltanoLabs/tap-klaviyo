@@ -1,0 +1,88 @@
+{
+    "properties": {
+        "id": {
+            "type": [
+                "string"
+            ]
+        },
+        "flow_id": {
+            "type": [
+                "string"
+            ]
+        },
+        "flow_action_id": {
+            "type": [
+                "string"
+            ]
+        },
+        "type": {
+            "type": [
+                "string"
+            ]
+        },
+        "updated": {
+            "description": "Date and time when the flow-message was last updated, in ISO 8601 format (YYYY-MM-DDTHH:MM:SS.mmmmmm)",
+            "format": "date-time",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "attributes": {
+            "properties": {
+                "name": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "channel": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "content": {
+                    "type": [
+                        "object",
+                        "null"
+                    ]
+                },
+                "created": {
+                    "format": "date-time",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "updated": {
+                    "format": "date-time",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "type": "object"
+        },
+        "relationships": {
+            "description": "",
+            "type": [
+                "object",
+                "null"
+            ]
+        },
+        "links": {
+            "description": "",
+            "type": [
+                "object"
+            ]
+        }
+    },
+    "type": "object",
+    "required": [
+        "id",
+        "type",
+        "attributes"
+    ]
+}
