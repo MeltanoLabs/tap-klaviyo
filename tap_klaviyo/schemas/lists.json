@@ -15,6 +15,11 @@
                 "null"
             ]
         },
+        "type": {
+            "type": [
+                "string"
+            ]
+        },
         "attributes": {
             "properties": {
                 "name": {
@@ -36,6 +41,13 @@
                 "updated": {
                     "description": "Date and time when the list was last updated, in ISO 8601 format (YYYY-MM-DDTHH:MM:SS.mmmmmm)",
                     "format": "date-time",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "opt_in_process": {
+                    "description": "The opt-in process for this list. Could be either 'single_opt_in' or 'double_opt_in'.\n\n",
                     "type": [
                         "string",
                         "null"
