@@ -418,3 +418,13 @@ class SegmentsStream(KlaviyoStream):
     ) -> dict | None:
         row["updated"] = row["attributes"]["updated"]
         return row
+
+    def get_url_params(
+        self,
+        context: dict | None,
+        next_page_token: ParseResult | None,
+    ) -> dict[str, t.Any]:
+        url_params = super().get_url_params(context, next_page_token)
+        url_params["filter"] = f'and({url_params["filter"]},any(is_active,[true,false]))'
+        self.logger.debug('QUERY PARAMS: %s', url_params)
+        return url_params
