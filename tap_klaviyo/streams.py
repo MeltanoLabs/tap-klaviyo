@@ -151,7 +151,7 @@ class CampaignValuesReportsStream(KlaviyoStream):
                         "bounce_rate"
                         ],
                     "timeframe": {
-                        "key": "last_12_months"
+                        "key": "last_365_days"
                     },
                     "conversion_metric_id": "WcGvVS",
                 }
