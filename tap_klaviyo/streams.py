@@ -440,3 +440,54 @@ class SegmentsStream(KlaviyoStream):
         url_params["filter"] = f'and({url_params["filter"]},any(is_active,[true,false]))'
         self.logger.debug('QUERY PARAMS: %s', url_params)
         return url_params
+
+
+class FlowValuesReportsStream(KlaviyoStream):
+    name = "flow_values_reports"
+    path = "/flow-values-reports"
+    rest_method = "POST"
+    primary_keys = ["flow_id", "flow_message_id"]
+    replication_key = None
+    schema_filepath = SCHEMAS_DIR / "flow_values_reports.json"
+    backoff_max_tries = 10
+    records_jsonpath = "$[data][attributes][results][*]"
+
+    def post_process(self, row: dict, context: dict | None = None) -> dict | None:
+        row["flow_id"] = row['groupings']['flow_id']
+        row["flow_message_id"] = row['groupings']['flow_message_id']
+        row["generated_at"] = datetime.now().isoformat()
+        return row
+
+    def prepare_request_payload(
+            self,
+            context: dict | None,
+            next_page_token: t.Optional[t.Any],
+    ) -> dict | None:
+        return {
+            "data": {
+                "type": "flow-values-report",
+                "attributes": {
+                    "statistics": [
+                        "click_rate",
+                        "click_to_open_rate",
+                        "clicks",
+                        "clicks_unique",
+                        "delivered",
+                        "delivery_rate",
+                        "open_rate",
+                        "opens",
+                        "opens_unique",
+                        "recipients",
+                        "unsubscribe_rate",
+                        "unsubscribe_uniques",
+                        "unsubscribes",
+                        "bounced",
+                        "bounce_rate"
+                    ],
+                    "timeframe": {
+                        "key": "last_90_days"
+                    },
+                    "conversion_metric_id": "WcGvVS",
+                }
+            }
+        }

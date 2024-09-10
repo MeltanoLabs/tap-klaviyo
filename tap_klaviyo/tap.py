@@ -68,6 +68,7 @@ class TapKlaviyo(Tap):
             streams.FlowsStream(self),
             streams.FlowActionsStream(self),
             streams.FlowMessagesStream(self),
+            streams.FlowValuesReportsStream(self),
             streams.TemplatesStream(self),
             streams.SegmentsStream(self)
         ]
