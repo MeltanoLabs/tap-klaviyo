@@ -466,7 +466,7 @@ class FlowValuesReportsStream(KlaviyoStream):
                         "bounce_rate"
                     ],
                     "timeframe": {
-                        "key": "last_90_days"
+                        "key": "yesterday"
                     },
                     "conversion_metric_id": "WcGvVS",
                 }
