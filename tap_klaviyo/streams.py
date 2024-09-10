@@ -150,6 +150,8 @@ class CampaignValuesReportsStream(KlaviyoStream):
                         "unsubscribe_rate",
                         "unsubscribe_uniques",
                         "unsubscribes",
+                        "bounced",
+                        "bounce_rate"
                         ],
                     "timeframe": {
                         "key": "last_12_months"
@@ -159,13 +161,6 @@ class CampaignValuesReportsStream(KlaviyoStream):
                 }
             }
         }
-
-    def backoff_wait_generator(self) -> t.Generator[float, None, None]:
-        def _backoff_from_headers(retriable_api_error):
-            response_headers = retriable_api_error.response.headers
-            return int(response_headers.get("Retry-After", 60))
-
-        return self.backoff_runtime(value=_backoff_from_headers)
 
     def get_records(self, context: dict | None) -> t.Iterable[dict[str, t.Any]]:
         if not self.config.get("report_campaigns_sent_last_n_days"):
@@ -310,8 +305,80 @@ class FlowsStream(KlaviyoStream):
     name = "flows"
     path = "/flows"
     primary_keys = ["id"]
-    replication_key = None
+    replication_key = "updated"
     schema_filepath = SCHEMAS_DIR / "flows.json"
+    is_sorted = True
+
+    def get_url_params(
+        self,
+        context: dict | None,
+        next_page_token: ParseResult | None,
+    ) -> dict[str, t.Any]:
+        url_params = super().get_url_params(context, next_page_token)
+        url_params["include"] = "tags,flow-actions"
+        return url_params
+
+    def get_child_context(self, record: dict, context: dict | None) -> dict:
+        context = context or {}
+        context["flow_id"] = record["id"]
+
+        return super().get_child_context(record, context)  # type: ignore[no-any-return]
+
+    def post_process(
+        self,
+        row: dict,
+        context: dict | None = None,  # noqa: ARG002
+    ) -> dict | None:
+        row["updated"] = row["attributes"]["updated"]
+        return row
+
+
+class FlowActionsStream(KlaviyoStream):
+    name = "flow-actions"
+    path = "/flows/{flow_id}/flow-actions"
+    primary_keys = ["id"]
+    replication_key = "updated"
+    schema_filepath = SCHEMAS_DIR / "flow-actions.json"
+    is_sorted = True
+    parent_stream_type = FlowsStream
+    ignore_parent_replication_key = True
+
+    def get_child_context(self, record: dict, context: dict | None) -> dict:
+        context = context or {}
+        context["flow_id"] = record["flow_id"]
+        context["flow_action_id"] = record["id"]
+
+        return super().get_child_context(record, context)
+
+    def post_process(
+        self,
+        row: dict,
+        context: dict | None = None,  # noqa: ARG002
+    ) -> dict | None:
+        row["flow_id"] = context["flow_id"]
+        row["updated"] = row["attributes"]["updated"]
+        return row
+
+
+class FlowMessagesStream(KlaviyoStream):
+    name = "flow-messages"
+    path = "/flow-actions/{flow_action_id}/flow-messages"
+    primary_keys = ["id"]
+    replication_key = "updated"
+    schema_filepath = SCHEMAS_DIR / "flow-messages.json"
+    is_sorted = True
+    parent_stream_type = FlowActionsStream
+    ignore_parent_replication_key = True
+
+    def post_process(
+        self,
+        row: dict,
+        context: dict | None = None,  # noqa: ARG002
+    ) -> dict | None:
+        row["flow_id"] = context["flow_id"]
+        row["flow_action_id"] = context["flow_action_id"]
+        row["updated"] = row["attributes"]["updated"]
+        return row
 
 
 class TemplatesStream(KlaviyoStream):
@@ -334,3 +401,30 @@ class TemplatesStream(KlaviyoStream):
     @property
     def is_sorted(self) -> bool:
         return True
+
+
+class SegmentsStream(KlaviyoStream):
+    name = "segments"
+    path = "/segments"
+    primary_keys = ["id"]
+    replication_key = "updated"
+    schema_filepath = SCHEMAS_DIR / "segments.json"
+    is_sorted = True
+
+    def post_process(
+        self,
+        row: dict,
+        context: dict | None = None,  # noqa: ARG002
+    ) -> dict | None:
+        row["updated"] = row["attributes"]["updated"]
+        return row
+
+    def get_url_params(
+        self,
+        context: dict | None,
+        next_page_token: ParseResult | None,
+    ) -> dict[str, t.Any]:
+        url_params = super().get_url_params(context, next_page_token)
+        url_params["filter"] = f'and({url_params["filter"]},any(is_active,[true,false]))'
+        self.logger.debug('QUERY PARAMS: %s', url_params)
+        return url_params

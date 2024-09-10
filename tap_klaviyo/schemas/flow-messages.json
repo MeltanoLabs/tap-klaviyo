@@ -5,13 +5,23 @@
                 "string"
             ]
         },
+        "flow_id": {
+            "type": [
+                "string"
+            ]
+        },
+        "flow_action_id": {
+            "type": [
+                "string"
+            ]
+        },
         "type": {
             "type": [
                 "string"
             ]
         },
         "updated": {
-            "description": "Date and time when the segment was last updated, in ISO 8601 format (YYYY-MM-DDTHH:MM:SS.mmmmmm)",
+            "description": "Date and time when the flow-message was last updated, in ISO 8601 format (YYYY-MM-DDTHH:MM:SS.mmmmmm)",
             "format": "date-time",
             "type": [
                 "string",
@@ -26,15 +36,15 @@
                         "null"
                     ]
                 },
-                "status": {
+                "channel": {
                     "type": [
                         "string",
                         "null"
                     ]
                 },
-                "archived": {
+                "content": {
                     "type": [
-                        "boolean",
+                        "object",
                         "null"
                     ]
                 },
@@ -47,12 +57,6 @@
                 },
                 "updated": {
                     "format": "date-time",
-                    "type": [
-                        "string",
-                        "null"
-                    ]
-                },
-                "trigger_type": {
                     "type": [
                         "string",
                         "null"
