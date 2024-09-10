@@ -113,17 +113,14 @@ class CampaignValuesReportsStream(KlaviyoStream):
     name = "campaign_values_reports"
     path = "/campaign-values-reports"
     rest_method = "POST"
-    primary_keys = ["id"]
+    primary_keys = ["campaign_id"]
     replication_key = None
-    parent_stream_type = CampaignsStream
     schema_filepath = SCHEMAS_DIR / "campaign_values_reports.json"
     backoff_max_tries = 10
-    state_partitioning_keys = []
-    ignore_parent_replication_key = True
+    records_jsonpath = "$[data][attributes][results][*]"
 
     def post_process(self, row: dict, context: dict | None = None) -> dict | None:
-        row["campaign_id"] = context["campaign_id"]
-        row["campaign_status"] = context["campaign_status"]
+        row["campaign_id"] = row['groupings']["campaign_id"]
         row["generated_at"] = datetime.now().isoformat()
         return row
 
@@ -154,28 +151,12 @@ class CampaignValuesReportsStream(KlaviyoStream):
                         "bounce_rate"
                         ],
                     "timeframe": {
-                        "key": "last_12_months"
+                        "key": "last_365_days"
                     },
                     "conversion_metric_id": "WcGvVS",
-                    "filter": f"equals(campaign_id,\"{context['campaign_id']}\")"
                 }
             }
         }
-
-    def get_records(self, context: dict | None) -> t.Iterable[dict[str, t.Any]]:
-        if not self.config.get("report_campaigns_sent_last_n_days"):
-            raise MissingConfigException('report_campaigns_sent_last_n_days config is required '
-                                         'to limit the reports requests.')
-        # Only fetch records if the campaign has been sent
-        if (context['campaign_status'] in ('Sent', 'Variations Sent')
-                and context.get('send_time')
-                # Campaigns sent in the last n days
-                and datetime.fromisoformat(context['send_time']) >=
-                datetime.now(timezone.utc) - timedelta(days=self.config['report_campaigns_sent_last_n_days'])):
-            self.logger.info(f"Fetching campaign values report for campaign {context['campaign_id']}"
-                             f" sent at {context['send_time']}")
-            yield from super().get_records(context)
-        yield from []  # Return an empty list if no campaign is not sent in the period
 
 
 class ProfilesStream(KlaviyoStream):
@@ -308,6 +289,8 @@ class FlowsStream(KlaviyoStream):
     replication_key = "updated"
     schema_filepath = SCHEMAS_DIR / "flows.json"
     is_sorted = True
+    included_jsonpath = "$[included][*]"
+    included_map = {}
 
     def get_url_params(
         self,
@@ -330,7 +313,17 @@ class FlowsStream(KlaviyoStream):
         context: dict | None = None,  # noqa: ARG002
     ) -> dict | None:
         row["updated"] = row["attributes"]["updated"]
+        row["tags"] = [self.included_map[tag["id"]]
+                       for tag in row.get("relationships", {}).get("tags", {}).get("data", [])]
         return row
+
+    def parse_response(self, response: requests.Response) -> t.Iterable[dict]:
+        self.process_included(response)
+        yield from super().parse_response(response)
+
+    def process_included(self, response: requests.Response):
+        self.included_map = {included['id']: included for included in
+                             extract_jsonpath(self.included_jsonpath, input=response.json())}
 
 
 class FlowActionsStream(KlaviyoStream):
@@ -428,3 +421,54 @@ class SegmentsStream(KlaviyoStream):
         url_params["filter"] = f'and({url_params["filter"]},any(is_active,[true,false]))'
         self.logger.debug('QUERY PARAMS: %s', url_params)
         return url_params
+
+
+class FlowValuesReportsStream(KlaviyoStream):
+    name = "flow_values_reports"
+    path = "/flow-values-reports"
+    rest_method = "POST"
+    primary_keys = ["flow_id", "flow_message_id"]
+    replication_key = None
+    schema_filepath = SCHEMAS_DIR / "flow_values_reports.json"
+    backoff_max_tries = 10
+    records_jsonpath = "$[data][attributes][results][*]"
+
+    def post_process(self, row: dict, context: dict | None = None) -> dict | None:
+        row["flow_id"] = row['groupings']['flow_id']
+        row["flow_message_id"] = row['groupings']['flow_message_id']
+        row["generated_at"] = datetime.now().isoformat()
+        return row
+
+    def prepare_request_payload(
+            self,
+            context: dict | None,
+            next_page_token: t.Optional[t.Any],
+    ) -> dict | None:
+        return {
+            "data": {
+                "type": "flow-values-report",
+                "attributes": {
+                    "statistics": [
+                        "click_rate",
+                        "click_to_open_rate",
+                        "clicks",
+                        "clicks_unique",
+                        "delivered",
+                        "delivery_rate",
+                        "open_rate",
+                        "opens",
+                        "opens_unique",
+                        "recipients",
+                        "unsubscribe_rate",
+                        "unsubscribe_uniques",
+                        "unsubscribes",
+                        "bounced",
+                        "bounce_rate"
+                    ],
+                    "timeframe": {
+                        "key": "yesterday"
+                    },
+                    "conversion_metric_id": "WcGvVS",
+                }
+            }
+        }

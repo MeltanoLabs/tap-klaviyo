@@ -1,15 +1,12 @@
 {
     "properties": {
-        "campaign_id": {
-            "description": "The campaign ID",
+        "flow_id": {
             "type": [
                 "string",
                 "null"
             ]
         },
-        "generated_at": {
-            "description": "The date and time the report was generated",
-            "format": "date-time",
+        "flow_message_id": {
             "type": [
                 "string",
                 "null"
@@ -24,6 +21,14 @@
         "statistics": {
             "type": [
                 "object",
+                "null"
+            ]
+        },
+        "generated_at": {
+            "description": "The date and time the report was generated",
+            "format": "date-time",
+            "type": [
+                "string",
                 "null"
             ]
         }

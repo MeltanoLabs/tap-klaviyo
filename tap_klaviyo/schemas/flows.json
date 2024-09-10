@@ -73,6 +73,13 @@
             "type": [
                 "object"
             ]
+        },
+        "tags": {
+            "description": "The tags associated with the campaign",
+            "type": [
+                "array",
+                "null"
+            ]
         }
     },
     "type": "object",
