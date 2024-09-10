@@ -36,13 +36,6 @@ class TapKlaviyo(Tap):
             default=datetime(2000, 1, 1, tzinfo=timezone.utc).isoformat()
         ),
         th.Property(
-            "report_campaigns_sent_last_n_days",
-            th.IntegerType,
-            description="As the number of requests in the reports are limited, "
-                        "this config specifies the number of days to consider when generating a report "
-                        "on the total number of campaigns sent.",
-        ),
-        th.Property(
             "metrics_log_level",
             th.StringType,
             description="The log level for the metrics stream",
