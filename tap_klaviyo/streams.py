@@ -308,6 +308,8 @@ class FlowsStream(KlaviyoStream):
     replication_key = "updated"
     schema_filepath = SCHEMAS_DIR / "flows.json"
     is_sorted = True
+    included_jsonpath = "$[included][*]"
+    included_map = {}
 
     def get_url_params(
         self,
@@ -330,7 +332,17 @@ class FlowsStream(KlaviyoStream):
         context: dict | None = None,  # noqa: ARG002
     ) -> dict | None:
         row["updated"] = row["attributes"]["updated"]
+        row["tags"] = [self.included_map[tag["id"]]
+                       for tag in row.get("relationships", {}).get("tags", {}).get("data", [])]
         return row
+
+    def parse_response(self, response: requests.Response) -> t.Iterable[dict]:
+        self.process_included(response)
+        yield from super().parse_response(response)
+
+    def process_included(self, response: requests.Response):
+        self.included_map = {included['id']: included for included in
+                             extract_jsonpath(self.included_jsonpath, input=response.json())}
 
 
 class FlowActionsStream(KlaviyoStream):
