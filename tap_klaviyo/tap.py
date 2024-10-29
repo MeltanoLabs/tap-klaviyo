@@ -40,7 +40,25 @@ class TapKlaviyo(Tap):
             th.StringType,
             description="The log level for the metrics stream",
             default="INFO"
-        )
+        ),
+        th.Property(
+            "reports_attributes",
+            th.ObjectType(
+                th.Property('campaign_values_reports', th.ObjectType(
+                    th.Property('statistics', th.ArrayType(th.StringType)),
+                    th.Property('timeframe',
+                                th.ObjectType(
+                                    th.Property('key', th.StringType), additional_properties=False)),
+                    th.Property('conversion_metric_id', th.StringType), additional_properties=False)),
+                th.Property('flow_values_reports', th.ObjectType(
+                    th.Property('statistics', th.ArrayType(th.StringType)),
+                    th.Property('timeframe',
+                                th.ObjectType(
+                                    th.Property('key', th.StringType), additional_properties=False)),
+                    th.Property('conversion_metric_id', th.StringType), additional_properties=False)
+            ), additional_properties=False),
+            description="Redefine report attributes (e.g. {'campaign_values_reports': {'statistics: ['click_rate']}} )",
+        ),
     ).to_dict()
 
     def discover_streams(self) -> list[streams.KlaviyoStream]:
