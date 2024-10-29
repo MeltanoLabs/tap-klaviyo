@@ -129,11 +129,12 @@ class CampaignValuesReportsStream(KlaviyoStream):
             context: dict | None,
             next_page_token: t.Optional[t.Any],
     ) -> dict | None:
+        report_attributes = self.config.get('reports_attributes', {}).get(self.name, {})
         return {
             "data": {
                 "type": "campaign-values-report",
                 "attributes": {
-                    "statistics": self.config['reports_attributes'].get(self.name, {}).get('statistics',[
+                    "statistics": report_attributes.get('statistics',[
                         "click_rate",
                         "click_to_open_rate",
                         "clicks",
@@ -150,10 +151,10 @@ class CampaignValuesReportsStream(KlaviyoStream):
                         "bounced",
                         "bounce_rate"
                         ]),
-                    "timeframe": self.config['reports_attributes'].get(self.name, {}).get('timeframe', {
+                    "timeframe": report_attributes.get('timeframe', {
                         "key": "last_365_days"
                     }),
-                    "conversion_metric_id": self.config['reports_attributes'].get(self.name, {}).get(
+                    "conversion_metric_id": report_attributes.get(
                         'conversion_metric_id', "WcGvVS"),
                 }
             }
@@ -445,11 +446,12 @@ class FlowValuesReportsStream(KlaviyoStream):
             context: dict | None,
             next_page_token: t.Optional[t.Any],
     ) -> dict | None:
+        report_attributes = self.config.get('reports_attributes', {}).get(self.name, {})
         return {
             "data": {
                 "type": "flow-values-report",
                 "attributes": {
-                    "statistics": self.config['reports_attributes'].get(self.name, {}).get('statistics', [
+                    "statistics": report_attributes.get('statistics', [
                         "click_rate",
                         "click_to_open_rate",
                         "clicks",
@@ -466,10 +468,10 @@ class FlowValuesReportsStream(KlaviyoStream):
                         "bounced",
                         "bounce_rate"
                     ]),
-                    "timeframe": self.config['reports_attributes'].get(self.name, {}).get('timeframe', {
+                    "timeframe": report_attributes.get('timeframe', {
                         "key": "yesterday"
                     }),
-                    "conversion_metric_id": self.config['reports_attributes'].get(self.name, {}).get(
+                    "conversion_metric_id": report_attributes.get(
                         'conversion_metric_id', "WcGvVS"),
                 }
             }
