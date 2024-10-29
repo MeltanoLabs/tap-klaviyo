@@ -133,7 +133,7 @@ class CampaignValuesReportsStream(KlaviyoStream):
             "data": {
                 "type": "campaign-values-report",
                 "attributes": {
-                    "statistics": [
+                    "statistics": self.config['reports_attributes'].get(self.name, {}).get('statistics',[
                         "click_rate",
                         "click_to_open_rate",
                         "clicks",
@@ -149,11 +149,12 @@ class CampaignValuesReportsStream(KlaviyoStream):
                         "unsubscribes",
                         "bounced",
                         "bounce_rate"
-                        ],
-                    "timeframe": {
+                        ]),
+                    "timeframe": self.config['reports_attributes'].get(self.name, {}).get('timeframe', {
                         "key": "last_365_days"
-                    },
-                    "conversion_metric_id": "WcGvVS",
+                    }),
+                    "conversion_metric_id": self.config['reports_attributes'].get(self.name, {}).get(
+                        'conversion_metric_id', "WcGvVS"),
                 }
             }
         }
@@ -448,7 +449,7 @@ class FlowValuesReportsStream(KlaviyoStream):
             "data": {
                 "type": "flow-values-report",
                 "attributes": {
-                    "statistics": [
+                    "statistics": self.config['reports_attributes'].get(self.name, {}).get('statistics', [
                         "click_rate",
                         "click_to_open_rate",
                         "clicks",
@@ -464,11 +465,12 @@ class FlowValuesReportsStream(KlaviyoStream):
                         "unsubscribes",
                         "bounced",
                         "bounce_rate"
-                    ],
-                    "timeframe": {
+                    ]),
+                    "timeframe": self.config['reports_attributes'].get(self.name, {}).get('timeframe', {
                         "key": "yesterday"
-                    },
-                    "conversion_metric_id": "WcGvVS",
+                    }),
+                    "conversion_metric_id": self.config['reports_attributes'].get(self.name, {}).get(
+                        'conversion_metric_id', "WcGvVS"),
                 }
             }
         }

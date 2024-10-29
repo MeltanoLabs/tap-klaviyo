@@ -24,6 +24,8 @@ plugins:
     - name: start_date
       value: '2000-01-01'
     - name: metrics_log_level
+    - name: reports_attributes
+      kind: object
   loaders:
   - name: target-jsonl
     variant: andyh1203
