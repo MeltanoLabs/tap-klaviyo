@@ -31,6 +31,14 @@
                 "string",
                 "null"
             ]
+        },
+        "report_date": {
+            "description": "The date of the report as this one is a daily report",
+            "format": "date-time",
+            "type": [
+                "string",
+                "null"
+            ]
         }
     }
 }
