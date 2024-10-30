@@ -483,19 +483,22 @@ class FlowValuesReportsStream(KlaviyoStream):
 
     def get_records(self, context) -> t.Iterable[dict[str, t.Any]]:
         context = context or {}
-        yesterday_report_date = datetime.utcnow().replace(tzinfo=tz.UTC) - timedelta(days=1)
+        yesterday_report_date = (datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=tz.UTC)
+                                 - timedelta(days=1))
         current_date = datetime.fromtimestamp(
             self.get_starting_timestamp(context).replace(hour=0, minute=0, second=0, microsecond=0).timestamp(),
             tz.UTC)
         # when it's not the first run we start collect from next day
         if 'replication_key_value' in self.get_context_state(context):
             current_date += timedelta(days=1)
-        while current_date < yesterday_report_date:
+        while current_date <= yesterday_report_date:
             self.logger.info(f'Processing Flow report {current_date}')
             context['start'] = current_date
             context['end'] = current_date.replace(hour=23, minute=59, second=59, microsecond=99)
             yield from super().get_records(context)
             current_date += timedelta(days=1)
+        else:
+            self.logger.info(f'Last available daily report already extracted')
 
     def get_url_params(
         self,
