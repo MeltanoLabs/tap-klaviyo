@@ -7,7 +7,6 @@ from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 import requests
-from dateutil.tz import tz
 from singer_sdk.helpers.jsonpath import extract_jsonpath
 
 from tap_klaviyo.client import KlaviyoStream
@@ -483,11 +482,11 @@ class FlowValuesReportsStream(KlaviyoStream):
 
     def get_records(self, context) -> t.Iterable[dict[str, t.Any]]:
         context = context or {}
-        yesterday_report_date = (datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=tz.UTC)
+        yesterday_report_date = (datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone.utc)
                                  - timedelta(days=1))
         current_date = datetime.fromtimestamp(
             self.get_starting_timestamp(context).replace(hour=0, minute=0, second=0, microsecond=0).timestamp(),
-            tz.UTC)
+            timezone.utc)
         # when it's not the first run we start collect from next day
         if 'replication_key_value' in self.get_context_state(context):
             current_date += timedelta(days=1)
