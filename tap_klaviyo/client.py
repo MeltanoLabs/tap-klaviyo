@@ -90,7 +90,7 @@ class KlaviyoStream(RESTStream):
 
     def backoff_wait_generator(self) -> t.Generator[float, None, None]:
         def _backoff_from_headers(retriable_api_error):
-            response_headers = retriable_api_error.response.headers
+            response_headers = retriable_api_error.response.headers if retriable_api_error.response else {}
             return int(response_headers.get("Retry-After", 60))
 
         return self.backoff_runtime(value=_backoff_from_headers)

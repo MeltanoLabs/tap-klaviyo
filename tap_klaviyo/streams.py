@@ -5,6 +5,7 @@ from __future__ import annotations
 import typing as t
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
+from time import sleep
 
 import requests
 from singer_sdk.helpers.jsonpath import extract_jsonpath
@@ -496,6 +497,7 @@ class FlowValuesReportsStream(KlaviyoStream):
             context['end'] = current_date.replace(hour=23, minute=59, second=59, microsecond=99)
             yield from super().get_records(context)
             current_date += timedelta(days=1)
+            sleep(31)  # 2/m rate limit
         else:
             self.logger.info(f'Last available daily report already extracted')
 
