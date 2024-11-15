@@ -3,17 +3,16 @@
 from __future__ import annotations
 
 import typing as t
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from pathlib import Path
-from time import sleep
 
 import requests
 from singer_sdk.helpers.jsonpath import extract_jsonpath
 
-from tap_klaviyo.client import KlaviyoStream
+from tap_klaviyo.client import KlaviyoStream, KlaviyoReportStream
 
 if t.TYPE_CHECKING:
-    from urllib.parse import ParseResult, parse_qsl
+    from urllib.parse import ParseResult
 
 SCHEMAS_DIR = Path(__file__).parent / Path("./schemas")
 
@@ -110,56 +109,17 @@ class CampaignsStream(KlaviyoStream):
                              extract_jsonpath(self.included_jsonpath, input=response.json())}
 
 
-class CampaignValuesReportsStream(KlaviyoStream):
+class CampaignValuesReportsStream(KlaviyoReportStream):
     name = "campaign_values_reports"
     path = "/campaign-values-reports"
-    rest_method = "POST"
     primary_keys = ["campaign_id"]
-    replication_key = None
     schema_filepath = SCHEMAS_DIR / "campaign_values_reports.json"
-    backoff_max_tries = 10
-    records_jsonpath = "$[data][attributes][results][*]"
+    report_type = 'campaign-values-report'
 
     def post_process(self, row: dict, context: dict | None = None) -> dict | None:
+        row = super().post_process(row, context)
         row["campaign_id"] = row['groupings']["campaign_id"]
-        row["generated_at"] = datetime.now().isoformat()
         return row
-
-    def prepare_request_payload(
-            self,
-            context: dict | None,
-            next_page_token: t.Optional[t.Any],
-    ) -> dict | None:
-        report_attributes = self.config.get('reports_attributes', {}).get(self.name, {})
-        return {
-            "data": {
-                "type": "campaign-values-report",
-                "attributes": {
-                    "statistics": report_attributes.get('statistics',[
-                        "click_rate",
-                        "click_to_open_rate",
-                        "clicks",
-                        "clicks_unique",
-                        "delivered",
-                        "delivery_rate",
-                        "open_rate",
-                        "opens",
-                        "opens_unique",
-                        "recipients",
-                        "unsubscribe_rate",
-                        "unsubscribe_uniques",
-                        "unsubscribes",
-                        "bounced",
-                        "bounce_rate"
-                        ]),
-                    "timeframe": report_attributes.get('timeframe', {
-                        "key": "last_365_days"
-                    }),
-                    "conversion_metric_id": report_attributes.get(
-                        'conversion_metric_id', "WcGvVS"),
-                }
-            }
-        }
 
 
 class ProfilesStream(KlaviyoStream):
@@ -426,91 +386,15 @@ class SegmentsStream(KlaviyoStream):
         return url_params
 
 
-class FlowValuesReportsStream(KlaviyoStream):
+class FlowValuesReportsStream(KlaviyoReportStream):
     name = "flow_values_reports"
     path = "/flow-values-reports"
-    rest_method = "POST"
     primary_keys = ["flow_id", "flow_message_id"]
-    replication_key = 'report_date'
     schema_filepath = SCHEMAS_DIR / "flow_values_reports.json"
-    backoff_max_tries = 10
-    records_jsonpath = "$[data][attributes][results][*]"
-    is_sorted = True
+    report_type = 'flow-values-report'
 
     def post_process(self, row: dict, context: dict | None = None) -> dict | None:
+        row = super().post_process(row, context)
         row["flow_id"] = row['groupings']['flow_id']
         row["flow_message_id"] = row['groupings']['flow_message_id']
-        row["generated_at"] = datetime.now().isoformat()
-        row["report_date"] = context['start']
         return row
-
-    def prepare_request_payload(
-            self,
-            context: dict | None,
-            next_page_token: t.Optional[t.Any],
-    ) -> dict | None:
-        report_attributes = self.config.get('reports_attributes', {}).get(self.name, {})
-        return {
-            "data": {
-                "type": "flow-values-report",
-                "attributes": {
-                    "statistics": report_attributes.get('statistics', [
-                        "click_rate",
-                        "click_to_open_rate",
-                        "clicks",
-                        "clicks_unique",
-                        "delivered",
-                        "delivery_rate",
-                        "open_rate",
-                        "opens",
-                        "opens_unique",
-                        "recipients",
-                        "unsubscribe_rate",
-                        "unsubscribe_uniques",
-                        "unsubscribes",
-                        "bounced",
-                        "bounce_rate"
-                    ]),
-                    "timeframe": report_attributes.get('timeframe', {
-                        "start": context['start'].isoformat(),
-                        "end": context['end'].isoformat()
-                    }),
-                    "conversion_metric_id": report_attributes.get(
-                        'conversion_metric_id', "WcGvVS"),
-                }
-            }
-        }
-
-    def get_records(self, context) -> t.Iterable[dict[str, t.Any]]:
-        context = context or {}
-        yesterday_report_date = (datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone.utc)
-                                 - timedelta(days=1))
-        current_date = datetime.fromtimestamp(
-            self.get_starting_timestamp(context).replace(hour=0, minute=0, second=0, microsecond=0).timestamp(),
-            timezone.utc)
-        # when it's not the first run we start collect from next day
-        if 'replication_key_value' in self.get_context_state(context):
-            current_date += timedelta(days=1)
-        while current_date <= yesterday_report_date:
-            self.logger.info(f'Processing Flow report {current_date}')
-            context['start'] = current_date
-            context['end'] = current_date.replace(hour=23, minute=59, second=59, microsecond=99)
-            yield from super().get_records(context)
-            current_date += timedelta(days=1)
-            sleep(31)  # 2/m rate limit
-        else:
-            self.logger.info(f'Last available daily report already extracted')
-
-    def get_url_params(
-        self,
-        context: dict | None,
-        next_page_token: ParseResult | None,
-    ) -> dict[str, t.Any]:
-        params: dict[str, t.Any] = {}
-        if next_page_token:
-            params.update(parse_qsl(next_page_token.query))
-
-        if self.max_page_size:
-            params["page[size]"] = self.max_page_size
-        self.logger.debug("QUERY PARAMS: %s", params)
-        return params

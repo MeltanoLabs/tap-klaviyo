@@ -46,12 +46,11 @@ class TapKlaviyo(Tap):
             th.ObjectType(
                 th.Property('campaign_values_reports', th.ObjectType(
                     th.Property('statistics', th.ArrayType(th.StringType)),
-                    th.Property('timeframe',
-                                th.ObjectType(
-                                    th.Property('key', th.StringType), additional_properties=False)),
+                    th.Property('timeframe_last_n_days', th.IntegerType),
                     th.Property('conversion_metric_id', th.StringType), additional_properties=False)),
                 th.Property('flow_values_reports', th.ObjectType(
                     th.Property('statistics', th.ArrayType(th.StringType)),
+                    th.Property('timeframe_last_n_days', th.IntegerType),
                     th.Property('conversion_metric_id', th.StringType), additional_properties=False)
             ), additional_properties=False),
             description="Redefine report attributes (e.g. {'campaign_values_reports': {'statistics: ['click_rate']}} )",

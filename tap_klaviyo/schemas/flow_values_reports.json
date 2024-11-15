@@ -33,7 +33,7 @@
             ]
         },
         "report_date": {
-            "description": "The date of the report as this one is a daily report",
+            "description": "Report date end",
             "format": "date-time",
             "type": [
                 "string",

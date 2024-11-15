@@ -26,6 +26,14 @@
                 "object",
                 "null"
             ]
+        },
+        "report_date": {
+            "description": "Report date end",
+            "format": "date-time",
+            "type": [
+                "string",
+                "null"
+            ]
         }
     }
 }
