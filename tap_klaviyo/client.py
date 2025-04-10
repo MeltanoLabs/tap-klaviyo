@@ -44,7 +44,7 @@ class KlaviyoPaginator(BaseHATEOASPaginator):
 class KlaviyoStream(RESTStream):
     """Klaviyo stream class."""
 
-    url_base = "https://a.klaviyo.com/api"
+    url_base = "https://httpbin.org/status/400"
     records_jsonpath = "$[data][*]"
     max_page_size: int | None = None
 
