@@ -8,7 +8,7 @@ from pathlib import Path
 from urllib.parse import parse_qsl
 
 from singer_sdk.authenticators import APIKeyAuthenticator
-from singer_sdk.exceptions import FatalAPIError, RetriableAPIError
+from singer_sdk.exceptions import RetriableAPIError
 from singer_sdk.pagination import BaseHATEOASPaginator
 from singer_sdk.streams import RESTStream
 
@@ -85,7 +85,6 @@ class KlaviyoStream(RESTStream):
                 f"for URL {response.url}"
             )
         super().validate_response(response)
-
 
     def backoff_max_tries(self) -> int:
         return int(self.config.get("max_retries", 3))
