@@ -9,6 +9,7 @@ from urllib.parse import parse_qsl
 
 from singer_sdk.authenticators import APIKeyAuthenticator
 from singer_sdk.pagination import BaseHATEOASPaginator
+from singer_sdk.requests import BaseRequester
 from singer_sdk.streams import RESTStream
 
 if t.TYPE_CHECKING:
@@ -75,6 +76,9 @@ class KlaviyoStream(RESTStream):
         if "revision" in self.config:
             headers["revision"] = self.config.get("revision")
         return headers
+
+    def get_requester(self) -> BaseRequester:
+        return super().get_requester()
 
     def get_new_paginator(self) -> BaseHATEOASPaginator:
         return KlaviyoPaginator()
