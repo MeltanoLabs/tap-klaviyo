@@ -93,7 +93,7 @@ class KlaviyoStream(RESTStream):
         backoff_factor = float(self.config.get("backoff_factor", 2))
         max_tries = self.backoff_max_tries()
         for attempt in range(max_tries):
-            yield backoff_factor * (2 ** attempt)
+            yield backoff_factor * (2**attempt)
 
     def get_new_paginator(self) -> BaseHATEOASPaginator:
         return KlaviyoPaginator()
