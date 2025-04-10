@@ -79,7 +79,6 @@ class KlaviyoStream(RESTStream):
 
     def validate_response(self, response):
         """Raise only retryable errors as retryable exceptions."""
-        super().validate_response(response)
 
         if not response.ok:
             if response.status_code in {429, 500, 502, 503, 504}:
@@ -87,7 +86,7 @@ class KlaviyoStream(RESTStream):
                     f"Retryable error {response.status_code} {response.reason} "
                     f"for URL {response.url}"
                 )
-            raise FatalAPIError(f"Fatal error {response.status_code} for URL {response.url}")
+        super().validate_response(response)
 
 
     def backoff_max_tries(self) -> int:
