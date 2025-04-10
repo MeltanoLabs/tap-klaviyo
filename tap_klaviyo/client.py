@@ -9,7 +9,6 @@ from urllib.parse import parse_qsl
 
 from singer_sdk.authenticators import APIKeyAuthenticator
 from singer_sdk.pagination import BaseHATEOASPaginator
-from singer_sdk.requests import BaseRequester
 from singer_sdk.streams import RESTStream
 
 if t.TYPE_CHECKING:
@@ -77,8 +76,20 @@ class KlaviyoStream(RESTStream):
             headers["revision"] = self.config.get("revision")
         return headers
 
-    def get_requester(self) -> BaseRequester:
-        return super().get_requester()
+    def backoff_max_tries(self) -> int:
+        return int(self.config.get("max_retries", 3))
+
+    def backoff_wait_generator(self) -> t.Generator[float, None, None]:
+        backoff_factor = float(self.config.get("backoff_factor", 2))
+        max_tries = self.backoff_max_tries()
+        for attempt in range(max_tries):
+            yield backoff_factor * (2 ** attempt)
+
+    def backoff_handler(self, details: dict) -> None:
+        self.logger.warning(
+            f"[{self.name}] Request failed with {details['exception']}. "
+            f"Backing off {details['wait']} seconds (attempt {details['tries']})..."
+        )
 
     def get_new_paginator(self) -> BaseHATEOASPaginator:
         return KlaviyoPaginator()
