@@ -77,13 +77,13 @@ class KlaviyoStream(RESTStream):
             headers["revision"] = self.config.get("revision")
         return headers
 
-    def validate_response(self, response):
-        """Raise only retryable errors as retryable exceptions."""
+    def validate_response(self, response: requests.Response) -> None:
         if not response.ok and response.status_code in self.config.get("retry_statuses", {}):
-            raise RetriableAPIError(
+            error_message = (
                 f"Retryable error {response.status_code} {response.reason} "
                 f"for URL {response.url}"
             )
+            raise RetriableAPIError(error_message)
         super().validate_response(response)
 
     def backoff_max_tries(self) -> int:
