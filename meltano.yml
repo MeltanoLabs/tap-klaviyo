@@ -22,6 +22,12 @@ plugins:
       value: '2024-02-15'
     - name: start_date
       value: '2000-01-01'
+    - name: max_retries
+      value: 5
+    - name: backoff_factor
+      value: 2
+    - name: retry_statuses
+      value: [400]
   loaders:
   - name: target-jsonl
     variant: andyh1203

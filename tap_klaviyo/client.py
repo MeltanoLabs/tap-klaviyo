@@ -79,13 +79,11 @@ class KlaviyoStream(RESTStream):
 
     def validate_response(self, response):
         """Raise only retryable errors as retryable exceptions."""
-
-        if not response.ok:
-            if response.status_code in {429, 500, 502, 503, 504}:
-                raise RetriableAPIError(
-                    f"Retryable error {response.status_code} {response.reason} "
-                    f"for URL {response.url}"
-                )
+        if not response.ok and response.status_code in self.config.get("retry_statuses", {}):
+            raise RetriableAPIError(
+                f"Retryable error {response.status_code} {response.reason} "
+                f"for URL {response.url}"
+            )
         super().validate_response(response)
 
 
@@ -97,12 +95,6 @@ class KlaviyoStream(RESTStream):
         max_tries = self.backoff_max_tries()
         for attempt in range(max_tries):
             yield backoff_factor * (2 ** attempt)
-
-    def backoff_handler(self, details: dict) -> None:
-        self.logger.warning(
-            f"[{self.name}] Request failed with {details['exception']}. "
-            f"Backing off {details['wait']} seconds (attempt {details['tries']})..."
-        )
 
     def get_new_paginator(self) -> BaseHATEOASPaginator:
         return KlaviyoPaginator()
