@@ -8,6 +8,7 @@ from pathlib import Path
 from urllib.parse import parse_qsl
 
 from singer_sdk.authenticators import APIKeyAuthenticator
+from singer_sdk.exceptions import FatalAPIError
 from singer_sdk.pagination import BaseHATEOASPaginator
 from singer_sdk.streams import RESTStream
 
@@ -75,6 +76,11 @@ class KlaviyoStream(RESTStream):
         if "revision" in self.config:
             headers["revision"] = self.config.get("revision")
         return headers
+
+    @property
+    def backoff_exceptions(self) -> tuple[type[BaseException], ...]:
+        """Define exceptions that trigger backoff & retries."""
+        return (*super().backoff_exceptions, FatalAPIError)
 
     def backoff_max_tries(self) -> int:
         return int(self.config.get("max_retries", 3))
