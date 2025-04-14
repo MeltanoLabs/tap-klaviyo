@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import typing as t
+from datetime import datetime, timezone
 from pathlib import Path
 
 from tap_klaviyo.client import KlaviyoStream
@@ -27,7 +28,16 @@ class EventsStream(KlaviyoStream):
         row: dict,
         context: dict | None = None,  # noqa: ARG002
     ) -> dict | None:
-        row["datetime"] = row["attributes"]["datetime"]
+        now = datetime.now(timezone.utc)
+        event_datetime_str = row["attributes"]["datetime"]
+        event_datetime = datetime.fromisoformat(event_datetime_str)
+
+        if event_datetime > now:
+            warning_message = f"Skipping future event: {row.get('id')} at {event_datetime_str}"
+            self.logger.warning(warning_message)
+            return None
+
+        row["datetime"] = event_datetime_str
         return row
 
     @property
