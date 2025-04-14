@@ -8,7 +8,6 @@ from pathlib import Path
 from urllib.parse import parse_qsl
 
 from singer_sdk.authenticators import APIKeyAuthenticator
-from singer_sdk.exceptions import RetriableAPIError
 from singer_sdk.pagination import BaseHATEOASPaginator
 from singer_sdk.streams import RESTStream
 
@@ -76,24 +75,6 @@ class KlaviyoStream(RESTStream):
         if "revision" in self.config:
             headers["revision"] = self.config.get("revision")
         return headers
-
-    def validate_response(self, response: requests.Response) -> None:
-        if not response.ok and response.status_code in self.config.get("retry_statuses", {}):
-            error_message = (
-                f"Retryable error {response.status_code} {response.reason} "
-                f"for URL {response.url}"
-            )
-            raise RetriableAPIError(error_message)
-        super().validate_response(response)
-
-    def backoff_max_tries(self) -> int:
-        return int(self.config.get("max_retries", 3))
-
-    def backoff_wait_generator(self) -> t.Generator[float, None, None]:
-        backoff_factor = float(self.config.get("backoff_factor", 2))
-        max_tries = self.backoff_max_tries()
-        for attempt in range(max_tries):
-            yield backoff_factor * (2**attempt)
 
     def get_new_paginator(self) -> BaseHATEOASPaginator:
         return KlaviyoPaginator()
