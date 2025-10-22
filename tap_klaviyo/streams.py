@@ -93,11 +93,12 @@ class CampaignMessagesStream(KlaviyoStream):
     path = "/campaigns/{campaign_id}/campaign-messages"
     primary_keys = ["id"]
     replication_key = None
-    parent_stream_type = CampaignsStream
     schema_filepath = SCHEMAS_DIR / "campaign_messages.json"
 
-    # def get_child_context(self, record, context):
-    #     return super().get_child_context(record, context)
+    parent_stream_type = CampaignsStream
+
+    def get_child_context(self, record, context):
+        return super().get_child_context(record, context)
 
     def post_process(
         self,
