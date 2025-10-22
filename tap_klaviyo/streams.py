@@ -69,6 +69,10 @@ class CampaignsStream(KlaviyoStream):
 
         return url_params
 
+    def get_child_context(self, record: dict, context: dict) -> dict:
+        """Pass branchId to child stream"""
+        return {"campaign_id": record["id"]}
+
     def post_process(
         self,
         row: dict,
@@ -80,6 +84,27 @@ class CampaignsStream(KlaviyoStream):
     @property
     def is_sorted(self) -> bool:
         return True
+
+
+class CampaignMessagesStream(KlaviyoStream):
+    """Define custom stream."""
+
+    name = "campaign_messages"
+    path = "/campaigns/{campaign_id}/campaign-messages"
+    primary_keys = ["id"]
+    replication_key = None
+    parent_stream_type = CampaignsStream
+    schema_filepath = SCHEMAS_DIR / "campaign_messages.json"
+
+    def get_child_context(self, record, context):
+        return super().get_child_context(record, context)
+
+    def post_process(
+        self,
+        row: dict,
+        context: dict | None = None,  # noqa: ARG002
+    ) -> dict | None:
+        return row
 
 
 class ProfilesStream(KlaviyoStream):
