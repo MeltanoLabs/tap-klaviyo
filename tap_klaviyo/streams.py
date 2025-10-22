@@ -83,7 +83,7 @@ class CampaignsStream(KlaviyoStream):
 
     @property
     def is_sorted(self) -> bool:
-        return True
+        return False
 
 
 class CampaignMessagesStream(KlaviyoStream):
