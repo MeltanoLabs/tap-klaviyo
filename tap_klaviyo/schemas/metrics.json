@@ -82,6 +82,20 @@
                                 "string",
                                 "null"
                             ]
+                        },
+                        "object": {
+                            "description": "The object type of the integration",
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "key": {
+                            "description": "The key of the integration",
+                            "type": [
+                                "string",
+                                "null"
+                            ]
                         }
                     },
                     "type": [
