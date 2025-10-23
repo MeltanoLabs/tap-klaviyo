@@ -1,5 +1,12 @@
 {
     "properties": {
+        "type": {
+            "description": "The object type",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
         "id": {
             "description": "The metric ID",
             "type": [
