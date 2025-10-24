@@ -228,3 +228,64 @@ class TemplatesStream(KlaviyoStream):
     @property
     def is_sorted(self) -> bool:
         return True
+
+
+class FlowActionsStream(KlaviyoStream):
+    """Stream: flow actions for each flow (parent => provides flow_action_id)."""
+
+    name = "flow_actions"
+    path = "/flows/{flow_id}/flow-actions"
+    primary_keys = ["id"]
+    replication_key = "updated"  # flows/actions expose created/updated attributes
+    parent_stream_type = FlowsStream  # your existing FlowsStream
+    schema_filepath = SCHEMAS_DIR / "flow_actions.json"
+
+    # Klaviyo can return items out of strict sort order — avoid SDK sort enforcement
+    @property
+    def is_sorted(self) -> bool:
+        return False
+
+    def get_child_context(
+        self, record: dict, context: dict | None = None
+    ) -> dict | None:
+        """Expose flow_action_id to child streams."""
+        action_id = record.get("id")
+        if not action_id:
+            return None
+        return {
+            "flow_action_id": action_id,
+            "flow_id": context.get("flow_id") if context else None,
+        }
+
+    def post_process(self, row: dict, context: dict | None = None) -> dict | None:
+        # Flatten attributes and attach parent flow id for joins
+        attrs = row.get("attributes", {}) or {}
+        row["updated"] = attrs.get("updated")
+        row["flow_id"] = context.get("flow_id") if context else None
+        return row
+
+
+class FlowMessagesStream(KlaviyoStream):
+    """Stream: messages belonging to a flow action (child of FlowActionsStream)."""
+
+    name = "flow_messages"
+    path = "/flow-actions/{flow_action_id}/flow-messages"
+    primary_keys = ["id"]
+    replication_key = "updated"  # message objects have created/updated in attributes
+    parent_stream_type = FlowActionsStream
+    schema_filepath = SCHEMAS_DIR / "flow_messages.json"
+
+    # Klaviyo responses may not be strictly sorted by updated — don't enforce
+    @property
+    def is_sorted(self) -> bool:
+        return False
+
+    def post_process(self, row: dict, context: dict | None = None) -> dict | None:
+        attrs = row.get("attributes", {}) or {}
+        row["updated"] = attrs.get("updated")
+        # attach the parent action id (and optionally flow_id if passed)
+        if context:
+            row["flow_action_id"] = context.get("flow_action_id")
+            if "flow_id" in context:
+                row["flow_id"] = context.get("flow_id")
+        return row
