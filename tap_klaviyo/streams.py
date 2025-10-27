@@ -202,13 +202,8 @@ class FlowsStream(KlaviyoStream):
     def get_child_context(
         self, record: dict, context: dict | None = None
     ) -> dict | None:
-        """Expose flow_id to child streams (flow_actions)."""
-        flow_id = record.get("id")
-        if not flow_id:
-            return None
-        return {
-            "flow_id": flow_id,
-        }
+        """Pass branchId to child stream"""
+        return {"flow_id": record["id"]}
 
     def post_process(
         self,
@@ -217,28 +212,6 @@ class FlowsStream(KlaviyoStream):
     ) -> dict | None:
         row["updated"] = row["attributes"]["updated"]
         return row
-
-
-class TemplatesStream(KlaviyoStream):
-    """Define custom stream."""
-
-    name = "templates"
-    path = "/templates"
-    primary_keys = ["id"]
-    replication_key = "updated"
-    schema_filepath = SCHEMAS_DIR / "templates.json"
-
-    def post_process(
-        self,
-        row: dict,
-        context: dict | None = None,  # noqa: ARG002
-    ) -> dict | None:
-        row["updated"] = row["attributes"]["updated"]
-        return row
-
-    @property
-    def is_sorted(self) -> bool:
-        return True
 
 
 class FlowActionsStream(KlaviyoStream):
@@ -300,3 +273,25 @@ class FlowMessagesStream(KlaviyoStream):
             if "flow_id" in context:
                 row["flow_id"] = context.get("flow_id")
         return row
+
+
+class TemplatesStream(KlaviyoStream):
+    """Define custom stream."""
+
+    name = "templates"
+    path = "/templates"
+    primary_keys = ["id"]
+    replication_key = "updated"
+    schema_filepath = SCHEMAS_DIR / "templates.json"
+
+    def post_process(
+        self,
+        row: dict,
+        context: dict | None = None,  # noqa: ARG002
+    ) -> dict | None:
+        row["updated"] = row["attributes"]["updated"]
+        return row
+
+    @property
+    def is_sorted(self) -> bool:
+        return True
