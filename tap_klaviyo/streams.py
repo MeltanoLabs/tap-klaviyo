@@ -235,17 +235,39 @@ class FlowActionsStream(KlaviyoStream):
         return row
 
 
+# class FlowMessagesStream(KlaviyoStream):
+#     """Stream: messages belonging to a flow action (child of FlowActionsStream)."""
+
+#     name = "flow_messages"
+#     path = "/flow-actions/{flow_action_id}/flow-messages"
+#     primary_keys = ["id"]
+#     replication_key = None  # message objects have created/updated in attributes
+#     parent_stream_type = FlowActionsStream
+#     schema_filepath = SCHEMAS_DIR / "flow_messages.json"
+
+#     def get_child_context(self, record, context):
+#         return super().get_child_context(record, context)
+
+#     def post_process(
+#         self,
+#         row: dict,
+#         context: dict | None = None,  # noqa: ARG002
+#     ) -> dict | None:
+#         return row
+
+
 class FlowMessagesStream(KlaviyoStream):
     """Stream: messages belonging to a flow action (child of FlowActionsStream)."""
 
     name = "flow_messages"
     path = "/flow-actions/{flow_action_id}/flow-messages"
     primary_keys = ["id"]
-    replication_key = None  # message objects have created/updated in attributes
+    replication_key = None
     parent_stream_type = FlowActionsStream
     schema_filepath = SCHEMAS_DIR / "flow_messages.json"
 
     def get_child_context(self, record, context):
+        # If you ever chain more levels later
         return super().get_child_context(record, context)
 
     def post_process(
@@ -253,6 +275,15 @@ class FlowMessagesStream(KlaviyoStream):
         row: dict,
         context: dict | None = None,  # noqa: ARG002
     ) -> dict | None:
+        """
+        Add flow_action_id and flow_id to the row
+        (values come from parent and grandparent contexts).
+        """
+        if context:
+            if "flow_action_id" in context:
+                row["flow_action_id"] = context["flow_action_id"]
+            if "flow_id" in context:
+                row["flow_id"] = context["flow_id"]
         return row
 
 

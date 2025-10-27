@@ -15,123 +15,7 @@
             ]
         },
         "attributes": {
-            "properties": {
-                "created": {
-                    "description": "The date and time the flow message was created in ISO 8601 format",
-                    "format": "date-time",
-                    "type": [
-                        "string",
-                        "null"
-                    ]
-                },
-                "updated": {
-                    "description": "The date and time the flow message was last updated in ISO 8601 format",
-                    "format": "date-time",
-                    "type": [
-                        "string",
-                        "null"
-                    ]
-                },
-                "definition": {
-                    "description": "The flow message definition containing email configuration and targeting rules",
-                    "type": [
-                        "object",
-                        "null"
-                    ],
-                    "properties": {
-                        "from_email": {
-                            "type": [
-                                "string",
-                                "null"
-                            ]
-                        },
-                        "from_label": {
-                            "type": [
-                                "string",
-                                "null"
-                            ]
-                        },
-                        "reply_to_email": {
-                            "type": [
-                                "string",
-                                "null"
-                            ]
-                        },
-                        "cc_email": {
-                            "type": [
-                                "string",
-                                "null"
-                            ]
-                        },
-                        "bcc_email": {
-                            "type": [
-                                "string",
-                                "null"
-                            ]
-                        },
-                        "subject_line": {
-                            "type": [
-                                "string",
-                                "null"
-                            ]
-                        },
-                        "preview_text": {
-                            "type": [
-                                "string",
-                                "null"
-                            ]
-                        },
-                        "template_id": {
-                            "type": [
-                                "string",
-                                "null"
-                            ]
-                        },
-                        "smart_sending_enabled": {
-                            "type": [
-                                "boolean",
-                                "null"
-                            ]
-                        },
-                        "transactional": {
-                            "type": [
-                                "boolean",
-                                "null"
-                            ]
-                        },
-                        "add_tracking_params": {
-                            "type": [
-                                "boolean",
-                                "null"
-                            ]
-                        },
-                        "custom_tracking_params": {
-                            "type": [
-                                "array",
-                                "null"
-                            ]
-                        },
-                        "additional_filters": {
-                            "type": [
-                                "object",
-                                "null"
-                            ]
-                        },
-                        "name": {
-                            "type": [
-                                "string",
-                                "null"
-                            ]
-                        },
-                        "id": {
-                            "type": [
-                                "string",
-                                "null"
-                            ]
-                        }
-                    }
-                }
-            },
+            "description": "The flow message attributes",
             "type": [
                 "object",
                 "null"
@@ -172,6 +56,20 @@
                     ]
                 }
             }
+        },
+        "flow_action_id": {
+            "description": "The ID of the associated flow action",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "flow_id": {
+            "description": "The ID of the associated flow",
+            "type": [
+                "string",
+                "null"
+            ]
         }
     }
 }
