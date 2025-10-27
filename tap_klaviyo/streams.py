@@ -225,7 +225,10 @@ class FlowActionsStream(KlaviyoStream):
     schema_filepath = SCHEMAS_DIR / "flow_actions.json"
 
     def get_child_context(self, record: dict, context: dict | None = None) -> dict:
-        return {"flow_action_id": record["id"]}
+        return {
+            "flow_id": context.get("flow_id") if context else None,
+            "flow_action_id": record["id"],
+        }
 
     def post_process(
         self,
