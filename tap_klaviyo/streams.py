@@ -199,6 +199,17 @@ class FlowsStream(KlaviyoStream):
     schema_filepath = SCHEMAS_DIR / "flows.json"
     is_sorted = True
 
+    def get_child_context(
+        self, record: dict, context: dict | None = None
+    ) -> dict | None:
+        """Expose flow_id to child streams (flow_actions)."""
+        flow_id = record.get("id")
+        if not flow_id:
+            return None
+        return {
+            "flow_id": flow_id,
+        }
+
     def post_process(
         self,
         row: dict,
