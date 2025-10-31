@@ -6,6 +6,8 @@ import typing as t
 from pathlib import Path
 
 from tap_klaviyo.client import KlaviyoStream
+from singer_sdk.pagination import NoPagination
+
 
 if t.TYPE_CHECKING:
     from urllib.parse import ParseResult
@@ -172,8 +174,8 @@ class CampaignValuesStream(KlaviyoStream):
         return {}
 
     def get_new_paginator(self):
-        """Disable pagination (POST endpoint doesn't paginate)."""
-        return None
+        """Return a paginator that does nothing."""
+        return NoPagination()
 
     def prepare_request_payload(
         self,
