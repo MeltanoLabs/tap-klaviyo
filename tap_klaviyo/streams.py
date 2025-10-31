@@ -158,7 +158,7 @@ class CampaignValuesStream(KlaviyoStream):
 
     name = "campaign_values"
     path = "/campaign-values-reports"
-    primary_keys: list[str] = ["metric_id"]
+    primary_keys = ["metric_id"]
     rest_method = "POST"
     replication_key = None
     schema_filepath = SCHEMAS_DIR / "campaign_values.json"
@@ -202,11 +202,10 @@ class CampaignValuesStream(KlaviyoStream):
         # The API response format is something like:
         # {"data": {"type": "campaign-values-report", "attributes": {...}}}
         data = row.get("data", {})
-        attributes = data.get("attributes", {})
 
         return {
             "metric_id": context.get("metric_id") if context else None,
-            **attributes,
+            **data,
         }
 
 
