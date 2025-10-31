@@ -172,8 +172,10 @@ class CampaignValuesStream(KlaviyoStream):
         return {}
 
     def get_new_paginator(self):
-        """Disable pagination (POST endpoint doesn't paginate)."""
-        return None
+        """Return a single-page paginator since POST endpoint doesn't paginate."""
+        from singer_sdk.pagination import SinglePagePaginator
+
+        return SinglePagePaginator()
 
     def prepare_request_payload(
         self,
