@@ -47,8 +47,8 @@
                 "event_properties": {
                     "description": "Event properties, can include attribution data, identifiers and extra properties",
                     "type": [
-                        "null",
-                        "object"
+                        "object",
+                        "null"
                     ]
                 },
                 "datetime": {

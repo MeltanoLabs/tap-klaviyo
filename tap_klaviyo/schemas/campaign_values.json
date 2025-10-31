@@ -1,0 +1,161 @@
+{
+    "properties": {
+        "id": {
+            "description": "The unique report ID for the campaign values report.",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "type": {
+            "description": "The type of report object, e.g., 'campaign-values-report'.",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "datetime": {
+            "description": "Timestamp when the report was generated, in ISO 8601 format (YYYY-MM-DDTHH:MM:SS.mmmmmm).",
+            "format": "date-time",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "relationships": {
+            "description": "Relationships to other entities, such as campaign details.",
+            "type": [
+                "object",
+                "null"
+            ],
+            "properties": {
+                "campaigns": {
+                    "type": [
+                        "array",
+                        "null"
+                    ],
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "type": {
+                                "description": "The related entity type, e.g., 'campaign'.",
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "id": {
+                                "description": "The related campaign ID.",
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "links": {
+            "description": "Pagination and resource links related to the report.",
+            "type": [
+                "object",
+                "null"
+            ],
+            "properties": {
+                "self": {
+                    "description": "Link to the current report resource.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "next": {
+                    "description": "Link to the next page of results, if available.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "prev": {
+                    "description": "Link to the previous page of results, if available.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            }
+        },
+        "attributes": {
+            "description": "Report data and statistical attributes.",
+            "type": [
+                "object",
+                "null"
+            ],
+            "properties": {
+                "results": {
+                    "description": "List of campaign performance statistics grouped by campaign.",
+                    "type": [
+                        "array",
+                        "null"
+                    ],
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "groupings": {
+                                "description": "Grouping dimensions such as campaign ID, message ID, and send channel.",
+                                "type": [
+                                    "object",
+                                    "null"
+                                ],
+                                "properties": {
+                                    "send_channel": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "campaign_id": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "campaign_message_id": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    }
+                                }
+                            },
+                            "statistics": {
+                                "description": "Metrics such as opens, clicks, conversions, etc.",
+                                "type": [
+                                    "object",
+                                    "null"
+                                ],
+                                "properties": {
+                                    "opens": {
+                                        "description": "Total number of opens recorded for the campaign.",
+                                        "type": [
+                                            "number",
+                                            "null"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "metric_id": {
+            "description": "The ID of the metric associated with the campaign values report.",
+            "type": [
+                "string",
+                "null"
+            ]
+        }
+    }
+}

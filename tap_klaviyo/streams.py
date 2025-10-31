@@ -148,6 +148,64 @@ class MetricsStream(KlaviyoStream):
         row["updated"] = row["attributes"]["updated"]
         return row
 
+    def get_child_context(self, record: dict, context: dict) -> dict:
+        """Pass branchId to child stream"""
+        return {"metric_id": record["id"]}
+
+
+class CampaignValuesStream(KlaviyoStream):
+    """Stream for fetching Campaign Values Reports."""
+
+    name = "campaign_values"
+    path = "/campaign-values-reports"
+    primary_keys: list[str] = ["metric_id"]
+    rest_method = "POST"
+    replication_key = None
+    parent_stream_type = "MetricsStream"
+    schema_filepath = SCHEMAS_DIR / "campaign_values.json"
+
+    def get_url_params(
+        self, context: t.Optional[dict], next_page_token: t.Optional[t.Any]
+    ) -> dict:
+        """No query parameters needed for POST."""
+        return {}
+
+    def get_new_paginator(self):
+        """Disable pagination (POST endpoint doesn't paginate)."""
+        return None
+
+    def prepare_request_payload(
+        self,
+        context: t.Optional[dict],
+        next_page_token: t.Optional[t.Any],
+    ) -> dict:
+        """Construct request body for campaign-values-reports."""
+        metric_id = context.get("metric_id") if context else None
+        return {
+            "data": {
+                "type": "campaign-values-report",
+                "attributes": {
+                    "statistics": ["opens"],
+                    "timeframe": {
+                        "key": "last_7_days",
+                    },
+                    "conversion_metric_id": metric_id,
+                },
+            }
+        }
+
+    def post_process(self, row: dict, context: t.Optional[dict]) -> dict:
+        """Transform the response data into a flat record."""
+        # The API response format is something like:
+        # {"data": {"type": "campaign-values-report", "attributes": {...}}}
+        data = row.get("data", {})
+        attributes = data.get("attributes", {})
+
+        return {
+            "metric_id": context.get("metric_id") if context else None,
+            **attributes,
+        }
+
 
 class ListsStream(KlaviyoStream):
     """Define custom stream."""
@@ -236,27 +294,6 @@ class FlowActionsStream(KlaviyoStream):
         context: dict | None = None,  # noqa: ARG002
     ) -> dict | None:
         return row
-
-
-# class FlowMessagesStream(KlaviyoStream):
-#     """Stream: messages belonging to a flow action (child of FlowActionsStream)."""
-
-#     name = "flow_messages"
-#     path = "/flow-actions/{flow_action_id}/flow-messages"
-#     primary_keys = ["id"]
-#     replication_key = None  # message objects have created/updated in attributes
-#     parent_stream_type = FlowActionsStream
-#     schema_filepath = SCHEMAS_DIR / "flow_messages.json"
-
-#     def get_child_context(self, record, context):
-#         return super().get_child_context(record, context)
-
-#     def post_process(
-#         self,
-#         row: dict,
-#         context: dict | None = None,  # noqa: ARG002
-#     ) -> dict | None:
-#         return row
 
 
 class FlowMessagesStream(KlaviyoStream):
