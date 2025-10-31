@@ -161,8 +161,9 @@ class CampaignValuesStream(KlaviyoStream):
     primary_keys: list[str] = ["metric_id"]
     rest_method = "POST"
     replication_key = None
-    parent_stream_type = "MetricsStream"
     schema_filepath = SCHEMAS_DIR / "campaign_values.json"
+
+    parent_stream_type = MetricsStream
 
     def get_url_params(
         self, context: t.Optional[dict], next_page_token: t.Optional[t.Any]
