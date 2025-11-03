@@ -207,6 +207,7 @@ class CampaignValuesStream(KlaviyoStream):
                 url,
                 headers=headers,
                 json=body,
+                auth=self.authenticator,
             )
             response.raise_for_status()
         except Exception as e:
