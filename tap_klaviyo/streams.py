@@ -159,29 +159,20 @@ class CampaignValuesStream(KlaviyoStream):
     name = "campaign_values"
     path = "/campaign-values-reports"
     primary_keys = ["metric_id"]
-    rest_method = "POST"
     replication_key = None
     schema_filepath = SCHEMAS_DIR / "campaign_values.json"
 
     parent_stream_type = MetricsStream
 
-    def get_url_params(
-        self, context: t.Optional[dict], next_page_token: t.Optional[t.Any]
-    ) -> dict:
-        """No query parameters needed for POST."""
-        return {}
+    def get_next_page_token(self, response, previous_token):
+        """No pagination for Campaign Values API - return None."""
+        return None
 
-    def get_new_paginator(self):
-        """Return a single-page paginator since POST endpoint doesn't paginate."""
-        from singer_sdk.pagination import SinglePagePaginator
+    def get_url(self, context):
+        """Construct the full URL."""
+        return f"{self.url_base}{self.path}"
 
-        return SinglePagePaginator()
-
-    def prepare_request_payload(
-        self,
-        context: t.Optional[dict],
-        next_page_token: t.Optional[t.Any],
-    ) -> dict:
+    def request_body_json(self, context):
         """Construct request body for campaign-values-reports."""
         metric_id = context.get("metric_id") if context else None
         return {
@@ -197,15 +188,35 @@ class CampaignValuesStream(KlaviyoStream):
             }
         }
 
-    def post_process(self, row: dict, context: t.Optional[dict]) -> dict:
+    def request_records(self, context):
+        """Send POST request with correct authentication headers."""
+        url = self.get_url(context)
+        body = self.request_body_json(context)
+
+        headers = {"Accept": "application/json", "Content-Type": "application/json"}
+
+        response = self.requests_session.request(
+            "POST", url, headers=headers, json=body, auth=self.authenticator
+        )
+        response.raise_for_status()
+
+        yield from self.parse_response(response, context)
+
+    def parse_response(self, response, context=None):
         """Transform the response data into a flat record."""
+        data = response.json()
+
+        # Get the metric_id from context
+        metric_id = context.get("metric_id") if context else None
+
         # The API response format is something like:
         # {"data": {"type": "campaign-values-report", "attributes": {...}}}
-        data = row.get("data", {})
+        response_data = data.get("data", {})
 
-        return {
-            "metric_id": context.get("metric_id") if context else None,
-            **data,
+        # Yield a single record with metric_id and flattened data
+        yield {
+            "metric_id": metric_id,
+            **response_data,
         }
 
 
