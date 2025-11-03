@@ -31,25 +31,33 @@
             "properties": {
                 "campaigns": {
                     "type": [
-                        "array",
+                        "object",
                         "null"
                     ],
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "type": {
-                                "description": "The related entity type, e.g., 'campaign'.",
-                                "type": [
-                                    "string",
-                                    "null"
-                                ]
-                            },
-                            "id": {
-                                "description": "The related campaign ID.",
-                                "type": [
-                                    "string",
-                                    "null"
-                                ]
+                    "properties": {
+                        "data": {
+                            "type": [
+                                "array",
+                                "null"
+                            ],
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "type": {
+                                        "description": "The related entity type, e.g., 'campaign'.",
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "id": {
+                                        "description": "The related campaign ID.",
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    }
+                                }
                             }
                         }
                     }
@@ -98,55 +106,7 @@
                     "type": [
                         "array",
                         "null"
-                    ],
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "groupings": {
-                                "description": "Grouping dimensions such as campaign ID, message ID, and send channel.",
-                                "type": [
-                                    "object",
-                                    "null"
-                                ],
-                                "properties": {
-                                    "send_channel": {
-                                        "type": [
-                                            "string",
-                                            "null"
-                                        ]
-                                    },
-                                    "campaign_id": {
-                                        "type": [
-                                            "string",
-                                            "null"
-                                        ]
-                                    },
-                                    "campaign_message_id": {
-                                        "type": [
-                                            "string",
-                                            "null"
-                                        ]
-                                    }
-                                }
-                            },
-                            "statistics": {
-                                "description": "Metrics such as opens, clicks, conversions, etc.",
-                                "type": [
-                                    "object",
-                                    "null"
-                                ],
-                                "properties": {
-                                    "opens": {
-                                        "description": "Total number of opens recorded for the campaign.",
-                                        "type": [
-                                            "number",
-                                            "null"
-                                        ]
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    ]
                 }
             }
         },
