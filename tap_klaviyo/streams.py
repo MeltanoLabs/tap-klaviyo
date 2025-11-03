@@ -153,6 +153,10 @@ class MetricsStream(KlaviyoStream):
         return {"metric_id": record["id"]}
 
 
+import time
+from requests.exceptions import HTTPError
+
+
 class CampaignValuesStream(KlaviyoStream):
     """Stream for fetching Campaign Values Reports."""
 
@@ -189,11 +193,10 @@ class CampaignValuesStream(KlaviyoStream):
         }
 
     def request_records(self, context):
-        """Send POST request with correct authentication headers."""
+        """Send POST request with rate limiting and retry logic."""
         url = self.get_url(context)
         body = self.request_body_json(context)
 
-        # Use the stream's http_headers property which includes auth
         headers = self.http_headers.copy()
         headers["Content-Type"] = "application/json"
 
@@ -201,24 +204,52 @@ class CampaignValuesStream(KlaviyoStream):
             f"Requesting campaign values for metric_id: {context.get('metric_id')}"
         )
 
-        try:
-            response = self.requests_session.request(
-                "POST",
-                url,
-                headers=headers,
-                json=body,
-                auth=self.authenticator,
-            )
-            response.raise_for_status()
-        except Exception as e:
-            self.logger.error(f"Request failed: {e}")
-            # Log response body for debugging
-            if hasattr(e, "response") and e.response is not None:
-                self.logger.error(f"Response status: {e.response.status_code}")
-                self.logger.error(f"Response body: {e.response.text}")
-            raise
+        max_retries = 5
+        retry_delay = 1  # Start with 1 second delay
 
-        yield from self.parse_response(response, context)
+        for attempt in range(max_retries):
+            try:
+                response = self.requests_session.request(
+                    "POST", url, headers=headers, json=body, auth=self.authenticator
+                )
+                response.raise_for_status()
+
+                # Success - yield records and return
+                yield from self.parse_response(response, context)
+                return
+
+            except HTTPError as e:
+                if e.response.status_code == 429:
+                    # Rate limited - check for Retry-After header
+                    retry_after = e.response.headers.get("Retry-After")
+
+                    if retry_after:
+                        wait_time = int(retry_after)
+                    else:
+                        # Exponential backoff: 1, 2, 4, 8, 16 seconds
+                        wait_time = retry_delay * (2**attempt)
+
+                    if attempt < max_retries - 1:
+                        self.logger.warning(
+                            f"Rate limit hit for metric_id {context.get('metric_id')}. "
+                            f"Waiting {wait_time} seconds before retry {attempt + 1}/{max_retries}"
+                        )
+                        time.sleep(wait_time)
+                    else:
+                        self.logger.error(
+                            f"Max retries reached for metric_id {context.get('metric_id')}. "
+                            f"Skipping this record."
+                        )
+                        raise
+                else:
+                    # Other HTTP error - log and raise
+                    self.logger.error(f"Request failed: {e}")
+                    if hasattr(e, "response") and e.response is not None:
+                        self.logger.error(f"Response body: {e.response.text}")
+                    raise
+            except Exception as e:
+                self.logger.error(f"Unexpected error: {e}")
+                raise
 
     def parse_response(self, response, context=None):
         """Transform the response data into a flat record."""
@@ -227,11 +258,10 @@ class CampaignValuesStream(KlaviyoStream):
         # Get the metric_id from context
         metric_id = context.get("metric_id") if context else None
 
-        # The API response format is something like:
-        # {"data": {"type": "campaign-values-report", "attributes": {...}}}
+        # The API response format: {"data": {"type": "...", "attributes": {...}, "relationships": {...}}}
         response_data = data.get("data", {})
 
-        # Yield a single record with metric_id and flattened data
+        # Yield a single record with metric_id and the full response data
         yield {
             "metric_id": metric_id,
             **response_data,
