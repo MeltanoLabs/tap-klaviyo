@@ -193,12 +193,29 @@ class CampaignValuesStream(KlaviyoStream):
         url = self.get_url(context)
         body = self.request_body_json(context)
 
-        headers = {"Accept": "application/json", "Content-Type": "application/json"}
+        # Use the stream's http_headers property which includes auth
+        headers = self.http_headers.copy()
+        headers["Content-Type"] = "application/json"
 
-        response = self.requests_session.request(
-            "POST", url, headers=headers, json=body, auth=self.authenticator
+        self.logger.info(
+            f"Requesting campaign values for metric_id: {context.get('metric_id')}"
         )
-        response.raise_for_status()
+
+        try:
+            response = self.requests_session.request(
+                "POST",
+                url,
+                headers=headers,
+                json=body,
+            )
+            response.raise_for_status()
+        except Exception as e:
+            self.logger.error(f"Request failed: {e}")
+            # Log response body for debugging
+            if hasattr(e, "response") and e.response is not None:
+                self.logger.error(f"Response status: {e.response.status_code}")
+                self.logger.error(f"Response body: {e.response.text}")
+            raise
 
         yield from self.parse_response(response, context)
 
