@@ -183,7 +183,16 @@ class CampaignValuesStream(KlaviyoStream):
             "data": {
                 "type": "campaign-values-report",
                 "attributes": {
-                    "statistics": ["opens"],
+                    "statistics": [
+                        "delivered",
+                        "opens",
+                        "clicks",
+                        "conversion_rate",
+                        "conversions",
+                        "unsubscribes",
+                        "bounced",
+                        "average_order_value",
+                    ],
                     "timeframe": {
                         "key": "last_7_days",
                     },
