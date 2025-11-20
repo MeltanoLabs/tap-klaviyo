@@ -194,7 +194,7 @@ class CampaignValuesStream(KlaviyoStream):
                         "average_order_value",
                     ],
                     "timeframe": {
-                        "key": "last_7_days",
+                        "key": "last_12_months",
                     },
                     "conversion_metric_id": metric_id,
                 },
