@@ -22,6 +22,7 @@ plugins:
       value: '2024-02-15'
     - name: start_date
       value: '2000-01-01'
+  
   loaders:
   - name: target-jsonl
     variant: andyh1203
