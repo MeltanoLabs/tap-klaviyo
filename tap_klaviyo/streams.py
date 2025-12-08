@@ -154,6 +154,7 @@ class MetricsStream(KlaviyoStream):
 
 
 import time
+
 from requests.exceptions import HTTPError
 
 
@@ -170,7 +171,7 @@ class CampaignValuesStream(KlaviyoStream):
 
     def get_next_page_token(self, response, previous_token):
         """No pagination for Campaign Values API - return None."""
-        return None
+        return
 
     def get_url(self, context):
         """Construct the full URL."""
@@ -209,9 +210,7 @@ class CampaignValuesStream(KlaviyoStream):
         headers = self.http_headers.copy()
         headers["Content-Type"] = "application/json"
 
-        self.logger.info(
-            f"Requesting campaign values for metric_id: {context.get('metric_id')}"
-        )
+        self.logger.info(f"Requesting campaign values for metric_id: {context.get('metric_id')}")
 
         max_retries = 5
         retry_delay = 1  # Start with 1 second delay
@@ -327,9 +326,7 @@ class FlowsStream(KlaviyoStream):
     schema_filepath = SCHEMAS_DIR / "flows.json"
     is_sorted = True
 
-    def get_child_context(
-        self, record: dict, context: dict | None = None
-    ) -> dict | None:
+    def get_child_context(self, record: dict, context: dict | None = None) -> dict | None:
         """Pass branchId to child stream"""
         return {"flow_id": record["id"]}
 
@@ -383,10 +380,9 @@ class FlowMessagesStream(KlaviyoStream):
     def post_process(
         self,
         row: dict,
-        context: dict | None = None,  # noqa: ARG002
+        context: dict | None = None,
     ) -> dict | None:
-        """
-        Add flow_action_id and flow_id to the row
+        """Add flow_action_id and flow_id to the row
         (values come from parent and grandparent contexts).
         """
         if context:
