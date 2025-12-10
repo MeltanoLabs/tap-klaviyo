@@ -1,5 +1,12 @@
 {
     "properties": {
+        "type": {
+            "description": "The object type",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
         "id": {
             "description": "The metric ID",
             "type": [
@@ -61,29 +68,6 @@
                     ]
                 },
                 "integration": {
-                    "properties": {
-                        "id": {
-                            "description": "The id of the integration associated with the event",
-                            "type": [
-                                "string",
-                                "null"
-                            ]
-                        },
-                        "name": {
-                            "description": "The name of the integration",
-                            "type": [
-                                "string",
-                                "null"
-                            ]
-                        },
-                        "category": {
-                            "description": "The category of the integration",
-                            "type": [
-                                "string",
-                                "null"
-                            ]
-                        }
-                    },
                     "type": [
                         "object",
                         "null"

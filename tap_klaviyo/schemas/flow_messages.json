@@ -1,0 +1,75 @@
+{
+    "properties": {
+        "id": {
+            "description": "The flow message ID",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "type": {
+            "description": "The resource type",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "attributes": {
+            "description": "The flow message attributes",
+            "type": [
+                "object",
+                "null"
+            ]
+        },
+        "links": {
+            "description": "Links related to the flow message",
+            "type": [
+                "object",
+                "null"
+            ],
+            "properties": {
+                "self": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            }
+        },
+        "relationships": {
+            "description": "Relationships to other resources",
+            "type": [
+                "object",
+                "null"
+            ],
+            "properties": {
+                "flow-action": {
+                    "type": [
+                        "object",
+                        "null"
+                    ]
+                },
+                "template": {
+                    "type": [
+                        "object",
+                        "null"
+                    ]
+                }
+            }
+        },
+        "flow_action_id": {
+            "description": "The ID of the associated flow action",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "flow_id": {
+            "description": "The ID of the associated flow",
+            "type": [
+                "string",
+                "null"
+            ]
+        }
+    }
+}
