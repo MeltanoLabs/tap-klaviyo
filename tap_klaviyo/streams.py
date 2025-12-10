@@ -22,6 +22,35 @@ class EventsStream(KlaviyoStream):
     replication_key = "datetime"
     schema_filepath = SCHEMAS_DIR / "event.json"
 
+    @property
+    def partitions(self) -> list[dict] | None:
+        return [
+            {
+                "filter": "equals(metric_id,'QRKDCk')",
+            },
+            {
+                "filter": "equals(metric_id,'Wf3i9M')",
+            },
+            {
+                "filter": "equals(metric_id,'WS4kLq')",
+            },
+            {
+                "filter": "equals(metric_id,'V5CtfV')",
+            },
+        ]
+
+
+    def get_url_params(
+        self,
+        context: dict | None,
+        next_page_token: ParseResult | None,
+    ) -> dict[str, t.Any]:
+        url_params= super().get_url_params(context, next_page_token)
+        if context:
+            parent_filter = url_params.get("filter")
+            url_params["filter"] = f"and({parent_filter},{context['filter']})"
+        return url_params
+
     def post_process(
         self,
         row: dict,
@@ -29,10 +58,12 @@ class EventsStream(KlaviyoStream):
     ) -> dict | None:
         row["datetime"] = row["attributes"]["datetime"]
         return row
+    
 
     @property
     def is_sorted(self) -> bool:
         return True
+
 
 
 class CampaignsStream(KlaviyoStream):
