@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from singer_sdk import Tap
 from singer_sdk import typing as th  # JSON schema typing helpers
-
 from tap_klaviyo import streams
 
 
@@ -43,11 +42,15 @@ class TapKlaviyo(Tap):
         return [
             streams.EventsStream(self),
             streams.CampaignsStream(self),
+            streams.CampaignMessagesStream(self),
             streams.MetricsStream(self),
+            streams.CampaignValuesStream(self),
             streams.ProfilesStream(self),
             streams.ListsStream(self),
             streams.ListPersonStream(self),
             streams.FlowsStream(self),
+            streams.FlowActionsStream(self),
+            streams.FlowMessagesStream(self),
             streams.TemplatesStream(self),
         ]
 
