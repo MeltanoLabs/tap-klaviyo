@@ -58,7 +58,7 @@ class KlaviyoStream(RESTStream):
         return APIKeyAuthenticator.create_for_stream(
             self,
             key="Authorization",
-            value=f'Klaviyo-API-Key {self.config.get("auth_token", "")}',
+            value=f"Klaviyo-API-Key {self.config.get('auth_token', '')}",
             location="header",
         )
 
