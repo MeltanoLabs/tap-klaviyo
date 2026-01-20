@@ -3,7 +3,7 @@ name = "tap-klaviyo"
 version = "0.0.1"
 description = "`tap-klaviyo` is a Singer tap for Klaviyo, built with the Meltano Singer SDK."
 authors = [{ name = "Brooklyn Data" }]
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 readme = "README.md"
 license = "Apache-2.0"
 keywords = [
@@ -12,8 +12,6 @@ keywords = [
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -38,7 +36,7 @@ dev = [
     { include-group = "test" }
 ]
 test = [
-    "pytest>=8",
+    "pytest>=9",
     "singer-sdk[testing]",
 ]
 
@@ -55,7 +53,6 @@ warn_unused_ignores = true
 
 [tool.ruff]
 line-length = 100
-target-version = "py38"
 
 [tool.ruff.lint]
 ignore = ["DJ", "PD", "D102", "COM812", "ISC001", "FIX002"]
@@ -90,3 +87,4 @@ filterwarnings = [
     "ignore:No records returned in stream 'profiles':UserWarning",
     "ignore:No records returned in stream 'templates':UserWarning",
 ]
+minversion = "9"
