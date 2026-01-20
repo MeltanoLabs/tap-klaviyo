@@ -20,12 +20,13 @@ classifiers = [
 ]
 dependencies = [
     "requests>=2,<3",
-    "singer-sdk~=0.42.1",
+    "singer-sdk~=0.53.5",
+    "typing-extensions>=4.15.0 ; python_full_version < '3.12'",
 ]
 
 [project.optional-dependencies]
 s3 = [
-    "fs-s3fs>=1.1.1,<2",
+    "s3fs>=2026.1.0",
 ]
 
 [project.scripts]
@@ -33,7 +34,10 @@ tap-klaviyo = "tap_klaviyo.tap:TapKlaviyo.cli"
 
 [dependency-groups]
 dev = [
-    { include-group = "test" }
+    { include-group = "test" },
+    "mypy>=1.19.1",
+    "ty>=0.0.12",
+    "types-requests>=2.32.4.20260107",
 ]
 test = [
     "pytest>=9",
@@ -45,7 +49,6 @@ requires = ["hatchling>=1,<2"]
 build-backend = "hatchling.build"
 
 [tool.mypy]
-python_version = "3.12"
 warn_redundant_casts = true
 warn_return_any = true
 warn_unused_configs = true
@@ -57,12 +60,6 @@ line-length = 100
 [tool.ruff.lint]
 ignore = ["DJ", "PD", "D102", "COM812", "ISC001", "FIX002"]
 select = ["ALL"]
-
-[tool.ruff.flake8-import-conventions]
-banned-from = ["typing"]
-
-[tool.ruff.flake8-import-conventions.extend-aliases]
-typing = "t"
 
 [tool.ruff.per-file-ignores]
 "tap_klaviyo/streams.py" = [
@@ -76,7 +73,6 @@ convention = "google"
 [tool.pytest.ini_options]
 filterwarnings = [
     "error",
-    "ignore:'asyncio.iscoroutinefunction' is deprecated:DeprecationWarning",
     "ignore:Fields in transformed catalog but not in records:UserWarning",
     "ignore:No records were available to test:UserWarning",
     "ignore:No records returned in stream 'campaigns':UserWarning",

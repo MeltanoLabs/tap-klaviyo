@@ -2,10 +2,17 @@
 
 from __future__ import annotations
 
+import sys
+
 from singer_sdk import Tap
 from singer_sdk import typing as th  # JSON schema typing helpers
 
 from tap_klaviyo import streams
+
+if sys.version_info >= (3, 12):
+    from typing import override
+else:
+    from typing_extensions import override
 
 
 class TapKlaviyo(Tap):
@@ -34,12 +41,8 @@ class TapKlaviyo(Tap):
         ),
     ).to_dict()
 
+    @override
     def discover_streams(self) -> list[streams.KlaviyoStream]:
-        """Return a list of discovered streams.
-
-        Returns:
-            A list of discovered streams.
-        """
         return [
             streams.EventsStream(self),
             streams.CampaignsStream(self),
