@@ -1,27 +1,50 @@
-[tool.poetry]
+[project]
 name = "tap-klaviyo"
 version = "0.0.1"
 description = "`tap-klaviyo` is a Singer tap for Klaviyo, built with the Meltano Singer SDK."
+authors = [{ name = "Brooklyn Data" }]
+requires-python = ">=3.8"
 readme = "README.md"
-authors = ["Brooklyn Data"]
+license = "Apache-2.0"
 keywords = [
     "ELT",
     "Klaviyo",
 ]
-license = "Apache-2.0"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+dependencies = [
+    "requests>=2,<3",
+    "singer-sdk~=0.42.1",
+]
 
-[tool.poetry.dependencies]
-python = ">=3.8"
-fs-s3fs = { version = "^1.1.1", optional = true }
-requests = ">=2,<3"
-singer-sdk = { version="~0.42.1" }
+[project.optional-dependencies]
+s3 = [
+    "fs-s3fs>=1.1.1,<2",
+]
 
-[tool.poetry.group.dev.dependencies]
-pytest = "^8.0.0"
-singer-sdk = { version="~0.42.1", extras = ["testing"] }
+[project.scripts]
+tap-klaviyo = "tap_klaviyo.tap:TapKlaviyo.cli"
 
-[tool.poetry.extras]
-s3 = ["fs-s3fs"]
+[dependency-groups]
+dev = [
+    { include-group = "test" }
+]
+test = [
+    "pytest>=8",
+    "singer-sdk[testing]",
+]
+
+[build-system]
+requires = ["hatchling>=1,<2"]
+build-backend = "hatchling.build"
 
 [tool.mypy]
 python_version = "3.12"
@@ -30,19 +53,12 @@ warn_return_any = true
 warn_unused_configs = true
 warn_unused_ignores = true
 
-[build-system]
-requires = ["poetry-core>=1.0.8"]
-build-backend = "poetry.core.masonry.api"
-
-[tool.poetry.scripts]
-tap-klaviyo = 'tap_klaviyo.tap:TapKlaviyo.cli'
-
 [tool.ruff]
 line-length = 100
 target-version = "py38"
 
 [tool.ruff.lint]
-ignore = ["ANN101", "DJ", "PD", "D102", "COM812", "ISC001", "FIX002"]
+ignore = ["DJ", "PD", "D102", "COM812", "ISC001", "FIX002"]
 select = ["ALL"]
 
 [tool.ruff.flake8-import-conventions]
@@ -63,6 +79,7 @@ convention = "google"
 [tool.pytest.ini_options]
 filterwarnings = [
     "error",
+    "ignore:'asyncio.iscoroutinefunction' is deprecated:DeprecationWarning",
     "ignore:Fields in transformed catalog but not in records:UserWarning",
     "ignore:No records were available to test:UserWarning",
     "ignore:No records returned in stream 'campaigns':UserWarning",
