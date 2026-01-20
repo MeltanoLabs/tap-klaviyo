@@ -2,15 +2,20 @@
 
 from __future__ import annotations
 
-import typing as t
-from pathlib import Path
+import sys
+from typing import TYPE_CHECKING, Any
 
 from tap_klaviyo.client import KlaviyoStream
 
-if t.TYPE_CHECKING:
+if sys.version_info >= (3, 12):
+    from typing import override
+else:
+    from typing_extensions import override
+
+if TYPE_CHECKING:
     from urllib.parse import ParseResult
 
-SCHEMAS_DIR = Path(__file__).parent / Path("./schemas")
+    from singer_sdk.helpers.types import Context, Record
 
 
 class EventsStream(KlaviyoStream):
@@ -20,16 +25,17 @@ class EventsStream(KlaviyoStream):
     path = "/events"
     primary_keys = ["id"]
     replication_key = "datetime"
-    schema_filepath = SCHEMAS_DIR / "event.json"
 
+    @override
     def post_process(
         self,
-        row: dict,
-        context: dict | None = None,  # noqa: ARG002
-    ) -> dict | None:
+        row: Record,
+        context: Context | None = None,
+    ) -> Record | None:
         row["datetime"] = row["attributes"]["datetime"]
         return row
 
+    @override
     @property
     def is_sorted(self) -> bool:
         return True
@@ -42,8 +48,8 @@ class CampaignsStream(KlaviyoStream):
     path = "/campaigns"
     primary_keys = ["id"]
     replication_key = "updated_at"
-    schema_filepath = SCHEMAS_DIR / "campaigns.json"
 
+    @override
     @property
     def partitions(self) -> list[dict] | None:
         return [
@@ -55,11 +61,12 @@ class CampaignsStream(KlaviyoStream):
             },
         ]
 
+    @override
     def get_url_params(
         self,
-        context: dict | None,
+        context: Context | None,
         next_page_token: ParseResult | None,
-    ) -> dict[str, t.Any]:
+    ) -> dict[str, Any]:
         url_params = super().get_url_params(context, next_page_token)
 
         # Apply channel filters
@@ -69,14 +76,16 @@ class CampaignsStream(KlaviyoStream):
 
         return url_params
 
+    @override
     def post_process(
         self,
-        row: dict,
-        context: dict | None = None,  # noqa: ARG002
-    ) -> dict | None:
+        row: Record,
+        context: Context | None = None,
+    ) -> Record | None:
         row["updated_at"] = row["attributes"]["updated_at"]
         return row
 
+    @override
     @property
     def is_sorted(self) -> bool:
         return True
@@ -89,17 +98,18 @@ class ProfilesStream(KlaviyoStream):
     path = "/profiles"
     primary_keys = ["id"]
     replication_key = "updated"
-    schema_filepath = SCHEMAS_DIR / "profiles.json"
     max_page_size = 100
 
+    @override
     def post_process(
         self,
-        row: dict,
-        context: dict | None = None,  # noqa: ARG002
-    ) -> dict | None:
+        row: Record,
+        context: Context | None = None,
+    ) -> Record | None:
         row["updated"] = row["attributes"]["updated"]
         return row
 
+    @override
     @property
     def is_sorted(self) -> bool:
         return True
@@ -112,13 +122,13 @@ class MetricsStream(KlaviyoStream):
     path = "/metrics"
     primary_keys = ["id"]
     replication_key = None
-    schema_filepath = SCHEMAS_DIR / "metrics.json"
 
+    @override
     def post_process(
         self,
-        row: dict,
-        context: dict | None = None,  # noqa: ARG002
-    ) -> dict | None:
+        row: Record,
+        context: Context | None = None,
+    ) -> Record | None:
         row["updated"] = row["attributes"]["updated"]
         return row
 
@@ -130,19 +140,20 @@ class ListsStream(KlaviyoStream):
     path = "/lists"
     primary_keys = ["id"]
     replication_key = "updated"
-    schema_filepath = SCHEMAS_DIR / "lists.json"
 
-    def get_child_context(self, record: dict, context: dict | None) -> dict:
-        context = context or {}
+    @override
+    def get_child_context(self, record: Record, context: Context | None) -> Context | None:
+        context = dict(context) if context else {}
         context["list_id"] = record["id"]
 
-        return super().get_child_context(record, context)  # type: ignore[no-any-return]
+        return super().get_child_context(record, context)
 
+    @override
     def post_process(
         self,
-        row: dict,
-        context: dict | None = None,  # noqa: ARG002
-    ) -> dict | None:
+        row: Record,
+        context: Context | None = None,
+    ) -> Record | None:
         row["updated"] = row["attributes"]["updated"]
         return row
 
@@ -155,11 +166,11 @@ class ListPersonStream(KlaviyoStream):
     primary_keys = ["id"]
     replication_key = None
     parent_stream_type = ListsStream
-    schema_filepath = SCHEMAS_DIR / "listperson.json"
     max_page_size = 1000
 
-    def post_process(self, row: dict, context: dict) -> dict | None:
-        row["list_id"] = context["list_id"]
+    @override
+    def post_process(self, row: Record, context: Context | None = None) -> Record | None:
+        row["list_id"] = context["list_id"] if context else None
         return row
 
 
@@ -170,14 +181,14 @@ class FlowsStream(KlaviyoStream):
     path = "/flows"
     primary_keys = ["id"]
     replication_key = "updated"
-    schema_filepath = SCHEMAS_DIR / "flows.json"
     is_sorted = True
 
+    @override
     def post_process(
         self,
-        row: dict,
-        context: dict | None = None,  # noqa: ARG002
-    ) -> dict | None:
+        row: Record,
+        context: Context | None = None,
+    ) -> Record | None:
         row["updated"] = row["attributes"]["updated"]
         return row
 
@@ -189,13 +200,13 @@ class TemplatesStream(KlaviyoStream):
     path = "/templates"
     primary_keys = ["id"]
     replication_key = "updated"
-    schema_filepath = SCHEMAS_DIR / "templates.json"
 
+    @override
     def post_process(
         self,
-        row: dict,
-        context: dict | None = None,  # noqa: ARG002
-    ) -> dict | None:
+        row: Record,
+        context: Context | None = None,
+    ) -> Record | None:
         row["updated"] = row["attributes"]["updated"]
         return row
 
