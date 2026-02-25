@@ -100,6 +100,86 @@ class ProfilesStream(KlaviyoStream):
     replication_key = "updated"
     max_page_size = 100
 
+    @property
+    def _declared_attrs(self) -> frozenset[str]:
+        """Attribute keys declared in profiles.json - computed once, cached."""
+        if not hasattr(self, "__declared_attrs"):
+            self.__declared_attrs = frozenset(
+                self.schema.get("properties", {})
+                .get("attributes", {})
+                .get("properties", {})
+                .keys()
+            )
+        return self.__declared_attrs
+
+    def _stringify_undeclared_complex_attrs(self, attrs: dict) -> None:
+        """JSON-stringify any undeclared complex attribute values so BQ
+        doesn't choke on inconsistent nested structures."""
+        import json as _json
+
+        for key, val in attrs.items():
+            if key not in self._declared_attrs and isinstance(val, (dict, list)):
+                attrs[key] = _json.dumps(val)
+
+    @property
+    def _number_field_paths(self) -> list[tuple[list[str], str]]:
+        """Paths to number-only fields under attributes - computed once.
+
+        Returns (container_keys, field_name) tuples where container_keys
+        is the list of keys to traverse from ``attributes`` to the parent
+        dict.  E.g. attributes.location.latitude -> (["location"], "latitude")
+        """
+        if not hasattr(self, "__number_field_paths"):
+            paths: list[tuple[list[str], str]] = []
+
+            def _walk(node: dict, crumbs: list[str]) -> None:
+                for key, fs in node.get("properties", {}).items():
+                    types = fs.get("type", [])
+                    if isinstance(types, str):
+                        types = [types]
+                    if "number" in types and "string" not in types:
+                        paths.append((list(crumbs), key))
+                    if "object" in types:
+                        _walk(fs, [*crumbs, key])
+
+            _walk(
+                self.schema.get("properties", {}).get("attributes", {}),
+                [],
+            )
+            self.__number_field_paths = paths
+        return self.__number_field_paths
+
+    def _coerce_number_fields(self, row: Record, attrs: dict) -> None:
+        """Ensure every schema-declared number field is actually numeric.
+
+        If a value cannot be parsed as a float, log a warning with the
+        profile id/email and set it to zero.
+        """
+        for container_keys, field_name in self._number_field_paths:
+            obj = attrs
+            for step in container_keys:
+                obj = obj.get(step) or {}
+                if not isinstance(obj, dict):
+                    break
+            else:
+                val = obj.get(field_name)
+                if val is not None:
+                    try:
+                        obj[field_name] = float(val)
+                    except (ValueError, TypeError):
+                        dotted = ".".join(
+                            ["attributes", *container_keys, field_name]
+                        )
+                        self.logger.warning(
+                            "Bad %s value: %r - setting to 0  "
+                            "profile_id=%s  email=%s",
+                            dotted,
+                            val,
+                            row.get("id"),
+                            attrs.get("email"),
+                        )
+                        obj[field_name] = 0
+
     @override
     def post_process(
         self,
@@ -107,6 +187,11 @@ class ProfilesStream(KlaviyoStream):
         context: Context | None = None,
     ) -> Record | None:
         row["updated"] = row["attributes"]["updated"]
+
+        attrs = row.get("attributes", {})
+        self._stringify_undeclared_complex_attrs(attrs)
+        self._coerce_number_fields(row, attrs)
+
         return row
 
     @override
