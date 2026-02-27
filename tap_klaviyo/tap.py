@@ -39,10 +39,16 @@ class TapKlaviyo(Tap):
             th.DateTimeType,
             description="The earliest record date to sync",
         ),
+        th.Property(
+            "end_date",
+            th.DateTimeType,
+            description="The latest record date to sync (exclusive). Used for chunked backfill.",
+        ),
     ).to_dict()
 
     @override
     def discover_streams(self) -> list[streams.KlaviyoStream]:
+        self.logger.info("tap-klaviyo: loaded from %s", __file__)
         return [
             streams.EventsStream(self),
             streams.CampaignsStream(self),
