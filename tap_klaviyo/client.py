@@ -31,15 +31,27 @@ DEFAULT_START_DATE = datetime(2000, 1, 1, tzinfo=UTC).isoformat()
 
 
 def _isodate_from_date_string(date_string: str) -> str:
-    """Convert a date string to an ISO date string.
+    """Convert a date or datetime string to an ISO datetime string in UTC.
+
+    Accepts both date-only (YYYY-MM-DD) and full datetime strings
+    (e.g. 2026-02-26T10:00:00Z or 2026-02-26T10:00:00+00:00).
 
     Args:
-        date_string: The date string to convert.
+        date_string: The date or datetime string to convert.
 
     Returns:
-        An ISO date string.
+        An ISO datetime string with UTC timezone.
     """
-    return datetime.strptime(date_string, "%Y-%m-%d").replace(tzinfo=UTC).isoformat()
+    # Normalize Z suffix so fromisoformat can handle it (Python < 3.11 compat)
+    normalized = date_string.replace("Z", "+00:00")
+    try:
+        dt = datetime.fromisoformat(normalized)
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=UTC)
+        return dt.isoformat()
+    except ValueError:
+        # Fall back for plain date strings like "2026-02-26"
+        return datetime.strptime(date_string, "%Y-%m-%d").replace(tzinfo=UTC).isoformat()
 
 
 class KlaviyoPaginator(BaseHATEOASPaginator):
@@ -58,6 +70,8 @@ class KlaviyoStream(RESTStream):
     records_jsonpath = "$[data][*]"
     max_page_size: int | None = None
     schema = StreamSchema(SCHEMAS_DIR)
+    # Set to False on streams whose API endpoint does not support less-than filtering
+    apply_end_date_filter: bool = True
 
     @override
     @property
@@ -108,7 +122,11 @@ class KlaviyoStream(RESTStream):
             if self.is_sorted:
                 params["sort"] = self.replication_key
 
-            params["filter"] = f"greater-than({self.replication_key},{filter_timestamp})"
+            filter_expr = f"greater-than({self.replication_key},{filter_timestamp})"
+            if self.apply_end_date_filter and (end_date := self.config.get("end_date")):
+                end_timestamp = _isodate_from_date_string(end_date)
+                filter_expr = f"and({filter_expr},less-than({self.replication_key},{end_timestamp}))"
+            params["filter"] = filter_expr
 
         if self.max_page_size:
             params["page[size]"] = self.max_page_size

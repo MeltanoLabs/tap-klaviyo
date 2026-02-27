@@ -39,6 +39,11 @@ class TapKlaviyo(Tap):
             th.DateTimeType,
             description="The earliest record date to sync",
         ),
+        th.Property(
+            "end_date",
+            th.DateTimeType,
+            description="The latest record date to sync (exclusive). Used for chunked backfill.",
+        ),
     ).to_dict()
 
     @override

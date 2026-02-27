@@ -48,6 +48,7 @@ class CampaignsStream(KlaviyoStream):
     path = "/campaigns"
     primary_keys = ["id"]
     replication_key = "updated_at"
+    apply_end_date_filter = False  # Klaviyo campaigns API does not support less-than filter
 
     @override
     @property
@@ -99,6 +100,7 @@ class ProfilesStream(KlaviyoStream):
     primary_keys = ["id"]
     replication_key = "updated"
     max_page_size = 100
+    apply_end_date_filter = False  # Klaviyo profiles API does not support less-than filter
 
     @property
     def _declared_attrs(self) -> frozenset[str]:
@@ -189,6 +191,19 @@ class ProfilesStream(KlaviyoStream):
         row["updated"] = row["attributes"]["updated"]
 
         attrs = row.get("attributes", {})
+
+        # DEBUG: log any undeclared complex attrs before stringify
+        import json as _json_debug
+        for _k, _v in attrs.items():
+            if _k not in self._declared_attrs and isinstance(_v, (dict, list)):
+                self.logger.warning(
+                    "DEBUG post_process: profile %s has undeclared complex attr %r type=%s val=%s",
+                    row.get("id"),
+                    _k,
+                    type(_v).__name__,
+                    _json_debug.dumps(_v)[:200],
+                )
+
         self._stringify_undeclared_complex_attrs(attrs)
         self._coerce_number_fields(row, attrs)
 
@@ -225,6 +240,7 @@ class ListsStream(KlaviyoStream):
     path = "/lists"
     primary_keys = ["id"]
     replication_key = "updated"
+    apply_end_date_filter = False  # Klaviyo lists API does not support less-than filter
 
     @override
     def get_child_context(self, record: Record, context: Context | None) -> Context | None:
@@ -267,6 +283,7 @@ class FlowsStream(KlaviyoStream):
     primary_keys = ["id"]
     replication_key = "updated"
     is_sorted = True
+    apply_end_date_filter = False  # Klaviyo flows API does not support less-than filter
 
     @override
     def post_process(
@@ -285,6 +302,7 @@ class TemplatesStream(KlaviyoStream):
     path = "/templates"
     primary_keys = ["id"]
     replication_key = "updated"
+    apply_end_date_filter = False  # Klaviyo templates API does not support less-than filter
 
     @override
     def post_process(
