@@ -48,6 +48,7 @@ class TapKlaviyo(Tap):
 
     @override
     def discover_streams(self) -> list[streams.KlaviyoStream]:
+        self.logger.info("tap-klaviyo: loaded from %s", __file__)
         return [
             streams.EventsStream(self),
             streams.CampaignsStream(self),

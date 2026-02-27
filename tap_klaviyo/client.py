@@ -20,10 +20,11 @@ else:
     from typing_extensions import override
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
     from urllib.parse import ParseResult
 
     import requests
-    from singer_sdk.helpers.types import Context
+    from singer_sdk.helpers.types import Context, Record
 
 SCHEMAS_DIR = SchemaDirectory(schemas)
 UTC = timezone.utc
@@ -131,3 +132,30 @@ class KlaviyoStream(RESTStream):
         if self.max_page_size:
             params["page[size]"] = self.max_page_size
         return params
+
+    @override
+    def get_records(self, context: Context | None) -> Iterable[Record]:
+        """Skip partition if bookmark is already past the end_date.
+
+        Prevents 400 errors from the Klaviyo API when a stream's replication
+        key bookmark (from a previous run) is already ahead of the requested
+        end_date, which would produce an invalid start > end filter expression.
+        """
+        end_date = self.config.get("end_date")
+        if end_date and self.apply_end_date_filter and self.replication_key:
+            start_ts = self.get_starting_timestamp(context)
+            if start_ts is not None:
+                end_ts = datetime.fromisoformat(_isodate_from_date_string(end_date))
+                if end_ts.tzinfo is None:
+                    end_ts = end_ts.replace(tzinfo=UTC)
+                if start_ts >= end_ts:
+                    self.logger.info(
+                        "Skipping stream '%s' (context: %s): bookmark %s is already "
+                        "at or past end_date %s — no records to fetch.",
+                        self.name,
+                        context,
+                        start_ts.isoformat(),
+                        end_date,
+                    )
+                    return
+        yield from super().get_records(context)
