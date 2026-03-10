@@ -43,6 +43,48 @@ class TapKlaviyo(Tap):
             th.DateTimeType,
             description="The earliest record date to sync",
         ),
+        th.Property(
+            "segment_series_reports_config",
+            th.ObjectType(
+                th.Property("statistics", th.ArrayType(th.StringType)),
+                th.Property("interval", th.StringType),
+                th.Property(
+                    "timeframe",
+                    th.ObjectType(
+                        th.Property("key", th.StringType),
+                    ),
+                ),
+            ),
+            description="Optional payload override for the segment series report stream.",
+        ),
+        th.Property(
+            "campaign_values_report_config",
+            th.ObjectType(
+                th.Property("statistics", th.ArrayType(th.StringType)),
+                th.Property("conversion_metric_id", th.StringType),
+                th.Property(
+                    "timeframe",
+                    th.ObjectType(
+                        th.Property("key", th.StringType),
+                    ),
+                ),
+            ),
+            description="Optional payload override for the campaign values report stream.",
+        ),
+        th.Property(
+            "flow_values_report_config",
+            th.ObjectType(
+                th.Property("statistics", th.ArrayType(th.StringType)),
+                th.Property("conversion_metric_id", th.StringType),
+                th.Property(
+                    "timeframe",
+                    th.ObjectType(
+                        th.Property("key", th.StringType),
+                    ),
+                ),
+            ),
+            description="Optional payload override for the flow values report stream.",
+        ),
     ).to_dict()
 
     @override
@@ -55,7 +97,11 @@ class TapKlaviyo(Tap):
             streams.ListsStream(self),
             streams.ListPersonStream(self),
             streams.FlowsStream(self),
+            streams.SegmentsStream(self),
             streams.TemplatesStream(self),
+            streams.SegmentSeriesReportStream(self),
+            streams.CampaignValuesReportStream(self),
+            streams.FlowValuesReportStream(self),
         ]
 
 

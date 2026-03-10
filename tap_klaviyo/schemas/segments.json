@@ -1,0 +1,98 @@
+{
+    "properties": {
+        "id": {
+            "description": "The segment ID",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "type": {
+            "description": "The segment type",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "updated": {
+            "description": "Date and time when the segment was last updated",
+            "format": "date-time",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "relationships": {
+            "description": "Relationships to other resources related to this segment",
+            "type": [
+                "object",
+                "null"
+            ]
+        },
+        "links": {
+            "description": "Links for this segment resource",
+            "type": [
+                "object",
+                "null"
+            ]
+        },
+        "attributes": {
+            "type": [
+                "object",
+                "null"
+            ],
+            "properties": {
+                "name": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "definition": {
+                    "type": [
+                        "object",
+                        "null"
+                    ]
+                },
+                "created": {
+                    "format": "date-time",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "updated": {
+                    "format": "date-time",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "is_active": {
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "is_processing": {
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "is_starred": {
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                }
+            }
+        }
+    },
+    "type": "object",
+    "required": [
+        "id",
+        "type",
+        "attributes"
+    ]
+}

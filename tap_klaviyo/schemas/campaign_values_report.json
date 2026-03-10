@@ -1,0 +1,39 @@
+{
+    "properties": {
+        "campaign_message_id": {
+            "description": "The campaign message ID for this report row",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "campaign_id": {
+            "description": "The ID of the campaign",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "send_channel": {
+            "description": "The campaign send channel",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "statistic_name": {
+            "description": "The name of the statistic (e.g., total_members, net_members_changed)",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "statistic_value": {
+            "description": "The numeric value for this statistic on this date",
+            "type": [
+                "number",
+                "null"
+            ]
+        }
+    }
+}
