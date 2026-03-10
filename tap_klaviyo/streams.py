@@ -316,9 +316,9 @@ class SegmentSeriesReportStream(KlaviyoStream):
         # describing details such as the statistics to compute, the
         # interval, and the timeframe.
         #
-        # These can be configured in the config under "segment_series_reports_config"
+        # These can be configured in the config under "segment_series_report_config"
         # or use defaults for: statistics, interval, and timeframe.
-        config = self.config.get("segment_series_reports_config", {})
+        config = self.config.get("segment_series_report_config", {})
         return {
             "data": {
                 "type": "segment-series-report",

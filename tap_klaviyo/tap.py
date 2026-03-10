@@ -44,7 +44,7 @@ class TapKlaviyo(Tap):
             description="The earliest record date to sync",
         ),
         th.Property(
-            "segment_series_reports_config",
+            "segment_series_report_config",
             th.ObjectType(
                 th.Property("statistics", th.ArrayType(th.StringType)),
                 th.Property("interval", th.StringType),
@@ -90,15 +90,15 @@ class TapKlaviyo(Tap):
     @override
     def discover_streams(self) -> list[KlaviyoStream]:
         return [
-            streams.EventsStream(self),
-            streams.CampaignsStream(self),
-            streams.MetricsStream(self),
-            streams.ProfilesStream(self),
-            streams.ListsStream(self),
-            streams.ListPersonStream(self),
-            streams.FlowsStream(self),
-            streams.SegmentsStream(self),
-            streams.TemplatesStream(self),
+            #streams.EventsStream(self),
+            #streams.CampaignsStream(self),
+            #streams.MetricsStream(self),
+            #streams.ProfilesStream(self),
+            #streams.ListsStream(self),
+            #streams.ListPersonStream(self),
+            #streams.FlowsStream(self),
+            #streams.SegmentsStream(self),
+            #streams.TemplatesStream(self),
             streams.SegmentSeriesReportStream(self),
             streams.CampaignValuesReportStream(self),
             streams.FlowValuesReportStream(self),
