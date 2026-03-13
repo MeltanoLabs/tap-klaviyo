@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import sys
 from typing import TYPE_CHECKING, Any
 
@@ -17,6 +18,22 @@ if TYPE_CHECKING:
     from urllib.parse import ParseResult
 
     from singer_sdk.helpers.types import Context, Record
+
+
+def _get_report_config_value(config: dict[str, Any], key: str) -> dict[str, Any]:
+    value = config.get(key, {})
+    if value is None:
+        return {}
+    if isinstance(value, dict):
+        return value
+    if isinstance(value, str):
+        parsed_value = json.loads(value)
+        if isinstance(parsed_value, dict):
+            return parsed_value
+        msg = f"Expected '{key}' JSON to decode to an object."
+        raise TypeError(msg)
+    msg = f"Expected '{key}' to be an object or JSON string."
+    raise TypeError(msg)
 
 
 class EventsStream(KlaviyoStream):
@@ -314,7 +331,7 @@ class SegmentSeriesReportStream(KlaviyoStream):
         #
         # These can be configured in the config under "segment_series_report_config"
         # or use defaults for: statistics, interval, and timeframe.
-        config = self.config.get("segment_series_report_config", {})
+        config = _get_report_config_value(self.config, "segment_series_report_config")
         return {
             "data": {
                 "type": "segment-series-report",
@@ -418,26 +435,31 @@ class CampaignValuesReportStream(KlaviyoStream):
     ) -> dict[str, Any] | None:
         # The Klaviyo campaign values report endpoint requires a JSON body
         # describing details such as the statistics to compute, the
-        # interval, and the timeframe.
+        # timeframe, and optionally a conversion metric id.
         #
-        # These can be configured in the config under "campaign_values_report_config"
-        # or use defaults for: statistics, interval, and timeframe.
-        config = self.config.get("campaign_values_report_config", {})
+        # These can be configured in the config under
+        # "campaign_values_report_config" or use defaults for: statistics
+        # and timeframe. conversion_metric_id is intentionally not defaulted
+        # because it is account-specific.
+        config = _get_report_config_value(self.config, "campaign_values_report_config")
+        attributes = {
+            "statistics": config.get("statistics", [
+                "opens_unique",
+                "open_rate",
+                "delivered",
+                "clicks_unique",
+                "click_to_open_rate",
+                "revenue_per_recipient",
+            ]),
+            "timeframe": config.get("timeframe", {"key": "last_7_days"}),
+        }
+        if config.get("conversion_metric_id"):
+            attributes["conversion_metric_id"] = config["conversion_metric_id"]
+
         return {
             "data": {
                 "type": "campaign-values-report",
-                "attributes": {
-                    "statistics": config.get("statistics", [
-                        "opens_unique",
-                        "open_rate",
-                        "delivered",
-                        "clicks_unique",
-                        "click_to_open_rate",
-                        "revenue_per_recipient",
-                    ]),
-                    "conversion_metric_id": config.get("conversion_metric_id", "WcYbF8"),
-                    "timeframe": config.get("timeframe", {"key": "last_7_days"}),
-                },
+                "attributes": attributes,
             }
         }
 
@@ -532,29 +554,35 @@ class FlowValuesReportStream(KlaviyoStream):
         next_page_token: ParseResult | None,
     ) -> dict[str, Any] | None:
         # The Klaviyo flow values report endpoint requires a JSON body
-        # describing details such as the statistics to compute and timeframe.
+        # describing details such as the statistics to compute, timeframe,
+        # and optionally a conversion metric id.
         #
-        # These can be configured in the config under "flow_values_report_config"
-        # or use defaults for: statistics and timeframe.
-        config = self.config.get("flow_values_report_config", {})
+        # These can be configured in the config under
+        # "flow_values_report_config" or use defaults for: statistics
+        # and timeframe. conversion_metric_id is intentionally not defaulted
+        # because it is account-specific.
+        config = _get_report_config_value(self.config, "flow_values_report_config")
+        attributes = {
+            "statistics": config.get("statistics", [
+                "opens",
+                "open_rate",
+                "delivered",
+                "clicks",
+                "click_rate",
+                "click_to_open_rate",
+                "unsubscribe_rate",
+                "conversion_rate",
+                "revenue_per_recipient",
+            ]),
+            "timeframe": config.get("timeframe", {"key": "last_7_days"}),
+        }
+        if config.get("conversion_metric_id"):
+            attributes["conversion_metric_id"] = config["conversion_metric_id"]
+
         return {
             "data": {
                 "type": "flow-values-report",
-                "attributes": {
-                    "statistics": config.get("statistics", [
-                        "opens",
-                        "open_rate",
-                        "delivered",
-                        "clicks",
-                        "click_rate",
-                        "click_to_open_rate",
-                        "unsubscribe_rate",
-                        "conversion_rate",
-                        "revenue_per_recipient",
-                    ]),
-                    "conversion_metric_id": config.get("conversion_metric_id", "WcYbF8"),
-                    "timeframe": config.get("timeframe", {"key": "last_7_days"}),
-                },
+                "attributes": attributes,
             }
         }
 

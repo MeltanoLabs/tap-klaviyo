@@ -15,6 +15,42 @@ else:
     from typing_extensions import override
 
 
+def _report_config_type(*, include_interval: bool = False) -> th.AnyOf:
+    object_type = th.ObjectType(
+        th.Property("statistics", th.ArrayType(th.StringType)),
+        th.Property(
+            "timeframe",
+            th.ObjectType(
+                th.Property("key", th.StringType),
+            ),
+        ),
+    )
+    if include_interval:
+        object_type = th.ObjectType(
+            th.Property("statistics", th.ArrayType(th.StringType)),
+            th.Property("interval", th.StringType),
+            th.Property(
+                "timeframe",
+                th.ObjectType(
+                    th.Property("key", th.StringType),
+                ),
+            ),
+        )
+    else:
+        object_type = th.ObjectType(
+            th.Property("statistics", th.ArrayType(th.StringType)),
+            th.Property("conversion_metric_id", th.StringType),
+            th.Property(
+                "timeframe",
+                th.ObjectType(
+                    th.Property("key", th.StringType),
+                ),
+            ),
+        )
+
+    return th.AnyOf(object_type, th.StringType, th.NullType)
+
+
 class TapKlaviyo(Tap):
     """Klaviyo tap class."""
 
@@ -41,44 +77,17 @@ class TapKlaviyo(Tap):
         ),
         th.Property(
             "segment_series_report_config",
-            th.ObjectType(
-                th.Property("statistics", th.ArrayType(th.StringType)),
-                th.Property("interval", th.StringType),
-                th.Property(
-                    "timeframe",
-                    th.ObjectType(
-                        th.Property("key", th.StringType),
-                    ),
-                ),
-            ),
+            _report_config_type(include_interval=True),
             description="Optional payload override for the segment series report stream.",
         ),
         th.Property(
             "campaign_values_report_config",
-            th.ObjectType(
-                th.Property("statistics", th.ArrayType(th.StringType)),
-                th.Property("conversion_metric_id", th.StringType),
-                th.Property(
-                    "timeframe",
-                    th.ObjectType(
-                        th.Property("key", th.StringType),
-                    ),
-                ),
-            ),
+            _report_config_type(),
             description="Optional payload override for the campaign values report stream.",
         ),
         th.Property(
             "flow_values_report_config",
-            th.ObjectType(
-                th.Property("statistics", th.ArrayType(th.StringType)),
-                th.Property("conversion_metric_id", th.StringType),
-                th.Property(
-                    "timeframe",
-                    th.ObjectType(
-                        th.Property("key", th.StringType),
-                    ),
-                ),
-            ),
+            _report_config_type(),
             description="Optional payload override for the flow values report stream.",
         ),
     ).to_dict()
@@ -86,7 +95,7 @@ class TapKlaviyo(Tap):
     @override
     def discover_streams(self) -> list[streams.KlaviyoStream]:
         return [
-            streams.EventsStream(self),
+            #streams.EventsStream(self),
             streams.CampaignsStream(self),
             streams.MetricsStream(self),
             streams.ProfilesStream(self),

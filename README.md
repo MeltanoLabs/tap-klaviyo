@@ -63,6 +63,165 @@ tap-klaviyo --help
 tap-klaviyo --config CONFIG --discover > ./catalog.json
 ```
 
+## Reports
+
+This tap includes three report streams backed by Klaviyo's report endpoints. These streams issue `POST` requests and flatten the API response into row-oriented Singer records.
+
+### Available Report Streams
+
+- `segment_series_report`: emits one row per `segment_id`, `date`, and `statistic_name`.
+- `campaign_values_report`: emits one row per `campaign_id`, `campaign_message_id`, `send_channel`, and `statistic_name`. A `date` field is included when Klaviyo returns time-series values.
+- `flow_values_report`: emits one row per `flow_id`, `flow_message_id`, `send_channel`, and `statistic_name`.
+
+### Report Configuration
+
+Each report stream can be configured independently in the tap config:
+
+- `segment_series_report_config`
+- `campaign_values_report_config`
+- `flow_values_report_config`
+
+If a report config block is omitted, the tap uses the built-in defaults below.
+
+#### `segment_series_report`
+
+Default request payload:
+
+```json
+{
+  "statistics": [
+    "members_added",
+    "total_members",
+    "members_removed",
+    "net_members_changed"
+  ],
+  "interval": "daily",
+  "timeframe": {
+    "key": "last_7_days"
+  }
+}
+```
+
+Supported override fields:
+
+- `statistics`
+- `interval`
+- `timeframe`
+
+Flattened output fields:
+
+- `date`
+- `segment_id`
+- `statistic_name`
+- `statistic_value`
+
+#### `campaign_values_report`
+
+Default request payload:
+
+```json
+{
+  "statistics": [
+    "opens_unique",
+    "open_rate",
+    "delivered",
+    "clicks_unique",
+    "click_to_open_rate",
+    "revenue_per_recipient"
+  ],
+  "timeframe": {
+    "key": "last_7_days"
+  }
+}
+```
+
+Supported override fields:
+
+- `statistics`
+- `conversion_metric_id`
+- `timeframe`
+
+`conversion_metric_id` is account-specific. Set it explicitly in `campaign_values_report_config` when your selected statistics require a conversion metric.
+
+Flattened output fields:
+
+- `date` when present in the Klaviyo response
+- `campaign_id`
+- `campaign_message_id`
+- `send_channel`
+- `statistic_name`
+- `statistic_value`
+
+#### `flow_values_report`
+
+Default request payload:
+
+```json
+{
+  "statistics": [
+    "opens",
+    "open_rate",
+    "delivered",
+    "clicks",
+    "click_rate",
+    "click_to_open_rate",
+    "unsubscribe_rate",
+    "conversion_rate",
+    "revenue_per_recipient"
+  ],
+  "timeframe": {
+    "key": "last_7_days"
+  }
+}
+```
+
+Supported override fields:
+
+- `statistics`
+- `conversion_metric_id`
+- `timeframe`
+
+`conversion_metric_id` is client-specific. Set it when your selected statistics require a conversion metric.
+
+Flattened output fields:
+
+- `date`
+- `flow_id`
+- `flow_message_id`
+- `send_channel`
+- `statistic_name`
+- `statistic_value`
+
+### Example Config
+
+```json
+{
+  "auth_token": "YOUR_KLAVIYO_PRIVATE_KEY",
+  "revision": "2024-10-15",
+  "segment_series_report_config": {
+    "statistics": ["members_added", "total_members"],
+    "interval": "weekly",
+    "timeframe": {
+      "key": "last_30_days"
+    }
+  },
+  "campaign_values_report_config": {
+    "statistics": ["delivered", "open_rate", "revenue_per_recipient"],
+    "conversion_metric_id": "YOUR_CONVERSION_METRIC_ID",
+    "timeframe": {
+      "key": "last_30_days"
+    }
+  },
+  "flow_values_report_config": {
+    "statistics": ["delivered", "click_rate", "conversion_rate"],
+    "conversion_metric_id": "YOUR_CONVERSION_METRIC_ID",
+    "timeframe": {
+      "key": "last_30_days"
+    }
+  }
+}
+```
+
 ## Developer Resources
 
 Follow these instructions to contribute to this project.

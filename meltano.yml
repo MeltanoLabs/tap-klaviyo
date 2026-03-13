@@ -22,6 +22,9 @@ plugins:
       value: '2024-02-15'
     - name: start_date
       value: '2000-01-01'
+    - name: segment_series_report_config
+    - name: campaign_values_report_config
+    - name: flow_values_report_config
   loaders:
   - name: target-jsonl
     variant: andyh1203
