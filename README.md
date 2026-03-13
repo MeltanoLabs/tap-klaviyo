@@ -141,7 +141,7 @@ Supported override fields:
 - `conversion_metric_id`
 - `timeframe`
 
-`conversion_metric_id` is account-specific. Set it explicitly in `campaign_values_report_config` when your selected statistics require a conversion metric.
+`conversion_metric_id` is client-specific. Set it explicitly in `campaign_values_report_config` when your selected statistics require a conversion metric.
 
 Flattened output fields:
 
