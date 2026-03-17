@@ -376,12 +376,7 @@ class SegmentSeriesReportStream(KlaviyoStream):
         # describing details such as the statistics to compute, the
         # interval, and the timeframe.
         #
-        # These can be configured in the config under "segment_series_report_config"
-        # or use defaults for: statistics, interval, and timeframe.
-        config = self._report_config or _get_report_config_value(
-            self.config,
-            "segment_series_report_config",
-        )
+        config = self._report_config or {}
         return {
             "data": {
                 "type": "segment-series-report",
@@ -413,14 +408,7 @@ class SegmentSeriesReportStream(KlaviyoStream):
                 raise ValueError(msg)
             streams.append(cls(tap, report_config=report, report_name=report_name))
 
-        if streams:
-            return streams
-
-        legacy_config = _get_report_config_value(tap.config, "segment_series_report_config")
-        if legacy_config:
-            return [cls(tap, report_config=legacy_config, report_name=cls.name)]
-
-        return []
+        return streams
 
 class CampaignValuesReportStream(KlaviyoStream):
     """The Klaviyo endpoint for campaign values reports requires a POST call with a JSON body.
@@ -530,14 +518,7 @@ class CampaignValuesReportStream(KlaviyoStream):
         # describing details such as the statistics to compute, the
         # timeframe, and optionally a conversion metric id.
         #
-        # These can be configured in the config under
-        # "campaign_values_report_config" or use defaults for: statistics
-        # and timeframe. conversion_metric_id is intentionally not defaulted
-        # because it is account-specific.
-        config = self._report_config or _get_report_config_value(
-            self.config,
-            "campaign_values_report_config",
-        )
+        config = self._report_config or {}
         attributes = {
             "statistics": config.get("statistics", [
                 "opens_unique",
@@ -574,14 +555,7 @@ class CampaignValuesReportStream(KlaviyoStream):
                 raise ValueError(msg)
             streams.append(cls(tap, report_config=report, report_name=report_name))
 
-        if streams:
-            return streams
-
-        legacy_config = _get_report_config_value(tap.config, "campaign_values_report_config")
-        if legacy_config:
-            return [cls(tap, report_config=legacy_config, report_name=cls.name)]
-
-        return []
+        return streams
 
     @property
     def is_sorted(self) -> bool:
@@ -696,14 +670,7 @@ class FlowValuesReportStream(KlaviyoStream):
         # describing details such as the statistics to compute, timeframe,
         # and optionally a conversion metric id.
         #
-        # These can be configured in the config under
-        # "flow_values_report_config" or use defaults for: statistics
-        # and timeframe. conversion_metric_id is intentionally not defaulted
-        # because it is account-specific.
-        config = self._report_config or _get_report_config_value(
-            self.config,
-            "flow_values_report_config",
-        )
+        config = self._report_config or {}
         attributes = {
             "statistics": config.get("statistics", [
                 "opens",
@@ -743,14 +710,7 @@ class FlowValuesReportStream(KlaviyoStream):
                 raise ValueError(msg)
             streams.append(cls(tap, report_config=report, report_name=report_name))
 
-        if streams:
-            return streams
-
-        legacy_config = _get_report_config_value(tap.config, "flow_values_report_config")
-        if legacy_config:
-            return [cls(tap, report_config=legacy_config, report_name=cls.name)]
-
-        return []
+        return streams
 
     @property
     def is_sorted(self) -> bool:
@@ -858,14 +818,11 @@ class QueryMetricAggregatesStream(KlaviyoStream):
 
     def _metric_aggregate_config(self) -> dict[str, Any]:
         """Return validated config for the query metric aggregates stream."""
-        config = self._report_config or _get_report_config_value(
-            self.config,
-            "query_metric_aggregates_config",
-        )
+        config = self._report_config or {}
 
         if not config.get("metric_id"):
             msg = (
-                "'query_metric_aggregates_config.metric_id' is required for the "
+                "'query_metric_aggregates_reports[].metric_id' is required for the "
                 "query_metric_aggregates stream."
             )
             raise ValueError(msg)
@@ -888,14 +845,7 @@ class QueryMetricAggregatesStream(KlaviyoStream):
                 raise ValueError(msg)
             streams.append(cls(tap, report_config=report, report_name=report_name))
 
-        if streams:
-            return streams
-
-        legacy_config = _get_report_config_value(tap.config, "query_metric_aggregates_config")
-        if legacy_config:
-            return [cls(tap, report_config=legacy_config, report_name=cls.name)]
-
-        return []
+        return streams
 
     def _get_filter_start(self, context: Context | None) -> str:
         """Return the lower datetime bound from state, config, or default."""
@@ -921,7 +871,7 @@ class QueryMetricAggregatesStream(KlaviyoStream):
         """Merge configured filters with state-driven datetime bounds."""
         configured_filters = config.get("filter", [])
         if not isinstance(configured_filters, list):
-            msg = "'query_metric_aggregates_config.filter' must be an array when provided."
+            msg = "'query_metric_aggregates_reports[].filter' must be an array when provided."
             raise TypeError(msg)
 
         datetime_prefixes = (
