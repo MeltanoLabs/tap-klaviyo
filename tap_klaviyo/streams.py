@@ -4,9 +4,14 @@ from __future__ import annotations
 
 import json
 import sys
+from datetime import datetime, time, timedelta, timezone
+from importlib import resources
 from typing import TYPE_CHECKING, Any
+from urllib.parse import parse_qsl
+from zoneinfo import ZoneInfo
 
-from tap_klaviyo.client import KlaviyoStream
+from tap_klaviyo import schemas
+from tap_klaviyo.client import DEFAULT_START_DATE, KlaviyoStream, _isodate_from_date_string
 
 if sys.version_info >= (3, 12):
     from typing import override
@@ -33,6 +38,27 @@ def _get_report_config_value(config: dict[str, Any], key: str) -> dict[str, Any]
         msg = f"Expected '{key}' JSON to decode to an object."
         raise TypeError(msg)
     msg = f"Expected '{key}' to be an object or JSON string."
+    raise TypeError(msg)
+
+
+def _get_report_config_list_value(config: dict[str, Any], key: str) -> list[dict[str, Any]]:
+    value = config.get(key, [])
+    if value is None:
+        return []
+    if isinstance(value, list):
+        if all(isinstance(item, dict) for item in value):
+            return value
+        msg = f"Expected all '{key}' items to be objects."
+        raise TypeError(msg)
+    if isinstance(value, str):
+        parsed_value = json.loads(value)
+        if isinstance(parsed_value, list) and all(
+            isinstance(item, dict) for item in parsed_value
+        ):
+            return parsed_value
+        msg = f"Expected '{key}' JSON to decode to an array of objects."
+        raise TypeError(msg)
+    msg = f"Expected '{key}' to be an array of objects or JSON string."
     raise TypeError(msg)
 
 
@@ -272,13 +298,29 @@ class SegmentSeriesReportStream(KlaviyoStream):
 
     name = "segment_series_report"
     path = "/segment-series-reports"
-    primary_keys = ["segment_id", "date", "statistic_name"]
+    primary_keys = ["report_name", "segment_id", "date", "statistic_name"]
     records_jsonpath = "$"  # Pass entire response
 
     # force POST instead of the default GET
     http_method = "POST"
     # tell the base class to send the prepared payload as JSON
     payload_as_json = True
+    _schema_path = resources.files(schemas).joinpath("segment_series_report.json")
+
+    def __init__(
+        self,
+        tap: Any,
+        *,
+        report_config: dict[str, Any] | None = None,
+        report_name: str | None = None,
+    ) -> None:
+        self._report_config = report_config
+        super().__init__(tap=tap, name=report_name or self.name)
+
+    @property
+    def schema(self) -> dict[str, Any]:
+        """Return the shared schema for all named segment series streams."""
+        return json.loads(self._schema_path.read_text(encoding="utf-8"))
 
     @override
     def get_records(self, context: Context | None) -> Iterable[dict[str, Any]]:
@@ -310,6 +352,7 @@ class SegmentSeriesReportStream(KlaviyoStream):
                 for stat_name, stat_values in statistics.items():
                     for date_idx, date in enumerate(date_times):
                         yield {
+                            "report_name": self.name,
                             "date": date,
                             "segment_id": segment_id,
                             "statistic_name": stat_name,
@@ -331,7 +374,10 @@ class SegmentSeriesReportStream(KlaviyoStream):
         #
         # These can be configured in the config under "segment_series_report_config"
         # or use defaults for: statistics, interval, and timeframe.
-        config = _get_report_config_value(self.config, "segment_series_report_config")
+        config = self._report_config or _get_report_config_value(
+            self.config,
+            "segment_series_report_config",
+        )
         return {
             "data": {
                 "type": "segment-series-report",
@@ -348,6 +394,30 @@ class SegmentSeriesReportStream(KlaviyoStream):
             }
         }
 
+    @classmethod
+    def from_config(cls, tap: Any) -> list["SegmentSeriesReportStream"]:
+        """Build zero or more segment series report streams from tap config."""
+        named_reports = _get_report_config_list_value(tap.config, "segment_series_reports")
+        streams: list[SegmentSeriesReportStream] = []
+
+        for report in named_reports:
+            report_name = report.get("name")
+            if not isinstance(report_name, str) or not report_name:
+                msg = (
+                    "Each 'segment_series_reports' entry must include a non-empty 'name'."
+                )
+                raise ValueError(msg)
+            streams.append(cls(tap, report_config=report, report_name=report_name))
+
+        if streams:
+            return streams
+
+        legacy_config = _get_report_config_value(tap.config, "segment_series_report_config")
+        if legacy_config:
+            return [cls(tap, report_config=legacy_config, report_name=cls.name)]
+
+        return []
+
 class CampaignValuesReportStream(KlaviyoStream):
     """The Klaviyo endpoint for campaign values reports requires a POST call with a JSON body.
 
@@ -358,6 +428,7 @@ class CampaignValuesReportStream(KlaviyoStream):
     name = "campaign_values_report"
     path = "/campaign-values-reports"
     primary_keys = [
+        "report_name",
         "campaign_id",
         "campaign_message_id",
         "send_channel",
@@ -368,6 +439,22 @@ class CampaignValuesReportStream(KlaviyoStream):
     http_method = "POST"
     # tell the base class to send the prepared payload as JSON
     payload_as_json = True
+    _schema_path = resources.files(schemas).joinpath("campaign_values_report.json")
+
+    def __init__(
+        self,
+        tap: Any,
+        *,
+        report_config: dict[str, Any] | None = None,
+        report_name: str | None = None,
+    ) -> None:
+        self._report_config = report_config
+        super().__init__(tap=tap, name=report_name or self.name)
+
+    @property
+    def schema(self) -> dict[str, Any]:
+        """Return the shared schema for all named campaign value streams."""
+        return json.loads(self._schema_path.read_text(encoding="utf-8"))
 
     @override
     def get_records(self, context: Context | None) -> Iterable[dict[str, Any]]:
@@ -401,6 +488,7 @@ class CampaignValuesReportStream(KlaviyoStream):
                     if date_times:
                         for date_idx, date in enumerate(date_times):
                             yield {
+                                "report_name": self.name,
                                 "date": date,
                                 "campaign_id": campaign_id,
                                 "campaign_message_id": campaign_message_id,
@@ -417,6 +505,7 @@ class CampaignValuesReportStream(KlaviyoStream):
                             }
                     else:
                         yield {
+                            "report_name": self.name,
                             "campaign_id": campaign_id,
                             "campaign_message_id": campaign_message_id,
                             "send_channel": send_channel,
@@ -441,7 +530,10 @@ class CampaignValuesReportStream(KlaviyoStream):
         # "campaign_values_report_config" or use defaults for: statistics
         # and timeframe. conversion_metric_id is intentionally not defaulted
         # because it is account-specific.
-        config = _get_report_config_value(self.config, "campaign_values_report_config")
+        config = self._report_config or _get_report_config_value(
+            self.config,
+            "campaign_values_report_config",
+        )
         attributes = {
             "statistics": config.get("statistics", [
                 "opens_unique",
@@ -463,6 +555,30 @@ class CampaignValuesReportStream(KlaviyoStream):
             }
         }
 
+    @classmethod
+    def from_config(cls, tap: Any) -> list["CampaignValuesReportStream"]:
+        """Build zero or more campaign values report streams from tap config."""
+        named_reports = _get_report_config_list_value(tap.config, "campaign_values_reports")
+        streams: list[CampaignValuesReportStream] = []
+
+        for report in named_reports:
+            report_name = report.get("name")
+            if not isinstance(report_name, str) or not report_name:
+                msg = (
+                    "Each 'campaign_values_reports' entry must include a non-empty 'name'."
+                )
+                raise ValueError(msg)
+            streams.append(cls(tap, report_config=report, report_name=report_name))
+
+        if streams:
+            return streams
+
+        legacy_config = _get_report_config_value(tap.config, "campaign_values_report_config")
+        if legacy_config:
+            return [cls(tap, report_config=legacy_config, report_name=cls.name)]
+
+        return []
+
     @property
     def is_sorted(self) -> bool:
         return True
@@ -478,6 +594,7 @@ class FlowValuesReportStream(KlaviyoStream):
     name = "flow_values_report"
     path = "/flow-values-reports"
     primary_keys = [
+        "report_name",
         "flow_id",
         "flow_message_id",
         "send_channel",
@@ -488,6 +605,22 @@ class FlowValuesReportStream(KlaviyoStream):
     http_method = "POST"
     # tell the base class to send the prepared payload as JSON
     payload_as_json = True
+    _schema_path = resources.files(schemas).joinpath("flow_values_report.json")
+
+    def __init__(
+        self,
+        tap: Any,
+        *,
+        report_config: dict[str, Any] | None = None,
+        report_name: str | None = None,
+    ) -> None:
+        self._report_config = report_config
+        super().__init__(tap=tap, name=report_name or self.name)
+
+    @property
+    def schema(self) -> dict[str, Any]:
+        """Return the shared schema for all named flow value streams."""
+        return json.loads(self._schema_path.read_text(encoding="utf-8"))
 
     @override
     def get_records(self, context: Context | None) -> Iterable[dict[str, Any]]:
@@ -521,6 +654,7 @@ class FlowValuesReportStream(KlaviyoStream):
                     if date_times:
                         for date_idx, date in enumerate(date_times):
                             yield {
+                                "report_name": self.name,
                                 "date": date,
                                 "flow_id": flow_id,
                                 "flow_message_id": flow_message_id,
@@ -537,6 +671,7 @@ class FlowValuesReportStream(KlaviyoStream):
                             }
                     else:
                         yield {
+                            "report_name": self.name,
                             "flow_id": flow_id,
                             "flow_message_id": flow_message_id,
                             "send_channel": send_channel,
@@ -561,7 +696,10 @@ class FlowValuesReportStream(KlaviyoStream):
         # "flow_values_report_config" or use defaults for: statistics
         # and timeframe. conversion_metric_id is intentionally not defaulted
         # because it is account-specific.
-        config = _get_report_config_value(self.config, "flow_values_report_config")
+        config = self._report_config or _get_report_config_value(
+            self.config,
+            "flow_values_report_config",
+        )
         attributes = {
             "statistics": config.get("statistics", [
                 "opens",
@@ -586,6 +724,248 @@ class FlowValuesReportStream(KlaviyoStream):
             }
         }
 
+    @classmethod
+    def from_config(cls, tap: Any) -> list["FlowValuesReportStream"]:
+        """Build zero or more flow values report streams from tap config."""
+        named_reports = _get_report_config_list_value(tap.config, "flow_values_reports")
+        streams: list[FlowValuesReportStream] = []
+
+        for report in named_reports:
+            report_name = report.get("name")
+            if not isinstance(report_name, str) or not report_name:
+                msg = (
+                    "Each 'flow_values_reports' entry must include a non-empty 'name'."
+                )
+                raise ValueError(msg)
+            streams.append(cls(tap, report_config=report, report_name=report_name))
+
+        if streams:
+            return streams
+
+        legacy_config = _get_report_config_value(tap.config, "flow_values_report_config")
+        if legacy_config:
+            return [cls(tap, report_config=legacy_config, report_name=cls.name)]
+
+        return []
+
     @property
     def is_sorted(self) -> bool:
         return True
+
+
+class QueryMetricAggregatesStream(KlaviyoStream):
+    """Define custom stream for Klaviyo query metric aggregates."""
+
+    name = "query_metric_aggregates"
+    path = "/metric-aggregates"
+    primary_keys = ["report_name", "metric_id", "date", "dimensions", "measurement_name"]
+    replication_key = "date"
+    records_jsonpath = "$"
+    http_method = "POST"
+    payload_as_json = True
+    _schema_path = resources.files(schemas).joinpath("query_metric_aggregates.json")
+
+    def __init__(
+        self,
+        tap: Any,
+        *,
+        report_config: dict[str, Any] | None = None,
+        report_name: str | None = None,
+    ) -> None:
+        self._report_config = report_config
+        super().__init__(tap=tap, name=report_name or self.name)
+
+    @property
+    def schema(self) -> dict[str, Any]:
+        """Return the shared schema for all named metric aggregate streams."""
+        return json.loads(self._schema_path.read_text(encoding="utf-8"))
+
+    @override
+    def get_records(self, context: Context | None) -> Iterable[dict[str, Any]]:
+        """Get records by flattening metric aggregate response data."""
+        for record in super().get_records(context):
+            yield from self._flatten_response_record(record)
+
+    @override
+    def get_url_params(
+        self,
+        context: Context | None,
+        next_page_token: ParseResult | None,
+    ) -> dict[str, Any]:
+        """Return query params without the default replication filter.
+
+        This endpoint expects datetime filtering in the POST body. The base
+        stream implementation would append a query-string filter using the
+        replication key (`date`), but Klaviyo does not allow filtering this
+        resource on `date`.
+        """
+        params: dict[str, Any] = {}
+        if next_page_token:
+            params.update(parse_qsl(next_page_token.query))
+        return params
+
+    def _flatten_response_record(
+        self,
+        response_record: dict[str, Any],
+    ) -> Iterable[dict[str, Any]]:
+        """Flatten a metric aggregate response into Singer records."""
+        if "data" not in response_record or not isinstance(response_record.get("data"), dict):
+            yield response_record
+            return
+
+        data = response_record["data"]
+        attributes = data.get("attributes", {}) or {}
+        dates = attributes.get("dates", []) or []
+        rows = attributes.get("data", []) or []
+
+        metric_id = self._metric_aggregate_config().get("metric_id")
+        aggregate_id = data.get("id")
+
+        for row in rows:
+            dimensions = row.get("dimensions", []) or []
+            measurements = row.get("measurements", {}) or {}
+
+            for measurement_name, measurement_value in measurements.items():
+                if dates and isinstance(measurement_value, list):
+                    for date_idx, date in enumerate(dates):
+                        yield {
+                            "report_name": self.name,
+                            "metric_aggregate_id": aggregate_id,
+                            "metric_id": metric_id,
+                            "date": date,
+                            "dimensions": dimensions,
+                            "measurement_name": measurement_name,
+                            "measurement_value": (
+                                measurement_value[date_idx]
+                                if date_idx < len(measurement_value)
+                                else None
+                            ),
+                        }
+                else:
+                    yield {
+                        "report_name": self.name,
+                        "metric_aggregate_id": aggregate_id,
+                        "metric_id": metric_id,
+                        "date": dates[0] if len(dates) == 1 else None,
+                        "dimensions": dimensions,
+                        "measurement_name": measurement_name,
+                        "measurement_value": measurement_value,
+                    }
+
+    def _metric_aggregate_config(self) -> dict[str, Any]:
+        """Return validated config for the query metric aggregates stream."""
+        config = self._report_config or _get_report_config_value(
+            self.config,
+            "query_metric_aggregates_config",
+        )
+
+        if not config.get("metric_id"):
+            msg = (
+                "'query_metric_aggregates_config.metric_id' is required for the "
+                "query_metric_aggregates stream."
+            )
+            raise ValueError(msg)
+
+        return config
+
+    @classmethod
+    def from_config(cls, tap: Any) -> list["QueryMetricAggregatesStream"]:
+        """Build zero or more metric aggregate streams from tap config."""
+        named_reports = _get_report_config_list_value(tap.config, "query_metric_aggregates_reports")
+        streams: list[QueryMetricAggregatesStream] = []
+
+        for report in named_reports:
+            report_name = report.get("name")
+            if not isinstance(report_name, str) or not report_name:
+                msg = (
+                    "Each 'query_metric_aggregates_reports' entry must include a "
+                    "non-empty 'name'."
+                )
+                raise ValueError(msg)
+            streams.append(cls(tap, report_config=report, report_name=report_name))
+
+        if streams:
+            return streams
+
+        legacy_config = _get_report_config_value(tap.config, "query_metric_aggregates_config")
+        if legacy_config:
+            return [cls(tap, report_config=legacy_config, report_name=cls.name)]
+
+        return []
+
+    def _get_filter_start(self, context: Context | None) -> str:
+        """Return the lower datetime bound from state, config, or default."""
+        if start_timestamp := self.get_starting_timestamp(context):
+            return start_timestamp.isoformat()
+
+        if start_date := self.config.get("start_date"):
+            return _isodate_from_date_string(start_date)
+
+        return DEFAULT_START_DATE
+
+    def _get_filter_end(self, timezone_name: str | None) -> str:
+        """Return the exclusive upper datetime bound at the end of today."""
+        tzinfo = timezone.utc
+        if timezone_name:
+            tzinfo = ZoneInfo(timezone_name)
+
+        now = datetime.now(tzinfo)
+        tomorrow = now.date() + timedelta(days=1)
+        return datetime.combine(tomorrow, time.min, tzinfo=tzinfo).isoformat()
+
+    def _build_filters(self, context: Context | None, config: dict[str, Any]) -> list[str]:
+        """Merge configured filters with state-driven datetime bounds."""
+        configured_filters = config.get("filter", [])
+        if not isinstance(configured_filters, list):
+            msg = "'query_metric_aggregates_config.filter' must be an array when provided."
+            raise TypeError(msg)
+
+        datetime_prefixes = (
+            "greater-than(datetime,",
+            "greater-or-equal(datetime,",
+            "less-than(datetime,",
+            "less-or-equal(datetime,",
+        )
+        filters = [
+            filter_value
+            for filter_value in configured_filters
+            if not (
+                isinstance(filter_value, str)
+                and filter_value.startswith(datetime_prefixes)
+            )
+        ]
+        filters.extend(
+            [
+                f"greater-or-equal(datetime,{self._get_filter_start(context)})",
+                f"less-than(datetime,{self._get_filter_end(config.get('timezone'))})",
+            ],
+        )
+        return filters
+
+    @override
+    def prepare_request_payload(
+        self,
+        context: Context | None,
+        next_page_token: ParseResult | None,
+    ) -> dict[str, Any] | None:
+        """Prepare the JSON body for the metric aggregates query."""
+        config = self._metric_aggregate_config()
+        attributes = {
+            "metric_id": config["metric_id"],
+            "measurements": config.get("measurements", ["count"]),
+            "interval": config.get("interval", "day"),
+            "page_size": config.get("page_size", 500),
+            "filter": self._build_filters(context, config),
+        }
+
+        optional_keys = ("page_cursor", "by", "return_fields", "timezone", "sort")
+        for key in optional_keys:
+            if key in config and config[key] is not None:
+                attributes[key] = config[key]
+
+        return {
+            "data": {
+                "type": "metric-aggregate",
+                "attributes": attributes,
+            },
+        }

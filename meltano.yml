@@ -23,8 +23,13 @@ plugins:
     - name: start_date
       value: '2000-01-01'
     - name: segment_series_report_config
+    - name: segment_series_reports
     - name: campaign_values_report_config
+    - name: campaign_values_reports
     - name: flow_values_report_config
+    - name: flow_values_reports
+    - name: query_metric_aggregates_config
+    - name: query_metric_aggregates_reports
   loaders:
   - name: target-jsonl
     variant: andyh1203

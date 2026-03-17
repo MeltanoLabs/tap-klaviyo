@@ -1,5 +1,12 @@
 {
     "properties": {
+        "report_name": {
+            "description": "The configured stream name for this campaign values report",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
         "campaign_message_id": {
             "description": "The campaign message ID for this report row",
             "type": [
