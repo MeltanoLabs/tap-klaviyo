@@ -101,6 +101,11 @@ class TapKlaviyo(Tap):
             description="List of named flow values report stream definitions.",
         ),
         th.Property(
+            "flow_series_reports",
+            _named_report_config_type(),
+            description="List of named flow series report stream definitions.",
+        ),
+        th.Property(
             "query_metric_aggregates_reports",
             _named_query_metric_aggregates_config_type(),
             description="List of named query metric aggregates stream definitions.",
@@ -123,6 +128,7 @@ class TapKlaviyo(Tap):
         discovered_streams.extend(streams.SegmentSeriesReportStream.from_config(self))
         discovered_streams.extend(streams.CampaignValuesReportStream.from_config(self))
         discovered_streams.extend(streams.FlowValuesReportStream.from_config(self))
+        discovered_streams.extend(streams.FlowSeriesReportStream.from_config(self))
         discovered_streams.extend(streams.QueryMetricAggregatesStream.from_config(self))
         return discovered_streams
 

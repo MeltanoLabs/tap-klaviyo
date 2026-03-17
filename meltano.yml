@@ -25,6 +25,7 @@ plugins:
     - name: segment_series_reports
     - name: campaign_values_reports
     - name: flow_values_reports
+    - name: flow_series_reports
     - name: query_metric_aggregates_reports
   loaders:
   - name: target-jsonl
