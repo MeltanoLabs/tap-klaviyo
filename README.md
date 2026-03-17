@@ -65,25 +65,36 @@ tap-klaviyo --config CONFIG --discover > ./catalog.json
 
 ## Reports
 
-This tap includes three report streams backed by Klaviyo's report endpoints. These streams issue `POST` requests and flatten the API response into row-oriented Singer records.
+This tap includes four report-style streams backed by Klaviyo POST endpoints. These streams issue `POST` requests and flatten the API response into row-oriented Singer records.
 
 ### Available Report Streams
 
 - `segment_series_report`: emits one row per `segment_id`, `date`, and `statistic_name`.
 - `campaign_values_report`: emits one row per `campaign_id`, `campaign_message_id`, `send_channel`, and `statistic_name`. A `date` field is included when Klaviyo returns time-series values.
 - `flow_values_report`: emits one row per `flow_id`, `flow_message_id`, `send_channel`, and `statistic_name`.
+- `query_metric_aggregates`: emits one row per `metric_id`, `date`, `dimensions`, and `measurement_name`.
 
 ### Report Configuration
 
 Each report stream can be configured independently in the tap config:
 
 - `segment_series_report_config`
+- `segment_series_reports`
 - `campaign_values_report_config`
+- `campaign_values_reports`
 - `flow_values_report_config`
+- `flow_values_reports`
+- `query_metric_aggregates_config`
+- `query_metric_aggregates_reports`
 
 If a report config block is omitted, the tap uses the built-in defaults below.
 
 #### `segment_series_report`
+
+You can configure it in either of two ways:
+
+- `segment_series_report_config`: one legacy stream named `segment_series_report`
+- `segment_series_reports`: multiple named streams, one per config entry
 
 Default request payload:
 
@@ -104,18 +115,50 @@ Default request payload:
 
 Supported override fields:
 
+- `name` when using `segment_series_reports`
 - `statistics`
 - `interval`
 - `timeframe`
 
 Flattened output fields:
 
+- `report_name`
 - `date`
 - `segment_id`
 - `statistic_name`
 - `statistic_value`
 
+Example multi-report config:
+
+```json
+{
+  "segment_series_reports": [
+    {
+      "name": "segment_growth_report",
+      "statistics": ["members_added", "total_members"],
+      "interval": "weekly",
+      "timeframe": {
+        "key": "last_30_days"
+      }
+    },
+    {
+      "name": "segment_churn_report",
+      "statistics": ["members_removed", "net_members_changed"],
+      "interval": "daily",
+      "timeframe": {
+        "key": "last_30_days"
+      }
+    }
+  ]
+}
+```
+
 #### `campaign_values_report`
+
+You can configure it in either of two ways:
+
+- `campaign_values_report_config`: one legacy stream named `campaign_values_report`
+- `campaign_values_reports`: multiple named streams, one per config entry
 
 Default request payload:
 
@@ -137,6 +180,7 @@ Default request payload:
 
 Supported override fields:
 
+- `name` when using `campaign_values_reports`
 - `statistics`
 - `conversion_metric_id`
 - `timeframe`
@@ -145,6 +189,7 @@ Supported override fields:
 
 Flattened output fields:
 
+- `report_name`
 - `date` when present in the Klaviyo response
 - `campaign_id`
 - `campaign_message_id`
@@ -152,7 +197,37 @@ Flattened output fields:
 - `statistic_name`
 - `statistic_value`
 
+Example multi-report config:
+
+```json
+{
+  "campaign_values_reports": [
+    {
+      "name": "campaign_opens_report",
+      "statistics": ["opens_unique", "open_rate"],
+      "conversion_metric_id": "YOUR_CONVERSION_METRIC_ID",
+      "timeframe": {
+        "key": "last_30_days"
+      }
+    },
+    {
+      "name": "campaign_revenue_report",
+      "statistics": ["delivered", "revenue_per_recipient"],
+      "conversion_metric_id": "YOUR_CONVERSION_METRIC_ID",
+      "timeframe": {
+        "key": "last_30_days"
+      }
+    }
+  ]
+}
+```
+
 #### `flow_values_report`
+
+You can configure it in either of two ways:
+
+- `flow_values_report_config`: one legacy stream named `flow_values_report`
+- `flow_values_reports`: multiple named streams, one per config entry
 
 Default request payload:
 
@@ -177,6 +252,7 @@ Default request payload:
 
 Supported override fields:
 
+- `name` when using `flow_values_reports`
 - `statistics`
 - `conversion_metric_id`
 - `timeframe`
@@ -185,12 +261,116 @@ Supported override fields:
 
 Flattened output fields:
 
+- `report_name`
 - `date`
 - `flow_id`
 - `flow_message_id`
 - `send_channel`
 - `statistic_name`
 - `statistic_value`
+
+Example multi-report config:
+
+```json
+{
+  "flow_values_reports": [
+    {
+      "name": "flow_clicks_report",
+      "statistics": ["clicks", "click_rate"],
+      "conversion_metric_id": "YOUR_CONVERSION_METRIC_ID",
+      "timeframe": {
+        "key": "last_30_days"
+      }
+    },
+    {
+      "name": "flow_revenue_report",
+      "statistics": ["conversion_rate", "revenue_per_recipient"],
+      "conversion_metric_id": "YOUR_CONVERSION_METRIC_ID",
+      "timeframe": {
+        "key": "last_30_days"
+      }
+    }
+  ]
+}
+```
+
+#### `query_metric_aggregates`
+
+This stream wraps Klaviyo's `POST /api/metric-aggregates` endpoint.
+
+You can configure it in either of two ways:
+
+- `query_metric_aggregates_config`: one legacy stream named `query_metric_aggregates`
+- `query_metric_aggregates_reports`: multiple named streams, one per config entry
+
+Default request payload additions:
+
+```json
+{
+  "measurements": ["count"],
+  "interval": "day",
+  "page_size": 500
+}
+```
+
+Required config fields:
+
+- `metric_id`
+
+Supported override fields:
+
+- `name` when using `query_metric_aggregates_reports`
+- `metric_id`
+- `page_cursor`
+- `measurements`
+- `interval`
+- `page_size`
+- `by`
+- `return_fields`
+- `filter`
+- `timezone`
+- `sort`
+
+Date window behavior:
+
+- lower bound comes from Singer state when present
+- otherwise lower bound falls back to `start_date`
+- upper bound is always computed as the exclusive start of tomorrow in the configured timezone, so daily syncs include today
+- any configured datetime predicates in `filter` are replaced by these generated bounds; keep `filter` for additional non-datetime predicates
+
+Flattened output fields:
+
+- `report_name`
+- `metric_aggregate_id`
+- `metric_id`
+- `date` when present in the Klaviyo response
+- `dimensions`
+- `measurement_name`
+- `measurement_value`
+
+Example multi-report config:
+
+```json
+{
+  "query_metric_aggregates_reports": [
+    {
+      "name": "email_opens_daily",
+      "metric_id": "SCiiZ2",
+      "measurements": ["unique"],
+      "interval": "day",
+      "timezone": "America/New_York"
+    },
+    {
+      "name": "email_clicks_daily",
+      "metric_id": "AbCd12",
+      "measurements": ["count"],
+      "interval": "day",
+      "filter": ["equals(attributed_channel,email)"],
+      "timezone": "America/New_York"
+    }
+  ]
+}
+```
 
 ### Example Config
 
@@ -205,6 +385,24 @@ Flattened output fields:
       "key": "last_30_days"
     }
   },
+  "segment_series_reports": [
+    {
+      "name": "segment_growth_report",
+      "statistics": ["members_added", "total_members"],
+      "interval": "weekly",
+      "timeframe": {
+        "key": "last_30_days"
+      }
+    },
+    {
+      "name": "segment_churn_report",
+      "statistics": ["members_removed", "net_members_changed"],
+      "interval": "daily",
+      "timeframe": {
+        "key": "last_30_days"
+      }
+    }
+  ],
   "campaign_values_report_config": {
     "statistics": ["delivered", "open_rate", "revenue_per_recipient"],
     "conversion_metric_id": "YOUR_CONVERSION_METRIC_ID",
@@ -212,13 +410,78 @@ Flattened output fields:
       "key": "last_30_days"
     }
   },
+  "campaign_values_reports": [
+    {
+      "name": "campaign_opens_report",
+      "statistics": ["opens_unique", "open_rate"],
+      "conversion_metric_id": "YOUR_CONVERSION_METRIC_ID",
+      "timeframe": {
+        "key": "last_30_days"
+      }
+    },
+    {
+      "name": "campaign_revenue_report",
+      "statistics": ["delivered", "revenue_per_recipient"],
+      "conversion_metric_id": "YOUR_CONVERSION_METRIC_ID",
+      "timeframe": {
+        "key": "last_30_days"
+      }
+    }
+  ],
   "flow_values_report_config": {
     "statistics": ["delivered", "click_rate", "conversion_rate"],
     "conversion_metric_id": "YOUR_CONVERSION_METRIC_ID",
     "timeframe": {
       "key": "last_30_days"
     }
-  }
+  },
+  "flow_values_reports": [
+    {
+      "name": "flow_clicks_report",
+      "statistics": ["clicks", "click_rate"],
+      "conversion_metric_id": "YOUR_CONVERSION_METRIC_ID",
+      "timeframe": {
+        "key": "last_30_days"
+      }
+    },
+    {
+      "name": "flow_revenue_report",
+      "statistics": ["conversion_rate", "revenue_per_recipient"],
+      "conversion_metric_id": "YOUR_CONVERSION_METRIC_ID",
+      "timeframe": {
+        "key": "last_30_days"
+      }
+    }
+  ],
+  "query_metric_aggregates_config": {
+    "metric_id": "0rG4eQ",
+    "measurements": ["count"],
+    "interval": "day",
+    "page_size": 500,
+    "by": ["$message"],
+    "filter": [
+      "equals(attributed_channel,email)"
+    ],
+    "timezone": "America/New_York",
+    "sort": "$message"
+  },
+  "query_metric_aggregates_reports": [
+    {
+      "name": "email_opens_daily",
+      "metric_id": "SCiiZ2",
+      "measurements": ["unique"],
+      "interval": "day",
+      "timezone": "America/New_York"
+    },
+    {
+      "name": "email_clicks_daily",
+      "metric_id": "AbCd12",
+      "measurements": ["count"],
+      "interval": "day",
+      "filter": ["equals(attributed_channel,email)"],
+      "timezone": "America/New_York"
+    }
+  ]
 }
 ```
 

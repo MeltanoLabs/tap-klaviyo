@@ -1,0 +1,60 @@
+{
+    "properties": {
+        "report_name": {
+            "description": "The configured stream name for this metric aggregate report",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "metric_aggregate_id": {
+            "description": "The ID returned by the metric aggregates query response",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "metric_id": {
+            "description": "The metric ID used in the query",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "date": {
+            "description": "The date for this aggregate value when the response is time-series",
+            "type": [
+                "string",
+                "null"
+            ],
+            "format": "date-time"
+        },
+        "dimensions": {
+            "description": "The ordered dimension values returned for the configured by fields",
+            "type": [
+                "array",
+                "null"
+            ],
+            "items": {
+                "type": [
+                    "string",
+                    "null"
+                ]
+            }
+        },
+        "measurement_name": {
+            "description": "The aggregate measurement name",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "measurement_value": {
+            "description": "The aggregate value for this measurement and dimension set",
+            "type": [
+                "number",
+                "null"
+            ]
+        }
+    }
+}

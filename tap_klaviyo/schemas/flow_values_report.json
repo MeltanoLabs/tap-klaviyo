@@ -1,5 +1,12 @@
 {
     "properties": {
+        "report_name": {
+            "description": "The configured stream name for this flow values report",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
         "date": {
             "description": "The date for this statistic",
             "type": [

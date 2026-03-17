@@ -1,5 +1,12 @@
 {
     "properties": {
+        "report_name": {
+            "description": "The configured stream name for this segment series report",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
         "date": {
             "description": "The date for this statistic",
             "type": [
