@@ -72,6 +72,7 @@ This tap includes four report-style streams backed by Klaviyo POST endpoints. Th
 - `segment_series_report`: emits one row per `segment_id`, `date`, and `statistic_name`.
 - `campaign_values_report`: emits one row per `campaign_id`, `campaign_message_id`, `send_channel`, and `statistic_name`. A `date` field is included when Klaviyo returns time-series values.
 - `flow_values_report`: emits one row per `flow_id`, `flow_message_id`, `send_channel`, and `statistic_name`.
+- `flow_series_report`: emits one row per `flow_id`, `flow_message_id`, `send_channel`, `date`, and `statistic_name`.
 - `query_metric_aggregates`: emits one row per `metric_id`, `date`, `dimensions`, and `measurement_name`.
 
 ### Report Configuration
@@ -81,6 +82,7 @@ Each report stream can be configured independently in the tap config:
 - `segment_series_reports`
 - `campaign_values_reports`
 - `flow_values_reports`
+- `flow_series_reports`
 - `query_metric_aggregates_reports`
 
 #### `segment_series_report`
@@ -108,8 +110,11 @@ Supported override fields:
 
 - `name`
 - `statistics`
+- `conversion_metric_id`
 - `interval`
 - `timeframe`
+
+`conversion_metric_id` is client-specific. Set it when your selected statistics require a conversion metric.
 
 Flattened output fields:
 
@@ -235,11 +240,38 @@ Default request payload:
 }
 ```
 
+#### `flow_series_report`
+
+Configure this stream with `flow_series_reports`, one named stream per config entry.
+
+Default request payload:
+
+```json
+{
+  "statistics": [
+    "opens",
+    "open_rate",
+    "delivered",
+    "clicks",
+    "click_rate",
+    "click_to_open_rate",
+    "unsubscribe_rate",
+    "conversion_rate",
+    "revenue_per_recipient"
+  ],
+  "interval": "daily",
+  "timeframe": {
+    "key": "last_7_days"
+  }
+}
+```
+
 Supported override fields:
 
 - `name`
 - `statistics`
 - `conversion_metric_id`
+- `interval`
 - `timeframe`
 
 `conversion_metric_id` is client-specific. Set it when your selected statistics require a conversion metric.
@@ -258,21 +290,14 @@ Example multi-report config:
 
 ```json
 {
-  "flow_values_reports": [
+  "flow_series_reports": [
     {
-      "name": "flow_clicks_report",
-      "statistics": ["clicks", "click_rate"],
+      "name": "flow_series_daily",
+      "statistics": ["opens", "open_rate"],
       "conversion_metric_id": "YOUR_CONVERSION_METRIC_ID",
+      "interval": "daily",
       "timeframe": {
-        "key": "last_30_days"
-      }
-    },
-    {
-      "name": "flow_revenue_report",
-      "statistics": ["conversion_rate", "revenue_per_recipient"],
-      "conversion_metric_id": "YOUR_CONVERSION_METRIC_ID",
-      "timeframe": {
-        "key": "last_30_days"
+        "key": "last_12_months"
       }
     }
   ]
@@ -411,6 +436,16 @@ Example multi-report config:
       "conversion_metric_id": "YOUR_CONVERSION_METRIC_ID",
       "timeframe": {
         "key": "last_30_days"
+      }
+    }
+  ],
+  "flow_series_reports": [
+    {
+      "name": "flow_series_daily",
+      "statistics": ["opens", "open_rate"],
+      "interval": "daily",
+      "timeframe": {
+        "key": "last_12_months"
       }
     }
   ],

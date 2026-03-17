@@ -717,6 +717,132 @@ class FlowValuesReportStream(KlaviyoStream):
         return True
 
 
+class FlowSeriesReportStream(KlaviyoStream):
+    """The Klaviyo endpoint for flow series reports requires a POST call with a JSON body."""
+
+    name = "flow_series_report"
+    path = "/flow-series-reports"
+    primary_keys = [
+        "report_name",
+        "flow_id",
+        "flow_message_id",
+        "send_channel",
+        "date",
+        "statistic_name",
+    ]
+    records_jsonpath = "$"
+    http_method = "POST"
+    payload_as_json = True
+    _schema_path = resources.files(schemas).joinpath("flow_series_report.json")
+
+    def __init__(
+        self,
+        tap: Any,
+        *,
+        report_config: dict[str, Any] | None = None,
+        report_name: str | None = None,
+    ) -> None:
+        self._report_config = report_config
+        super().__init__(tap=tap, name=report_name or self.name)
+
+    @property
+    def schema(self) -> dict[str, Any]:
+        """Return the shared schema for all named flow series streams."""
+        return json.loads(self._schema_path.read_text(encoding="utf-8"))
+
+    @override
+    def get_records(self, context: Context | None) -> Iterable[dict[str, Any]]:
+        """Get records by flattening flow series report data."""
+        for record in super().get_records(context):
+            yield from self._flatten_response_record(record)
+
+    def _flatten_response_record(
+        self,
+        response_record: dict[str, Any],
+    ) -> Iterable[dict[str, Any]]:
+        """Flatten a flow series report response record."""
+        if "data" in response_record and isinstance(response_record.get("data"), dict):
+            attributes = response_record.get("data", {}).get("attributes", {})
+            results = attributes.get("results", [])
+            date_times = attributes.get("date_times", [])
+
+            for result in results:
+                groupings = result.get("groupings", {}) or {}
+                flow_id = groupings.get("flow_id")
+                flow_message_id = groupings.get("flow_message_id")
+                send_channel = groupings.get("send_channel")
+                statistics = result.get("statistics", {})
+
+                for stat_name, stat_values in statistics.items():
+                    for date_idx, date in enumerate(date_times):
+                        yield {
+                            "report_name": self.name,
+                            "date": date,
+                            "flow_id": flow_id,
+                            "flow_message_id": flow_message_id,
+                            "send_channel": send_channel,
+                            "statistic_name": stat_name,
+                            "statistic_value": (
+                                stat_values[date_idx]
+                                if isinstance(stat_values, list)
+                                and date_idx < len(stat_values)
+                                else None
+                                if isinstance(stat_values, list)
+                                else stat_values
+                            ),
+                        }
+        else:
+            yield response_record
+
+    @override
+    def prepare_request_payload(
+        self,
+        context: Context | None,
+        next_page_token: ParseResult | None,
+    ) -> dict[str, Any] | None:
+        """Prepare the JSON body for the flow series report."""
+        config = self._report_config or {}
+        attributes = {
+            "statistics": config.get("statistics", [
+                "opens",
+                "open_rate",
+                "delivered",
+                "clicks",
+                "click_rate",
+                "click_to_open_rate",
+                "unsubscribe_rate",
+                "conversion_rate",
+                "revenue_per_recipient",
+            ]),
+            "interval": config.get("interval", "daily"),
+            "timeframe": config.get("timeframe", {"key": "last_7_days"}),
+        }
+        if config.get("conversion_metric_id"):
+            attributes["conversion_metric_id"] = config["conversion_metric_id"]
+
+        return {
+            "data": {
+                "type": "flow-series-report",
+                "attributes": attributes,
+            },
+        }
+
+    @classmethod
+    def from_config(cls, tap: Any) -> list["FlowSeriesReportStream"]:
+        """Build zero or more flow series report streams from tap config."""
+        named_reports = _get_report_config_list_value(tap.config, "flow_series_reports")
+        streams: list[FlowSeriesReportStream] = []
+
+        for report in named_reports:
+            report_name = report.get("name")
+            if not isinstance(report_name, str) or not report_name:
+                msg = "Each 'flow_series_reports' entry must include a non-empty 'name'."
+                raise ValueError(msg)
+            streams.append(cls(tap, report_config=report, report_name=report_name))
+
+        return streams
+
+
 class QueryMetricAggregatesStream(KlaviyoStream):
     """Define custom stream for Klaviyo query metric aggregates."""
 
