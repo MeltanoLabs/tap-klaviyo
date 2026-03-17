@@ -78,23 +78,14 @@ This tap includes four report-style streams backed by Klaviyo POST endpoints. Th
 
 Each report stream can be configured independently in the tap config:
 
-- `segment_series_report_config`
 - `segment_series_reports`
-- `campaign_values_report_config`
 - `campaign_values_reports`
-- `flow_values_report_config`
 - `flow_values_reports`
-- `query_metric_aggregates_config`
 - `query_metric_aggregates_reports`
-
-If a report config block is omitted, the tap uses the built-in defaults below.
 
 #### `segment_series_report`
 
-You can configure it in either of two ways:
-
-- `segment_series_report_config`: one legacy stream named `segment_series_report`
-- `segment_series_reports`: multiple named streams, one per config entry
+Configure this stream with `segment_series_reports`, one named stream per config entry.
 
 Default request payload:
 
@@ -115,7 +106,7 @@ Default request payload:
 
 Supported override fields:
 
-- `name` when using `segment_series_reports`
+- `name`
 - `statistics`
 - `interval`
 - `timeframe`
@@ -155,10 +146,7 @@ Example multi-report config:
 
 #### `campaign_values_report`
 
-You can configure it in either of two ways:
-
-- `campaign_values_report_config`: one legacy stream named `campaign_values_report`
-- `campaign_values_reports`: multiple named streams, one per config entry
+Configure this stream with `campaign_values_reports`, one named stream per config entry.
 
 Default request payload:
 
@@ -180,12 +168,12 @@ Default request payload:
 
 Supported override fields:
 
-- `name` when using `campaign_values_reports`
+- `name`
 - `statistics`
 - `conversion_metric_id`
 - `timeframe`
 
-`conversion_metric_id` is client-specific. Set it explicitly in `campaign_values_report_config` when your selected statistics require a conversion metric.
+`conversion_metric_id` is client-specific. Set it explicitly when your selected statistics require a conversion metric.
 
 Flattened output fields:
 
@@ -224,10 +212,7 @@ Example multi-report config:
 
 #### `flow_values_report`
 
-You can configure it in either of two ways:
-
-- `flow_values_report_config`: one legacy stream named `flow_values_report`
-- `flow_values_reports`: multiple named streams, one per config entry
+Configure this stream with `flow_values_reports`, one named stream per config entry.
 
 Default request payload:
 
@@ -252,7 +237,7 @@ Default request payload:
 
 Supported override fields:
 
-- `name` when using `flow_values_reports`
+- `name`
 - `statistics`
 - `conversion_metric_id`
 - `timeframe`
@@ -298,10 +283,7 @@ Example multi-report config:
 
 This stream wraps Klaviyo's `POST /api/metric-aggregates` endpoint.
 
-You can configure it in either of two ways:
-
-- `query_metric_aggregates_config`: one legacy stream named `query_metric_aggregates`
-- `query_metric_aggregates_reports`: multiple named streams, one per config entry
+Configure this stream with `query_metric_aggregates_reports`, one named stream per config entry.
 
 Default request payload additions:
 
@@ -319,7 +301,7 @@ Required config fields:
 
 Supported override fields:
 
-- `name` when using `query_metric_aggregates_reports`
+- `name`
 - `metric_id`
 - `page_cursor`
 - `measurements`
@@ -378,13 +360,6 @@ Example multi-report config:
 {
   "auth_token": "YOUR_KLAVIYO_PRIVATE_KEY",
   "revision": "2024-10-15",
-  "segment_series_report_config": {
-    "statistics": ["members_added", "total_members"],
-    "interval": "weekly",
-    "timeframe": {
-      "key": "last_30_days"
-    }
-  },
   "segment_series_reports": [
     {
       "name": "segment_growth_report",
@@ -403,13 +378,6 @@ Example multi-report config:
       }
     }
   ],
-  "campaign_values_report_config": {
-    "statistics": ["delivered", "open_rate", "revenue_per_recipient"],
-    "conversion_metric_id": "YOUR_CONVERSION_METRIC_ID",
-    "timeframe": {
-      "key": "last_30_days"
-    }
-  },
   "campaign_values_reports": [
     {
       "name": "campaign_opens_report",
@@ -428,13 +396,6 @@ Example multi-report config:
       }
     }
   ],
-  "flow_values_report_config": {
-    "statistics": ["delivered", "click_rate", "conversion_rate"],
-    "conversion_metric_id": "YOUR_CONVERSION_METRIC_ID",
-    "timeframe": {
-      "key": "last_30_days"
-    }
-  },
   "flow_values_reports": [
     {
       "name": "flow_clicks_report",
@@ -453,18 +414,6 @@ Example multi-report config:
       }
     }
   ],
-  "query_metric_aggregates_config": {
-    "metric_id": "0rG4eQ",
-    "measurements": ["count"],
-    "interval": "day",
-    "page_size": 500,
-    "by": ["$message"],
-    "filter": [
-      "equals(attributed_channel,email)"
-    ],
-    "timezone": "America/New_York",
-    "sort": "$message"
-  },
   "query_metric_aggregates_reports": [
     {
       "name": "email_opens_daily",

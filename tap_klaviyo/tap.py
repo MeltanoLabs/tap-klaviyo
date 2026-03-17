@@ -14,62 +14,6 @@ if sys.version_info >= (3, 12):
 else:
     from typing_extensions import override
 
-
-def _report_config_type(*, include_interval: bool = False) -> th.AnyOf:
-    object_type = th.ObjectType(
-        th.Property("statistics", th.ArrayType(th.StringType)),
-        th.Property(
-            "timeframe",
-            th.ObjectType(
-                th.Property("key", th.StringType),
-            ),
-        ),
-    )
-    if include_interval:
-        object_type = th.ObjectType(
-            th.Property("statistics", th.ArrayType(th.StringType)),
-            th.Property("interval", th.StringType),
-            th.Property(
-                "timeframe",
-                th.ObjectType(
-                    th.Property("key", th.StringType),
-                ),
-            ),
-        )
-    else:
-        object_type = th.ObjectType(
-            th.Property("statistics", th.ArrayType(th.StringType)),
-            th.Property("conversion_metric_id", th.StringType),
-            th.Property(
-                "timeframe",
-                th.ObjectType(
-                    th.Property("key", th.StringType),
-                ),
-            ),
-        )
-
-    return th.AnyOf(object_type, th.StringType, th.NullType)
-
-
-def _query_metric_aggregates_config_type() -> th.AnyOf:
-    return th.AnyOf(
-        th.ObjectType(
-            th.Property("metric_id", th.StringType),
-            th.Property("page_cursor", th.StringType),
-            th.Property("measurements", th.ArrayType(th.StringType)),
-            th.Property("interval", th.StringType),
-            th.Property("page_size", th.IntegerType),
-            th.Property("by", th.ArrayType(th.StringType)),
-            th.Property("return_fields", th.ArrayType(th.StringType)),
-            th.Property("filter", th.ArrayType(th.StringType)),
-            th.Property("timezone", th.StringType),
-            th.Property("sort", th.StringType),
-        ),
-        th.StringType,
-        th.NullType,
-    )
-
-
 def _named_query_metric_aggregates_config_type() -> th.AnyOf:
     report_object = th.ObjectType(
         th.Property("name", th.StringType),
@@ -142,44 +86,24 @@ class TapKlaviyo(Tap):
             description="The earliest record date to sync",
         ),
         th.Property(
-            "segment_series_report_config",
-            _report_config_type(include_interval=True),
-            description="Optional payload override for the segment series report stream.",
-        ),
-        th.Property(
             "segment_series_reports",
             _named_interval_report_config_type(),
-            description="Optional list of named segment series report stream definitions.",
-        ),
-        th.Property(
-            "campaign_values_report_config",
-            _report_config_type(),
-            description="Optional payload override for the campaign values report stream.",
+            description="List of named segment series report stream definitions.",
         ),
         th.Property(
             "campaign_values_reports",
             _named_report_config_type(),
-            description="Optional list of named campaign values report stream definitions.",
-        ),
-        th.Property(
-            "flow_values_report_config",
-            _report_config_type(),
-            description="Optional payload override for the flow values report stream.",
+            description="List of named campaign values report stream definitions.",
         ),
         th.Property(
             "flow_values_reports",
             _named_report_config_type(),
-            description="Optional list of named flow values report stream definitions.",
-        ),
-        th.Property(
-            "query_metric_aggregates_config",
-            _query_metric_aggregates_config_type(),
-            description="Optional payload override for the legacy single query metric aggregates stream.",
+            description="List of named flow values report stream definitions.",
         ),
         th.Property(
             "query_metric_aggregates_reports",
             _named_query_metric_aggregates_config_type(),
-            description="Optional list of named query metric aggregates stream definitions.",
+            description="List of named query metric aggregates stream definitions.",
         ),
     ).to_dict()
 
