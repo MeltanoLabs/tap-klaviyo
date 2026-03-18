@@ -59,6 +59,9 @@ class CampaignsStream(KlaviyoStream):
             {
                 "filter": "equals(messages.channel,'sms')",
             },
+            {
+                "filter": "equals(messages.channel,'mobile_push')",
+            },
         ]
 
     @override
