@@ -1552,7 +1552,6 @@ wheels = [
 
 [[package]]
 name = "tap-klaviyo"
-version = "0.0.1"
 source = { editable = "." }
 dependencies = [
     { name = "requests" },
