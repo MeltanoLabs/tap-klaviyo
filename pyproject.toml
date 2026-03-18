@@ -1,6 +1,6 @@
 [project]
 name = "tap-klaviyo"
-version = "0.0.1"
+dynamic = [ "version" ]
 description = "`tap-klaviyo` is a Singer tap for Klaviyo, built with the Meltano Singer SDK."
 authors = [{ name = "Brooklyn Data" }]
 requires-python = ">=3.10"
@@ -49,8 +49,12 @@ typing = [
 ]
 
 [build-system]
-requires = ["hatchling>=1,<2"]
+requires = ["hatchling>=1,<2", "hatch-vcs>=0.5"]
 build-backend = "hatchling.build"
+
+[tool.hatch.version]
+fallback-version = "0.1.0.dev0"
+source = "vcs"
 
 [tool.mypy]
 enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
