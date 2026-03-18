@@ -5,7 +5,7 @@ from __future__ import annotations
 import sys
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any
-from urllib.parse import ParseResult, parse_qsl
+from urllib.parse import ParseResult, parse_qs
 
 from singer_sdk import SchemaDirectory, StreamSchema
 from singer_sdk.authenticators import APIKeyAuthenticator
@@ -35,18 +35,6 @@ if TYPE_CHECKING:
 SCHEMAS_DIR = SchemaDirectory(schemas)
 UTC = timezone.utc
 DEFAULT_START_DATE = datetime(2000, 1, 1, tzinfo=UTC).isoformat()
-
-
-def _isodate_from_date_string(date_string: str) -> str:
-    """Convert a date string to an ISO date string.
-
-    Args:
-        date_string: The date string to convert.
-
-    Returns:
-        An ISO date string.
-    """
-    return datetime.strptime(date_string, "%Y-%m-%d").replace(tzinfo=UTC).isoformat()
 
 
 class KlaviyoPaginator(BaseHATEOASPaginator):
@@ -96,16 +84,14 @@ class KlaviyoStream(RESTStream[ParseResult]):
         context: Context | None,
         next_page_token: ParseResult | None,
     ) -> dict[str, Any]:
-        params: dict[str, Any] = {}
 
         if next_page_token:
-            params.update(parse_qsl(next_page_token.query))
+            return parse_qs(next_page_token.query)
 
+        params: dict[str, Any] = {}
         if self.replication_key:
             if start_date := self.get_starting_timestamp(context):
                 filter_timestamp = start_date.isoformat()
-            elif start_date := self.config.get("start_date"):
-                filter_timestamp = _isodate_from_date_string(start_date)
             else:
                 filter_timestamp = DEFAULT_START_DATE
 
