@@ -61,6 +61,7 @@
                     ]
                 },
                 "integration": {
+                    "additionalProperties": true,
                     "properties": {
                         "id": {
                             "description": "The id of the integration associated with the event",
@@ -78,6 +79,18 @@
                         },
                         "category": {
                             "description": "The category of the integration",
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "object": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "key": {
                             "type": [
                                 "string",
                                 "null"

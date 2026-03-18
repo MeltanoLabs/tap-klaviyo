@@ -388,6 +388,20 @@
                         "object",
                         "null"
                     ]
+                },
+                "anonymous_id": {
+                    "description": "Anonymous ID",
+                    "type": [
+                        "null",
+                        "string"
+                    ]
+                },
+                "locale": {
+                    "description": "Locale",
+                    "type": [
+                        "null",
+                        "string"
+                    ]
                 }
             },
             "type": [

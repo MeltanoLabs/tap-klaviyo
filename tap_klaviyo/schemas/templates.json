@@ -74,6 +74,13 @@
                         "string",
                         "null"
                     ]
+                },
+                "amp": {
+                    "description": "AMP version of the template. Requires AMP Email to be enabled to access in-app. Refer to the AMP Email setup guide at https://developers.klaviyo.com/en/docs/send_amp_emails_in_klaviyo",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
                 }
             },
             "type": [
