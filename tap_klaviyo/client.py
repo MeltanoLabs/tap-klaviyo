@@ -20,10 +20,18 @@ else:
     from typing_extensions import override
 
 if TYPE_CHECKING:
+    from typing import TypedDict
     from urllib.parse import ParseResult
 
     import requests
     from singer_sdk.helpers.types import Context
+
+    class KlaviyoPaginatedResponse(TypedDict):
+        """Klaviyo response dict for paginated endpoints."""
+
+        data: list[dict]
+        links: dict[str, str]
+
 
 SCHEMAS_DIR = SchemaDirectory(schemas)
 UTC = timezone.utc
@@ -46,9 +54,9 @@ class KlaviyoPaginator(BaseHATEOASPaginator):
     """HATEOAS paginator for the Klaviyo API."""
 
     @override
-    def get_next_url(self, response: requests.Response) -> str:
-        data = response.json()
-        return data.get("links").get("next")  # type: ignore[no-any-return]
+    def get_next_url(self, response: requests.Response) -> str | None:
+        data: KlaviyoPaginatedResponse = response.json()
+        return data.get("links", {}).get("next")
 
 
 class KlaviyoStream(RESTStream):
