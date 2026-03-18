@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sys
+from typing import TYPE_CHECKING
 
 from singer_sdk import Tap
 from singer_sdk import typing as th  # JSON schema typing helpers
@@ -13,6 +14,9 @@ if sys.version_info >= (3, 12):
     from typing import override
 else:
     from typing_extensions import override
+
+if TYPE_CHECKING:
+    from tap_klaviyo.client import KlaviyoStream
 
 
 class TapKlaviyo(Tap):
@@ -42,7 +46,7 @@ class TapKlaviyo(Tap):
     ).to_dict()
 
     @override
-    def discover_streams(self) -> list[streams.KlaviyoStream]:
+    def discover_streams(self) -> list[KlaviyoStream]:
         return [
             streams.EventsStream(self),
             streams.CampaignsStream(self),

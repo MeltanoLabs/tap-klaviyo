@@ -77,7 +77,7 @@ uv sync
 ### Create and Run Tests
 
 Create tests within the `tap_klaviyo/tests` subfolder and
-  then run:
+then run:
 
 ```bash
 uv run pytest

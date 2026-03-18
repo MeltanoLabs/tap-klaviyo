@@ -51,7 +51,7 @@ class CampaignsStream(KlaviyoStream):
 
     @override
     @property
-    def partitions(self) -> list[dict] | None:
+    def partitions(self) -> list[dict[str, Any]] | None:
         return [
             {
                 "filter": "equals(messages.channel,'email')",

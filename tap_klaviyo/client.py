@@ -5,7 +5,7 @@ from __future__ import annotations
 import sys
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any
-from urllib.parse import parse_qsl
+from urllib.parse import ParseResult, parse_qsl
 
 from singer_sdk import SchemaDirectory, StreamSchema
 from singer_sdk.authenticators import APIKeyAuthenticator
@@ -21,7 +21,6 @@ else:
 
 if TYPE_CHECKING:
     from typing import TypedDict
-    from urllib.parse import ParseResult
 
     import requests
     from singer_sdk.helpers.types import Context
@@ -29,7 +28,7 @@ if TYPE_CHECKING:
     class KlaviyoPaginatedResponse(TypedDict):
         """Klaviyo response dict for paginated endpoints."""
 
-        data: list[dict]
+        data: list[dict[str, Any]]
         links: dict[str, str]
 
 
@@ -59,7 +58,7 @@ class KlaviyoPaginator(BaseHATEOASPaginator):
         return data.get("links", {}).get("next")
 
 
-class KlaviyoStream(RESTStream):
+class KlaviyoStream(RESTStream[ParseResult]):
     """Klaviyo stream class."""
 
     url_base = "https://a.klaviyo.com/api"
@@ -83,12 +82,9 @@ class KlaviyoStream(RESTStream):
 
     @override
     @property
-    def http_headers(self) -> dict:
+    def http_headers(self) -> dict[str, str]:
         """Return the http headers needed."""
-        headers = {}
-        if "revision" in self.config:
-            headers["revision"] = self.config.get("revision")
-        return headers
+        return {"revision": self.config["revision"]}
 
     @override
     def get_new_paginator(self) -> BaseHATEOASPaginator:
