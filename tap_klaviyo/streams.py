@@ -91,7 +91,8 @@ class CampaignsStream(KlaviyoStream):
     @override
     @property
     def is_sorted(self) -> bool:
-        return True
+        # https://github.com/MeltanoLabs/tap-klaviyo/issues/156#issuecomment-4099218378
+        return False
 
 
 class ProfilesStream(KlaviyoStream):
