@@ -43,13 +43,13 @@ test = [
 ]
 typing = [
     { include-group = "test" },
-    "mypy>=1.19.1",
-    "ty>=0.0.23",
+    "mypy>=1.20.1",
+    "ty>=0.0.30",
     "types-requests>=2.32.4.20260107",
 ]
 
 [build-system]
-requires = ["hatchling>=1,<2", "hatch-vcs>=0.5"]
+requires = ["hatchling>=1.29.0,<2", "hatch-vcs>=0.5"]
 build-backend = "hatchling.build"
 
 [tool.hatch.version]
