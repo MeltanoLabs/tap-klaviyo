@@ -1,0 +1,54 @@
+{
+    "properties": {
+        "report_name": {
+            "description": "The configured stream name for this flow values report",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "date": {
+            "description": "The date for this statistic",
+            "type": [
+                "string",
+                "null"
+            ],
+            "format": "date-time"
+        },
+        "flow_message_id": {
+            "description": "The flow message ID for this report row",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "flow_id": {
+            "description": "The ID of the flow",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "send_channel": {
+            "description": "The flow send channel",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "statistic_name": {
+            "description": "The name of the statistic",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "statistic_value": {
+            "description": "The numeric value for this statistic",
+            "type": [
+                "number",
+                "null"
+            ]
+        }
+    }
+}

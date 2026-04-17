@@ -19,6 +19,53 @@ if TYPE_CHECKING:
     from tap_klaviyo.client import KlaviyoStream
 
 
+def _named_query_metric_aggregates_config_type() -> th.AnyOf:
+    report_object = th.ObjectType(
+        th.Property("name", th.StringType),
+        th.Property("metric_id", th.StringType),
+        th.Property("page_cursor", th.StringType),
+        th.Property("measurements", th.ArrayType(th.StringType)),
+        th.Property("interval", th.StringType),
+        th.Property("page_size", th.IntegerType),
+        th.Property("by", th.ArrayType(th.StringType)),
+        th.Property("return_fields", th.ArrayType(th.StringType)),
+        th.Property("filter", th.ArrayType(th.StringType)),
+        th.Property("timezone", th.StringType),
+        th.Property("sort", th.StringType),
+    )
+    return th.AnyOf(th.ArrayType(report_object), th.StringType, th.NullType)
+
+
+def _named_report_config_type() -> th.AnyOf:
+    report_object = th.ObjectType(
+        th.Property("name", th.StringType),
+        th.Property("statistics", th.ArrayType(th.StringType)),
+        th.Property("conversion_metric_id", th.StringType),
+        th.Property(
+            "timeframe",
+            th.ObjectType(
+                th.Property("key", th.StringType),
+            ),
+        ),
+    )
+    return th.AnyOf(th.ArrayType(report_object), th.StringType, th.NullType)
+
+
+def _named_interval_report_config_type() -> th.AnyOf:
+    report_object = th.ObjectType(
+        th.Property("name", th.StringType),
+        th.Property("statistics", th.ArrayType(th.StringType)),
+        th.Property("interval", th.StringType),
+        th.Property(
+            "timeframe",
+            th.ObjectType(
+                th.Property("key", th.StringType),
+            ),
+        ),
+    )
+    return th.AnyOf(th.ArrayType(report_object), th.StringType, th.NullType)
+
+
 class TapKlaviyo(Tap):
     """Klaviyo tap class."""
 
@@ -43,11 +90,36 @@ class TapKlaviyo(Tap):
             th.DateTimeType,
             description="The earliest record date to sync",
         ),
+        th.Property(
+            "segment_series_reports",
+            _named_interval_report_config_type(),
+            description="List of named segment series report stream definitions.",
+        ),
+        th.Property(
+            "campaign_values_reports",
+            _named_report_config_type(),
+            description="List of named campaign values report stream definitions.",
+        ),
+        th.Property(
+            "flow_values_reports",
+            _named_report_config_type(),
+            description="List of named flow values report stream definitions.",
+        ),
+        th.Property(
+            "flow_series_reports",
+            _named_report_config_type(),
+            description="List of named flow series report stream definitions.",
+        ),
+        th.Property(
+            "query_metric_aggregates_reports",
+            _named_query_metric_aggregates_config_type(),
+            description="List of named query metric aggregates stream definitions.",
+        ),
     ).to_dict()
 
     @override
     def discover_streams(self) -> list[KlaviyoStream]:
-        return [
+        discovered_streams: list[KlaviyoStream] = [
             streams.EventsStream(self),
             streams.CampaignsStream(self),
             streams.MetricsStream(self),
@@ -55,8 +127,15 @@ class TapKlaviyo(Tap):
             streams.ListsStream(self),
             streams.ListPersonStream(self),
             streams.FlowsStream(self),
+            streams.SegmentsStream(self),
             streams.TemplatesStream(self),
         ]
+        discovered_streams.extend(streams.SegmentSeriesReportStream.from_config(self))
+        discovered_streams.extend(streams.CampaignValuesReportStream.from_config(self))
+        discovered_streams.extend(streams.FlowValuesReportStream.from_config(self))
+        discovered_streams.extend(streams.FlowSeriesReportStream.from_config(self))
+        discovered_streams.extend(streams.QueryMetricAggregatesStream.from_config(self))
+        return discovered_streams
 
 
 if __name__ == "__main__":

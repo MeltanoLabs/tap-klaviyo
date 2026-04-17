@@ -1,0 +1,40 @@
+{
+    "properties": {
+        "report_name": {
+            "description": "The configured stream name for this segment series report",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "date": {
+            "description": "The date for this statistic",
+            "type": [
+                "string",
+                "null"
+            ],
+            "format": "date-time"
+        },
+        "segment_id": {
+            "description": "The ID of the segment",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "statistic_name": {
+            "description": "The name of the statistic (e.g., total_members, net_members_changed)",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "statistic_value": {
+            "description": "The numeric value for this statistic on this date",
+            "type": [
+                "number",
+                "null"
+            ]
+        }
+    }
+}
