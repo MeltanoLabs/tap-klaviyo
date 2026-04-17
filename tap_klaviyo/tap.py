@@ -19,7 +19,6 @@ if TYPE_CHECKING:
     from tap_klaviyo.client import KlaviyoStream
 
 
-
 def _named_query_metric_aggregates_config_type() -> th.AnyOf:
     report_object = th.ObjectType(
         th.Property("name", th.StringType),

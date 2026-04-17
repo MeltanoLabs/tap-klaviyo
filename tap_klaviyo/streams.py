@@ -52,9 +52,7 @@ def _get_report_config_list_value(config: dict[str, Any], key: str) -> list[dict
         raise TypeError(msg)
     if isinstance(value, str):
         parsed_value = json.loads(value)
-        if isinstance(parsed_value, list) and all(
-            isinstance(item, dict) for item in parsed_value
-        ):
+        if isinstance(parsed_value, list) and all(isinstance(item, dict) for item in parsed_value):
             return parsed_value
         msg = f"Expected '{key}' JSON to decode to an array of objects."
         raise TypeError(msg)
@@ -292,6 +290,7 @@ class TemplatesStream(KlaviyoStream):
     def is_sorted(self) -> bool:
         return True
 
+
 class SegmentSeriesReportStream(KlaviyoStream):
     """Define custom stream that uses a POST request.
 
@@ -381,12 +380,15 @@ class SegmentSeriesReportStream(KlaviyoStream):
             "data": {
                 "type": "segment-series-report",
                 "attributes": {
-                    "statistics": config.get("statistics", [
-                        "members_added",
-                        "total_members",
-                        "members_removed",
-                        "net_members_changed",
-                    ]),
+                    "statistics": config.get(
+                        "statistics",
+                        [
+                            "members_added",
+                            "total_members",
+                            "members_removed",
+                            "net_members_changed",
+                        ],
+                    ),
                     "interval": config.get("interval", "daily"),
                     "timeframe": config.get("timeframe", {"key": "last_7_days"}),
                 },
@@ -394,7 +396,7 @@ class SegmentSeriesReportStream(KlaviyoStream):
         }
 
     @classmethod
-    def from_config(cls, tap: Any) -> list["SegmentSeriesReportStream"]:
+    def from_config(cls, tap: Any) -> list[SegmentSeriesReportStream]:
         """Build zero or more segment series report streams from tap config."""
         named_reports = _get_report_config_list_value(tap.config, "segment_series_reports")
         streams: list[SegmentSeriesReportStream] = []
@@ -402,13 +404,12 @@ class SegmentSeriesReportStream(KlaviyoStream):
         for report in named_reports:
             report_name = report.get("name")
             if not isinstance(report_name, str) or not report_name:
-                msg = (
-                    "Each 'segment_series_reports' entry must include a non-empty 'name'."
-                )
+                msg = "Each 'segment_series_reports' entry must include a non-empty 'name'."
                 raise ValueError(msg)
             streams.append(cls(tap, report_config=report, report_name=report_name))
 
         return streams
+
 
 class CampaignValuesReportStream(KlaviyoStream):
     """The Klaviyo endpoint for campaign values reports requires a POST call with a JSON body.
@@ -488,8 +489,7 @@ class CampaignValuesReportStream(KlaviyoStream):
                                 "statistic_name": stat_name,
                                 "statistic_value": (
                                     stat_value[date_idx]
-                                    if isinstance(stat_value, list)
-                                    and date_idx < len(stat_value)
+                                    if isinstance(stat_value, list) and date_idx < len(stat_value)
                                     else None
                                     if isinstance(stat_value, list)
                                     else stat_value
@@ -520,14 +520,17 @@ class CampaignValuesReportStream(KlaviyoStream):
         #
         config = self._report_config or {}
         attributes = {
-            "statistics": config.get("statistics", [
-                "opens_unique",
-                "open_rate",
-                "delivered",
-                "clicks_unique",
-                "click_to_open_rate",
-                "revenue_per_recipient",
-            ]),
+            "statistics": config.get(
+                "statistics",
+                [
+                    "opens_unique",
+                    "open_rate",
+                    "delivered",
+                    "clicks_unique",
+                    "click_to_open_rate",
+                    "revenue_per_recipient",
+                ],
+            ),
             "timeframe": config.get("timeframe", {"key": "last_7_days"}),
         }
         if config.get("conversion_metric_id"):
@@ -541,7 +544,7 @@ class CampaignValuesReportStream(KlaviyoStream):
         }
 
     @classmethod
-    def from_config(cls, tap: Any) -> list["CampaignValuesReportStream"]:
+    def from_config(cls, tap: Any) -> list[CampaignValuesReportStream]:
         """Build zero or more campaign values report streams from tap config."""
         named_reports = _get_report_config_list_value(tap.config, "campaign_values_reports")
         streams: list[CampaignValuesReportStream] = []
@@ -549,9 +552,7 @@ class CampaignValuesReportStream(KlaviyoStream):
         for report in named_reports:
             report_name = report.get("name")
             if not isinstance(report_name, str) or not report_name:
-                msg = (
-                    "Each 'campaign_values_reports' entry must include a non-empty 'name'."
-                )
+                msg = "Each 'campaign_values_reports' entry must include a non-empty 'name'."
                 raise ValueError(msg)
             streams.append(cls(tap, report_config=report, report_name=report_name))
 
@@ -640,8 +641,7 @@ class FlowValuesReportStream(KlaviyoStream):
                                 "statistic_name": stat_name,
                                 "statistic_value": (
                                     stat_value[date_idx]
-                                    if isinstance(stat_value, list)
-                                    and date_idx < len(stat_value)
+                                    if isinstance(stat_value, list) and date_idx < len(stat_value)
                                     else None
                                     if isinstance(stat_value, list)
                                     else stat_value
@@ -672,17 +672,20 @@ class FlowValuesReportStream(KlaviyoStream):
         #
         config = self._report_config or {}
         attributes = {
-            "statistics": config.get("statistics", [
-                "opens",
-                "open_rate",
-                "delivered",
-                "clicks",
-                "click_rate",
-                "click_to_open_rate",
-                "unsubscribe_rate",
-                "conversion_rate",
-                "revenue_per_recipient",
-            ]),
+            "statistics": config.get(
+                "statistics",
+                [
+                    "opens",
+                    "open_rate",
+                    "delivered",
+                    "clicks",
+                    "click_rate",
+                    "click_to_open_rate",
+                    "unsubscribe_rate",
+                    "conversion_rate",
+                    "revenue_per_recipient",
+                ],
+            ),
             "timeframe": config.get("timeframe", {"key": "last_7_days"}),
         }
         if config.get("conversion_metric_id"):
@@ -696,7 +699,7 @@ class FlowValuesReportStream(KlaviyoStream):
         }
 
     @classmethod
-    def from_config(cls, tap: Any) -> list["FlowValuesReportStream"]:
+    def from_config(cls, tap: Any) -> list[FlowValuesReportStream]:
         """Build zero or more flow values report streams from tap config."""
         named_reports = _get_report_config_list_value(tap.config, "flow_values_reports")
         streams: list[FlowValuesReportStream] = []
@@ -704,9 +707,7 @@ class FlowValuesReportStream(KlaviyoStream):
         for report in named_reports:
             report_name = report.get("name")
             if not isinstance(report_name, str) or not report_name:
-                msg = (
-                    "Each 'flow_values_reports' entry must include a non-empty 'name'."
-                )
+                msg = "Each 'flow_values_reports' entry must include a non-empty 'name'."
                 raise ValueError(msg)
             streams.append(cls(tap, report_config=report, report_name=report_name))
 
@@ -784,8 +785,7 @@ class FlowSeriesReportStream(KlaviyoStream):
                             "statistic_name": stat_name,
                             "statistic_value": (
                                 stat_values[date_idx]
-                                if isinstance(stat_values, list)
-                                and date_idx < len(stat_values)
+                                if isinstance(stat_values, list) and date_idx < len(stat_values)
                                 else None
                                 if isinstance(stat_values, list)
                                 else stat_values
@@ -803,17 +803,20 @@ class FlowSeriesReportStream(KlaviyoStream):
         """Prepare the JSON body for the flow series report."""
         config = self._report_config or {}
         attributes = {
-            "statistics": config.get("statistics", [
-                "opens",
-                "open_rate",
-                "delivered",
-                "clicks",
-                "click_rate",
-                "click_to_open_rate",
-                "unsubscribe_rate",
-                "conversion_rate",
-                "revenue_per_recipient",
-            ]),
+            "statistics": config.get(
+                "statistics",
+                [
+                    "opens",
+                    "open_rate",
+                    "delivered",
+                    "clicks",
+                    "click_rate",
+                    "click_to_open_rate",
+                    "unsubscribe_rate",
+                    "conversion_rate",
+                    "revenue_per_recipient",
+                ],
+            ),
             "interval": config.get("interval", "daily"),
             "timeframe": config.get("timeframe", {"key": "last_7_days"}),
         }
@@ -828,7 +831,7 @@ class FlowSeriesReportStream(KlaviyoStream):
         }
 
     @classmethod
-    def from_config(cls, tap: Any) -> list["FlowSeriesReportStream"]:
+    def from_config(cls, tap: Any) -> list[FlowSeriesReportStream]:
         """Build zero or more flow series report streams from tap config."""
         named_reports = _get_report_config_list_value(tap.config, "flow_series_reports")
         streams: list[FlowSeriesReportStream] = []
@@ -956,7 +959,7 @@ class QueryMetricAggregatesStream(KlaviyoStream):
         return config
 
     @classmethod
-    def from_config(cls, tap: Any) -> list["QueryMetricAggregatesStream"]:
+    def from_config(cls, tap: Any) -> list[QueryMetricAggregatesStream]:
         """Build zero or more metric aggregate streams from tap config."""
         named_reports = _get_report_config_list_value(tap.config, "query_metric_aggregates_reports")
         streams: list[QueryMetricAggregatesStream] = []
@@ -965,8 +968,7 @@ class QueryMetricAggregatesStream(KlaviyoStream):
             report_name = report.get("name")
             if not isinstance(report_name, str) or not report_name:
                 msg = (
-                    "Each 'query_metric_aggregates_reports' entry must include a "
-                    "non-empty 'name'."
+                    "Each 'query_metric_aggregates_reports' entry must include a non-empty 'name'."
                 )
                 raise ValueError(msg)
             streams.append(cls(tap, report_config=report, report_name=report_name))
@@ -1009,10 +1011,7 @@ class QueryMetricAggregatesStream(KlaviyoStream):
         filters = [
             filter_value
             for filter_value in configured_filters
-            if not (
-                isinstance(filter_value, str)
-                and filter_value.startswith(datetime_prefixes)
-            )
+            if not (isinstance(filter_value, str) and filter_value.startswith(datetime_prefixes))
         ]
         filters.extend(
             [
