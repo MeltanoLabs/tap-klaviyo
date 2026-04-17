@@ -6,7 +6,7 @@ import json
 import sys
 from datetime import datetime, time, timedelta, timezone
 from importlib import resources
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 from urllib.parse import parse_qsl
 from zoneinfo import ZoneInfo
 
@@ -19,14 +19,14 @@ else:
     from typing_extensions import override
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Iterable, Mapping
     from urllib.parse import ParseResult
 
     from singer_sdk import Tap
     from singer_sdk.helpers.types import Context, Record
 
 
-def _get_report_config_value(config: dict[str, Any], key: str) -> dict[str, Any]:
+def _get_report_config_value(config: Mapping[str, Any], key: str) -> dict[str, Any]:
     value = config.get(key, {})
     if value is None:
         return {}
@@ -42,7 +42,7 @@ def _get_report_config_value(config: dict[str, Any], key: str) -> dict[str, Any]
     raise TypeError(msg)
 
 
-def _get_report_config_list_value(config: dict[str, Any], key: str) -> list[dict[str, Any]]:
+def _get_report_config_list_value(config: Mapping[str, Any], key: str) -> list[dict[str, Any]]:
     value = config.get(key, [])
     if value is None:
         return []
@@ -323,9 +323,9 @@ class SegmentSeriesReportStream(KlaviyoStream):
         super().__init__(tap=tap, name=report_name or self.name)
 
     @property
-    def schema(self) -> dict[str, Any]:
+    def schema(self) -> dict[str, Any]:  # type: ignore[override]
         """Return the shared schema for all named segment series streams."""
-        return json.loads(self._schema_path.read_text(encoding="utf-8"))
+        return cast("dict[str, Any]", json.loads(self._schema_path.read_text(encoding="utf-8")))
 
     @override
     def get_records(self, context: Context | None) -> Iterable[dict[str, Any]]:
@@ -448,9 +448,9 @@ class CampaignValuesReportStream(KlaviyoStream):
         super().__init__(tap=tap, name=report_name or self.name)
 
     @property
-    def schema(self) -> dict[str, Any]:
+    def schema(self) -> dict[str, Any]:  # type: ignore[override]
         """Return the shared schema for all named campaign value streams."""
-        return json.loads(self._schema_path.read_text(encoding="utf-8"))
+        return cast("dict[str, Any]", json.loads(self._schema_path.read_text(encoding="utf-8")))
 
     @override
     def get_records(self, context: Context | None) -> Iterable[dict[str, Any]]:
@@ -601,9 +601,9 @@ class FlowValuesReportStream(KlaviyoStream):
         super().__init__(tap=tap, name=report_name or self.name)
 
     @property
-    def schema(self) -> dict[str, Any]:
+    def schema(self) -> dict[str, Any]:  # type: ignore[override]
         """Return the shared schema for all named flow value streams."""
-        return json.loads(self._schema_path.read_text(encoding="utf-8"))
+        return cast("dict[str, Any]", json.loads(self._schema_path.read_text(encoding="utf-8")))
 
     @override
     def get_records(self, context: Context | None) -> Iterable[dict[str, Any]]:
@@ -752,9 +752,9 @@ class FlowSeriesReportStream(KlaviyoStream):
         super().__init__(tap=tap, name=report_name or self.name)
 
     @property
-    def schema(self) -> dict[str, Any]:
+    def schema(self) -> dict[str, Any]:  # type: ignore[override]
         """Return the shared schema for all named flow series streams."""
-        return json.loads(self._schema_path.read_text(encoding="utf-8"))
+        return cast("dict[str, Any]", json.loads(self._schema_path.read_text(encoding="utf-8")))
 
     @override
     def get_records(self, context: Context | None) -> Iterable[dict[str, Any]]:
@@ -875,9 +875,9 @@ class QueryMetricAggregatesStream(KlaviyoStream):
         super().__init__(tap=tap, name=report_name or self.name)
 
     @property
-    def schema(self) -> dict[str, Any]:
+    def schema(self) -> dict[str, Any]:  # type: ignore[override]
         """Return the shared schema for all named metric aggregate streams."""
-        return json.loads(self._schema_path.read_text(encoding="utf-8"))
+        return cast("dict[str, Any]", json.loads(self._schema_path.read_text(encoding="utf-8")))
 
     @override
     def get_records(self, context: Context | None) -> Iterable[dict[str, Any]]:
@@ -987,13 +987,13 @@ class QueryMetricAggregatesStream(KlaviyoStream):
             return start_timestamp.isoformat()
 
         if start_date := self.config.get("start_date"):
-            return start_date
+            return cast("str", start_date)
 
         return DEFAULT_START_DATE
 
     def _get_filter_end(self, timezone_name: str | None) -> str:
         """Return the exclusive upper datetime bound at the end of today."""
-        tzinfo = timezone.utc
+        tzinfo: timezone | ZoneInfo = timezone.utc
         if timezone_name:
             tzinfo = ZoneInfo(timezone_name)
 

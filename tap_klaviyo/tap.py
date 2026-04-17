@@ -119,7 +119,7 @@ class TapKlaviyo(Tap):
 
     @override
     def discover_streams(self) -> list[KlaviyoStream]:
-        discovered_streams: list[streams.KlaviyoStream] = [
+        discovered_streams: list[KlaviyoStream] = [
             streams.EventsStream(self),
             streams.CampaignsStream(self),
             streams.MetricsStream(self),
