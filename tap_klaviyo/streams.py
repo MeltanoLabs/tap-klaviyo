@@ -11,7 +11,7 @@ from urllib.parse import parse_qsl
 from zoneinfo import ZoneInfo
 
 from tap_klaviyo import schemas
-from tap_klaviyo.client import DEFAULT_START_DATE, KlaviyoStream, _isodate_from_date_string
+from tap_klaviyo.client import DEFAULT_START_DATE, KlaviyoStream
 
 if sys.version_info >= (3, 12):
     from typing import override
@@ -22,6 +22,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
     from urllib.parse import ParseResult
 
+    from singer_sdk import Tap
     from singer_sdk.helpers.types import Context, Record
 
 
@@ -312,11 +313,12 @@ class SegmentSeriesReportStream(KlaviyoStream):
 
     def __init__(
         self,
-        tap: Any,
+        tap: Tap,
         *,
         report_config: dict[str, Any] | None = None,
         report_name: str | None = None,
     ) -> None:
+        """Initialize the stream with an optional report config and name."""
         self._report_config = report_config
         super().__init__(tap=tap, name=report_name or self.name)
 
@@ -396,7 +398,7 @@ class SegmentSeriesReportStream(KlaviyoStream):
         }
 
     @classmethod
-    def from_config(cls, tap: Any) -> list[SegmentSeriesReportStream]:
+    def from_config(cls, tap: Tap) -> list[SegmentSeriesReportStream]:
         """Build zero or more segment series report streams from tap config."""
         named_reports = _get_report_config_list_value(tap.config, "segment_series_reports")
         streams: list[SegmentSeriesReportStream] = []
@@ -436,11 +438,12 @@ class CampaignValuesReportStream(KlaviyoStream):
 
     def __init__(
         self,
-        tap: Any,
+        tap: Tap,
         *,
         report_config: dict[str, Any] | None = None,
         report_name: str | None = None,
     ) -> None:
+        """Initialize the stream with an optional report config and name."""
         self._report_config = report_config
         super().__init__(tap=tap, name=report_name or self.name)
 
@@ -544,7 +547,7 @@ class CampaignValuesReportStream(KlaviyoStream):
         }
 
     @classmethod
-    def from_config(cls, tap: Any) -> list[CampaignValuesReportStream]:
+    def from_config(cls, tap: Tap) -> list[CampaignValuesReportStream]:
         """Build zero or more campaign values report streams from tap config."""
         named_reports = _get_report_config_list_value(tap.config, "campaign_values_reports")
         streams: list[CampaignValuesReportStream] = []
@@ -588,11 +591,12 @@ class FlowValuesReportStream(KlaviyoStream):
 
     def __init__(
         self,
-        tap: Any,
+        tap: Tap,
         *,
         report_config: dict[str, Any] | None = None,
         report_name: str | None = None,
     ) -> None:
+        """Initialize the stream with an optional report config and name."""
         self._report_config = report_config
         super().__init__(tap=tap, name=report_name or self.name)
 
@@ -699,7 +703,7 @@ class FlowValuesReportStream(KlaviyoStream):
         }
 
     @classmethod
-    def from_config(cls, tap: Any) -> list[FlowValuesReportStream]:
+    def from_config(cls, tap: Tap) -> list[FlowValuesReportStream]:
         """Build zero or more flow values report streams from tap config."""
         named_reports = _get_report_config_list_value(tap.config, "flow_values_reports")
         streams: list[FlowValuesReportStream] = []
@@ -738,11 +742,12 @@ class FlowSeriesReportStream(KlaviyoStream):
 
     def __init__(
         self,
-        tap: Any,
+        tap: Tap,
         *,
         report_config: dict[str, Any] | None = None,
         report_name: str | None = None,
     ) -> None:
+        """Initialize the stream with an optional report config and name."""
         self._report_config = report_config
         super().__init__(tap=tap, name=report_name or self.name)
 
@@ -831,7 +836,7 @@ class FlowSeriesReportStream(KlaviyoStream):
         }
 
     @classmethod
-    def from_config(cls, tap: Any) -> list[FlowSeriesReportStream]:
+    def from_config(cls, tap: Tap) -> list[FlowSeriesReportStream]:
         """Build zero or more flow series report streams from tap config."""
         named_reports = _get_report_config_list_value(tap.config, "flow_series_reports")
         streams: list[FlowSeriesReportStream] = []
@@ -860,11 +865,12 @@ class QueryMetricAggregatesStream(KlaviyoStream):
 
     def __init__(
         self,
-        tap: Any,
+        tap: Tap,
         *,
         report_config: dict[str, Any] | None = None,
         report_name: str | None = None,
     ) -> None:
+        """Initialize the stream with an optional report config and name."""
         self._report_config = report_config
         super().__init__(tap=tap, name=report_name or self.name)
 
@@ -959,7 +965,7 @@ class QueryMetricAggregatesStream(KlaviyoStream):
         return config
 
     @classmethod
-    def from_config(cls, tap: Any) -> list[QueryMetricAggregatesStream]:
+    def from_config(cls, tap: Tap) -> list[QueryMetricAggregatesStream]:
         """Build zero or more metric aggregate streams from tap config."""
         named_reports = _get_report_config_list_value(tap.config, "query_metric_aggregates_reports")
         streams: list[QueryMetricAggregatesStream] = []
@@ -981,7 +987,7 @@ class QueryMetricAggregatesStream(KlaviyoStream):
             return start_timestamp.isoformat()
 
         if start_date := self.config.get("start_date"):
-            return _isodate_from_date_string(start_date)
+            return start_date
 
         return DEFAULT_START_DATE
 
