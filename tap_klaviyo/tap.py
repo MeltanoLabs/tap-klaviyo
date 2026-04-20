@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from tap_klaviyo.client import KlaviyoStream
 
 
-def _named_query_metric_aggregates_config_type() -> th.ArrayType:
+def _named_query_metric_aggregates_config_type() -> th.ArrayType[th.ObjectType]:
     report_object = th.ObjectType(
         th.Property("name", th.StringType, required=True),
         th.Property("metric_id", th.StringType, required=True),
@@ -36,7 +36,7 @@ def _named_query_metric_aggregates_config_type() -> th.ArrayType:
     return th.ArrayType(report_object, nullable=True)
 
 
-def _named_report_config_type() -> th.ArrayType:
+def _named_report_config_type() -> th.ArrayType[th.ObjectType]:
     report_object = th.ObjectType(
         th.Property("name", th.StringType, required=True),
         th.Property("statistics", th.ArrayType(th.StringType)),
@@ -51,7 +51,7 @@ def _named_report_config_type() -> th.ArrayType:
     return th.ArrayType(report_object, nullable=True)
 
 
-def _named_interval_report_config_type() -> th.ArrayType:
+def _named_interval_report_config_type() -> th.ArrayType[th.ObjectType]:
     report_object = th.ObjectType(
         th.Property("name", th.StringType, required=True),
         th.Property("statistics", th.ArrayType(th.StringType)),
