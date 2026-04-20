@@ -24,6 +24,7 @@ if TYPE_CHECKING:
     from singer_sdk import Tap
     from singer_sdk.helpers.types import Context, Record
 
+
 def _get_report_config_list_value(config: Mapping[str, Any], key: str) -> list[dict[str, Any]]:
     value = config.get(key, [])
     if value is None:
