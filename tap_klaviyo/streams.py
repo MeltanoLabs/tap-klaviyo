@@ -2,16 +2,15 @@
 
 from __future__ import annotations
 
-import json
 import sys
 from datetime import datetime, time, timedelta, timezone
-from importlib import resources
 from typing import TYPE_CHECKING, Any, cast
 from urllib.parse import parse_qsl
 from zoneinfo import ZoneInfo
 
-from tap_klaviyo import schemas
-from tap_klaviyo.client import DEFAULT_START_DATE, KlaviyoStream
+from singer_sdk import StreamSchema
+
+from tap_klaviyo.client import DEFAULT_START_DATE, SCHEMAS_DIR, KlaviyoStream
 
 if sys.version_info >= (3, 12):
     from typing import override
@@ -25,23 +24,6 @@ if TYPE_CHECKING:
     from singer_sdk import Tap
     from singer_sdk.helpers.types import Context, Record
 
-
-def _get_report_config_value(config: Mapping[str, Any], key: str) -> dict[str, Any]:
-    value = config.get(key, {})
-    if value is None:
-        return {}
-    if isinstance(value, dict):
-        return value
-    if isinstance(value, str):
-        parsed_value = json.loads(value)
-        if isinstance(parsed_value, dict):
-            return parsed_value
-        msg = f"Expected '{key}' JSON to decode to an object."
-        raise TypeError(msg)
-    msg = f"Expected '{key}' to be an object or JSON string."
-    raise TypeError(msg)
-
-
 def _get_report_config_list_value(config: Mapping[str, Any], key: str) -> list[dict[str, Any]]:
     value = config.get(key, [])
     if value is None:
@@ -51,13 +33,7 @@ def _get_report_config_list_value(config: Mapping[str, Any], key: str) -> list[d
             return value
         msg = f"Expected all '{key}' items to be objects."
         raise TypeError(msg)
-    if isinstance(value, str):
-        parsed_value = json.loads(value)
-        if isinstance(parsed_value, list) and all(isinstance(item, dict) for item in parsed_value):
-            return parsed_value
-        msg = f"Expected '{key}' JSON to decode to an array of objects."
-        raise TypeError(msg)
-    msg = f"Expected '{key}' to be an array of objects or JSON string."
+    msg = f"Expected '{key}' to be an array of objects."
     raise TypeError(msg)
 
 
@@ -309,23 +285,18 @@ class SegmentSeriesReportStream(KlaviyoStream):
     http_method = "POST"
     # tell the base class to send the prepared payload as JSON
     payload_as_json = True
-    _schema_path = resources.files(schemas).joinpath("segment_series_report.json")
+    schema = StreamSchema(SCHEMAS_DIR, key="segment_series_report")
 
     def __init__(
         self,
         tap: Tap,
         *,
-        report_config: dict[str, Any] | None = None,
-        report_name: str | None = None,
+        report_config: dict[str, Any],
+        report_name: str,
     ) -> None:
-        """Initialize the stream with an optional report config and name."""
+        """Initialize the stream with report config and name."""
         self._report_config = report_config
-        super().__init__(tap=tap, name=report_name or self.name)
-
-    @property
-    def schema(self) -> dict[str, Any]:  # type: ignore[override]
-        """Return the shared schema for all named segment series streams."""
-        return cast("dict[str, Any]", json.loads(self._schema_path.read_text(encoding="utf-8")))
+        super().__init__(tap=tap, name=report_name)
 
     @override
     def get_records(self, context: Context | None) -> Iterable[dict[str, Any]]:
@@ -377,7 +348,7 @@ class SegmentSeriesReportStream(KlaviyoStream):
         # describing details such as the statistics to compute, the
         # interval, and the timeframe.
         #
-        config = self._report_config or {}
+        config = self._report_config
         return {
             "data": {
                 "type": "segment-series-report",
@@ -434,23 +405,18 @@ class CampaignValuesReportStream(KlaviyoStream):
     http_method = "POST"
     # tell the base class to send the prepared payload as JSON
     payload_as_json = True
-    _schema_path = resources.files(schemas).joinpath("campaign_values_report.json")
+    schema = StreamSchema(SCHEMAS_DIR, key="campaign_values_report")
 
     def __init__(
         self,
         tap: Tap,
         *,
-        report_config: dict[str, Any] | None = None,
-        report_name: str | None = None,
+        report_config: dict[str, Any],
+        report_name: str,
     ) -> None:
-        """Initialize the stream with an optional report config and name."""
+        """Initialize the stream with report config and name."""
         self._report_config = report_config
-        super().__init__(tap=tap, name=report_name or self.name)
-
-    @property
-    def schema(self) -> dict[str, Any]:  # type: ignore[override]
-        """Return the shared schema for all named campaign value streams."""
-        return cast("dict[str, Any]", json.loads(self._schema_path.read_text(encoding="utf-8")))
+        super().__init__(tap=tap, name=report_name)
 
     @override
     def get_records(self, context: Context | None) -> Iterable[dict[str, Any]]:
@@ -521,7 +487,7 @@ class CampaignValuesReportStream(KlaviyoStream):
         # describing details such as the statistics to compute, the
         # timeframe, and optionally a conversion metric id.
         #
-        config = self._report_config or {}
+        config = self._report_config
         attributes = {
             "statistics": config.get(
                 "statistics",
@@ -587,23 +553,18 @@ class FlowValuesReportStream(KlaviyoStream):
     http_method = "POST"
     # tell the base class to send the prepared payload as JSON
     payload_as_json = True
-    _schema_path = resources.files(schemas).joinpath("flow_values_report.json")
+    schema = StreamSchema(SCHEMAS_DIR, key="flow_values_report")
 
     def __init__(
         self,
         tap: Tap,
         *,
-        report_config: dict[str, Any] | None = None,
-        report_name: str | None = None,
+        report_config: dict[str, Any],
+        report_name: str,
     ) -> None:
-        """Initialize the stream with an optional report config and name."""
+        """Initialize the stream with report config and name."""
         self._report_config = report_config
-        super().__init__(tap=tap, name=report_name or self.name)
-
-    @property
-    def schema(self) -> dict[str, Any]:  # type: ignore[override]
-        """Return the shared schema for all named flow value streams."""
-        return cast("dict[str, Any]", json.loads(self._schema_path.read_text(encoding="utf-8")))
+        super().__init__(tap=tap, name=report_name)
 
     @override
     def get_records(self, context: Context | None) -> Iterable[dict[str, Any]]:
@@ -674,7 +635,7 @@ class FlowValuesReportStream(KlaviyoStream):
         # describing details such as the statistics to compute, timeframe,
         # and optionally a conversion metric id.
         #
-        config = self._report_config or {}
+        config = self._report_config
         attributes = {
             "statistics": config.get(
                 "statistics",
@@ -738,23 +699,18 @@ class FlowSeriesReportStream(KlaviyoStream):
     records_jsonpath = "$"
     http_method = "POST"
     payload_as_json = True
-    _schema_path = resources.files(schemas).joinpath("flow_series_report.json")
+    schema = StreamSchema(SCHEMAS_DIR, key="flow_series_report")
 
     def __init__(
         self,
         tap: Tap,
         *,
-        report_config: dict[str, Any] | None = None,
-        report_name: str | None = None,
+        report_config: dict[str, Any],
+        report_name: str,
     ) -> None:
-        """Initialize the stream with an optional report config and name."""
+        """Initialize the stream with report config and name."""
         self._report_config = report_config
-        super().__init__(tap=tap, name=report_name or self.name)
-
-    @property
-    def schema(self) -> dict[str, Any]:  # type: ignore[override]
-        """Return the shared schema for all named flow series streams."""
-        return cast("dict[str, Any]", json.loads(self._schema_path.read_text(encoding="utf-8")))
+        super().__init__(tap=tap, name=report_name)
 
     @override
     def get_records(self, context: Context | None) -> Iterable[dict[str, Any]]:
@@ -806,7 +762,7 @@ class FlowSeriesReportStream(KlaviyoStream):
         next_page_token: ParseResult | None,
     ) -> dict[str, Any] | None:
         """Prepare the JSON body for the flow series report."""
-        config = self._report_config or {}
+        config = self._report_config
         attributes = {
             "statistics": config.get(
                 "statistics",
@@ -861,23 +817,18 @@ class QueryMetricAggregatesStream(KlaviyoStream):
     records_jsonpath = "$"
     http_method = "POST"
     payload_as_json = True
-    _schema_path = resources.files(schemas).joinpath("query_metric_aggregates.json")
+    schema = StreamSchema(SCHEMAS_DIR, key="query_metric_aggregates")
 
     def __init__(
         self,
         tap: Tap,
         *,
-        report_config: dict[str, Any] | None = None,
-        report_name: str | None = None,
+        report_config: dict[str, Any],
+        report_name: str,
     ) -> None:
-        """Initialize the stream with an optional report config and name."""
+        """Initialize the stream with report config and name."""
         self._report_config = report_config
-        super().__init__(tap=tap, name=report_name or self.name)
-
-    @property
-    def schema(self) -> dict[str, Any]:  # type: ignore[override]
-        """Return the shared schema for all named metric aggregate streams."""
-        return cast("dict[str, Any]", json.loads(self._schema_path.read_text(encoding="utf-8")))
+        super().__init__(tap=tap, name=report_name)
 
     @override
     def get_records(self, context: Context | None) -> Iterable[dict[str, Any]]:
@@ -953,7 +904,7 @@ class QueryMetricAggregatesStream(KlaviyoStream):
 
     def _metric_aggregate_config(self) -> dict[str, Any]:
         """Return validated config for the query metric aggregates stream."""
-        config = self._report_config or {}
+        config = self._report_config
 
         if not config.get("metric_id"):
             msg = (

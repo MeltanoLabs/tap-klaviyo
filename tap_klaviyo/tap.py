@@ -19,10 +19,10 @@ if TYPE_CHECKING:
     from tap_klaviyo.client import KlaviyoStream
 
 
-def _named_query_metric_aggregates_config_type() -> th.AnyOf:
+def _named_query_metric_aggregates_config_type() -> th.ArrayType:
     report_object = th.ObjectType(
-        th.Property("name", th.StringType),
-        th.Property("metric_id", th.StringType),
+        th.Property("name", th.StringType, required=True),
+        th.Property("metric_id", th.StringType, required=True),
         th.Property("page_cursor", th.StringType),
         th.Property("measurements", th.ArrayType(th.StringType)),
         th.Property("interval", th.StringType),
@@ -33,12 +33,12 @@ def _named_query_metric_aggregates_config_type() -> th.AnyOf:
         th.Property("timezone", th.StringType),
         th.Property("sort", th.StringType),
     )
-    return th.AnyOf(th.ArrayType(report_object), th.StringType, th.NullType)
+    return th.ArrayType(report_object, nullable=True)
 
 
-def _named_report_config_type() -> th.AnyOf:
+def _named_report_config_type() -> th.ArrayType:
     report_object = th.ObjectType(
-        th.Property("name", th.StringType),
+        th.Property("name", th.StringType, required=True),
         th.Property("statistics", th.ArrayType(th.StringType)),
         th.Property("conversion_metric_id", th.StringType),
         th.Property(
@@ -48,12 +48,12 @@ def _named_report_config_type() -> th.AnyOf:
             ),
         ),
     )
-    return th.AnyOf(th.ArrayType(report_object), th.StringType, th.NullType)
+    return th.ArrayType(report_object, nullable=True)
 
 
-def _named_interval_report_config_type() -> th.AnyOf:
+def _named_interval_report_config_type() -> th.ArrayType:
     report_object = th.ObjectType(
-        th.Property("name", th.StringType),
+        th.Property("name", th.StringType, required=True),
         th.Property("statistics", th.ArrayType(th.StringType)),
         th.Property("interval", th.StringType),
         th.Property(
@@ -63,7 +63,7 @@ def _named_interval_report_config_type() -> th.AnyOf:
             ),
         ),
     )
-    return th.AnyOf(th.ArrayType(report_object), th.StringType, th.NullType)
+    return th.ArrayType(report_object, nullable=True)
 
 
 class TapKlaviyo(Tap):
