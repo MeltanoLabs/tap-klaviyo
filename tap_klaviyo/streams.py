@@ -376,10 +376,7 @@ class SegmentSeriesReportStream(KlaviyoStream):
         streams: list[SegmentSeriesReportStream] = []
 
         for report in named_reports:
-            report_name = report.get("name")
-            if not isinstance(report_name, str) or not report_name:
-                msg = "Each 'segment_series_reports' entry must include a non-empty 'name'."
-                raise ValueError(msg)
+            report_name = report["name"]
             streams.append(cls(tap, report_config=report, report_name=report_name))
 
         return streams
@@ -520,10 +517,7 @@ class CampaignValuesReportStream(KlaviyoStream):
         streams: list[CampaignValuesReportStream] = []
 
         for report in named_reports:
-            report_name = report.get("name")
-            if not isinstance(report_name, str) or not report_name:
-                msg = "Each 'campaign_values_reports' entry must include a non-empty 'name'."
-                raise ValueError(msg)
+            report_name = report["name"]
             streams.append(cls(tap, report_config=report, report_name=report_name))
 
         return streams
@@ -671,10 +665,7 @@ class FlowValuesReportStream(KlaviyoStream):
         streams: list[FlowValuesReportStream] = []
 
         for report in named_reports:
-            report_name = report.get("name")
-            if not isinstance(report_name, str) or not report_name:
-                msg = "Each 'flow_values_reports' entry must include a non-empty 'name'."
-                raise ValueError(msg)
+            report_name = report["name"]
             streams.append(cls(tap, report_config=report, report_name=report_name))
 
         return streams
@@ -799,10 +790,7 @@ class FlowSeriesReportStream(KlaviyoStream):
         streams: list[FlowSeriesReportStream] = []
 
         for report in named_reports:
-            report_name = report.get("name")
-            if not isinstance(report_name, str) or not report_name:
-                msg = "Each 'flow_series_reports' entry must include a non-empty 'name'."
-                raise ValueError(msg)
+            report_name = report["name"]
             streams.append(cls(tap, report_config=report, report_name=report_name))
 
         return streams
@@ -923,12 +911,7 @@ class QueryMetricAggregatesStream(KlaviyoStream):
         streams: list[QueryMetricAggregatesStream] = []
 
         for report in named_reports:
-            report_name = report.get("name")
-            if not isinstance(report_name, str) or not report_name:
-                msg = (
-                    "Each 'query_metric_aggregates_reports' entry must include a non-empty 'name'."
-                )
-                raise ValueError(msg)
+            report_name = report["name"]
             streams.append(cls(tap, report_config=report, report_name=report_name))
 
         return streams
