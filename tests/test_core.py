@@ -2,6 +2,7 @@
 
 from singer_sdk.testing import get_tap_test_class
 
+from tap_klaviyo import streams
 from tap_klaviyo.tap import TapKlaviyo
 
 SAMPLE_CONFIG = {
@@ -14,3 +15,22 @@ TestTapKlaviyo = get_tap_test_class(
     tap_class=TapKlaviyo,
     config=SAMPLE_CONFIG,
 )
+
+
+def test_relationship_and_series_report_primary_keys():
+    """Validate primary keys that prevent merge collisions."""
+    assert streams.ListPersonStream.primary_keys == ["list_id", "id"]
+    assert streams.SegmentSeriesReportStream.primary_keys == [
+        "report_name",
+        "segment_id",
+        "date",
+        "statistic_name",
+    ]
+    assert streams.FlowSeriesReportStream.primary_keys == [
+        "report_name",
+        "flow_id",
+        "flow_message_id",
+        "send_channel",
+        "date",
+        "statistic_name",
+    ]
