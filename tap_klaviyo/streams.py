@@ -194,7 +194,7 @@ class ListPersonStream(KlaviyoStream):
 
     name = "listperson"
     path = "/lists/{list_id}/relationships/profiles/"
-    primary_keys = ["id"]
+    primary_keys = ["list_id", "id"]
     replication_key = None
     parent_stream_type = ListsStream
     max_page_size = 1000
