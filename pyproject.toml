@@ -90,6 +90,7 @@ addopts = [
 ]
 filterwarnings = [
     "error",
+    "once:Python .* will reach its end of life:singer_sdk.helpers._compat.SingerSDKPythonEOLWarning",
 ]
 log_level = "INFO"
 minversion = "9"
