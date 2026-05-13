@@ -20,7 +20,7 @@ classifiers = [
 ]
 dependencies = [
     "requests>=2.34.0,<3",
-    "singer-sdk~=0.53.7",
+    "singer-sdk~=0.54.0",
     "typing-extensions>=4.15.0 ; python_full_version < '3.12'",
 ]
 
@@ -90,6 +90,7 @@ addopts = [
 ]
 filterwarnings = [
     "error",
+    "once:Python .* will reach its end of life:singer_sdk.helpers._compat.SingerSDKPythonEOLWarning",
 ]
 log_level = "INFO"
 minversion = "9"
