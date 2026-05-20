@@ -92,8 +92,9 @@ class CampaignsStream(KlaviyoStream):
     ) -> dict[str, Any]:
         url_params = super().get_url_params(context, next_page_token)
 
-        # Apply channel filters
-        if context:
+        # Apply channel filters only for the first page; subsequent pages already have the
+        # correct filter encoded in the next-page URL returned by Klaviyo's HATEOAS links.
+        if context and not next_page_token:
             parent_filter = url_params["filter"]
             url_params["filter"] = f"and({parent_filter},{context['filter']})"
 
