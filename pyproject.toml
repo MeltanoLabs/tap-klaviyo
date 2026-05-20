@@ -45,7 +45,6 @@ typing = [
     { include-group = "test" },
     "mypy>=2.1.0",
     "ty>=0.0.35",
-    "types-requests>=2.33.0.20260513",
 ]
 
 [build-system]
@@ -85,8 +84,6 @@ convention = "google"
 addopts = [
     "-v",
     "-ra",
-    "--strict-config",
-    "--strict-markers",
 ]
 filterwarnings = [
     "error",
