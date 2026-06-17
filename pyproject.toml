@@ -20,7 +20,7 @@ classifiers = [
 ]
 dependencies = [
     "requests>=2.34.0,<3",
-    "singer-sdk~=0.54.4",
+    "singer-sdk~=0.54.5",
     "typing-extensions>=4.15.0 ; python_full_version < '3.12'",
 ]
 
