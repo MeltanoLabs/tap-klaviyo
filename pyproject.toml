@@ -44,7 +44,7 @@ test = [
 typing = [
     { include-group = "test" },
     "mypy>=2.1.0",
-    "ty>=0.0.53",
+    "ty>=0.0.55",
 ]
 
 [build-system]
