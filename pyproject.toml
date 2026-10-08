@@ -68,7 +68,7 @@ warn_unused_ignores = true
 line-length = 100
 
 [tool.ruff.lint]
-ignore = ["DJ", "PD", "D102", "COM812", "ISC001", "FIX002"]
+ignore = ["DJ", "PD", "D102", "COM812", "ISC001", "FIX002", "CPY001"]
 select = ["ALL"]
 
 [tool.ruff.lint.per-file-ignores]
