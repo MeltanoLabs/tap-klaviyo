@@ -48,7 +48,7 @@ typing = [
 ]
 
 [build-system]
-requires = ["hatchling>=1.32.0,<2", "hatch-vcs>=0.5"]
+requires = ["hatchling>=1.32.4,<2", "hatch-vcs>=0.5"]
 build-backend = "hatchling.build"
 
 [tool.hatch.version]
