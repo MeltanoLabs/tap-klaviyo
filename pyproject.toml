@@ -38,17 +38,17 @@ dev = [
     { include-group = "typing" },
 ]
 test = [
-    "pytest>=9.1.1",
+    "pytest>=9.2.0",
     "singer-sdk[testing]",
 ]
 typing = [
     { include-group = "test" },
-    "mypy>=2.3.1",
-    "ty>=0.0.75",
+    "mypy>=2.4.1",
+    "ty>=0.0.94",
 ]
 
 [build-system]
-requires = ["hatchling>=1.32.4,<2", "hatch-vcs>=0.5"]
+requires = ["hatchling>=1.33.0,<2", "hatch-vcs>=0.5"]
 build-backend = "hatchling.build"
 
 [tool.hatch.version]
