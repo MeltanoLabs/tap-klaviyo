@@ -78,6 +78,34 @@
                 "object",
                 "null"
             ]
+        },
+        "attributed_campaign_id": {
+            "description": "Campaign Klaviyo attributes this event to (null if none or flow)",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "attributed_flow_id": {
+            "description": "Flow Klaviyo attributes this event to",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "attributed_flow_message_id": {
+            "description": "Flow message Klaviyo attributes this event to",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "attributed_event_id": {
+            "description": "The open/click event the attribution is based on",
+            "type": [
+                "string",
+                "null"
+            ]
         }
     }
 }

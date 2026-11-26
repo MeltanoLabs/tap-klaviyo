@@ -21,8 +21,17 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
     from urllib.parse import ParseResult
 
+    import requests
     from singer_sdk import Tap
     from singer_sdk.helpers.types import Context, Record
+
+# Event record field -> relationship name on Klaviyo's attribution object.
+ATTRIBUTION_RELATIONSHIPS = {
+    "attributed_campaign_id": "campaign",
+    "attributed_flow_id": "flow",
+    "attributed_flow_message_id": "flow-message",
+    "attributed_event_id": "attributed-event",  # the open/click the order is credited to
+}
 
 
 def _get_report_config_list_value(config: Mapping[str, Any], key: str) -> list[dict[str, Any]]:
@@ -54,6 +63,34 @@ class EventsStream(KlaviyoStream):
     ) -> Record | None:
         row["datetime"] = row["attributes"]["datetime"]
         return row
+
+    @override
+    def get_url_params(
+        self,
+        context: Context | None,
+        next_page_token: ParseResult | None,
+    ) -> dict[str, Any]:
+        params = super().get_url_params(context, next_page_token)
+        # The next-page link already carries the query, so only set this on page 1.
+        if not next_page_token:
+            params["include"] = "attributions"
+        return params
+
+    @override
+    def parse_response(self, response: requests.Response) -> Iterable[dict[str, Any]]:
+        """Copy each event's attribution (from `included`) onto the event record."""
+        # An attribution has the same id as its event; its relationships name the
+        # campaign, or the flow and flow message, the order is attributed to.
+        attributions = {
+            (a.get("relationships", {}).get("event", {}).get("data") or {}).get("id"): a
+            for a in response.json().get("included", [])
+            if a.get("type") == "attribution"
+        }
+        for row in super().parse_response(response):
+            rels = attributions.get(row["id"], {}).get("relationships", {})
+            for field, rel in ATTRIBUTION_RELATIONSHIPS.items():
+                row[field] = (rels.get(rel, {}).get("data") or {}).get("id")
+            yield row
 
     @override
     @property
@@ -124,6 +161,19 @@ class ProfilesStream(KlaviyoStream):
     primary_keys = ["id"]
     replication_key = "updated"
     max_page_size = 100
+
+    @override
+    def get_url_params(
+        self,
+        context: Context | None,
+        next_page_token: ParseResult | None,
+    ) -> dict[str, Any]:
+        params = super().get_url_params(context, next_page_token)
+        # Without this, attributes.subscriptions (email/sms consent) comes back null.
+        # The next-page link already carries it, so only set it on page 1.
+        if not next_page_token:
+            params["additional-fields[profile]"] = "subscriptions"
+        return params
 
     @override
     def post_process(
