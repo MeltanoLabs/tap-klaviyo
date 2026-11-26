@@ -77,7 +77,7 @@ class EventsStream(KlaviyoStream):
         return params
 
     @override
-    def parse_response(self, response: requests.Response) -> Iterable[dict]:
+    def parse_response(self, response: requests.Response) -> Iterable[dict[str, Any]]:
         """Copy each event's attribution (from `included`) onto the event record."""
         # An attribution has the same id as its event; its relationships name the
         # campaign, or the flow and flow message, the order is attributed to.
