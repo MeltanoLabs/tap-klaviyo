@@ -220,6 +220,36 @@
                             "properties": {
                                 "marketing": {
                                     "properties": {
+                                        "can_receive_email_marketing": {
+                                            "description": "Whether the profile can be sent email marketing (consent given and not suppressed).",
+                                            "type": ["boolean", "null"]
+                                        },
+                                        "consent_timestamp": {
+                                            "description": "When email marketing consent was recorded. Newer API revisions fill this instead of `timestamp`.",
+                                            "format": "date-time",
+                                            "type": ["string", "null"]
+                                        },
+                                        "last_updated": {
+                                            "description": "When the email marketing subscription last changed.",
+                                            "format": "date-time",
+                                            "type": ["string", "null"]
+                                        },
+                                        "suppression": {
+                                            "description": "Why the profile can't be emailed (for example HARD_BOUNCE, SPAM_COMPLAINT, USER_SUPPRESSED) and since when. Newer API revisions fill this instead of `suppressions`.",
+                                            "items": {
+                                                "properties": {
+                                                    "reason": {
+                                                        "type": ["string", "null"]
+                                                    },
+                                                    "timestamp": {
+                                                        "format": "date-time",
+                                                        "type": ["string", "null"]
+                                                    }
+                                                },
+                                                "type": ["object", "null"]
+                                            },
+                                            "type": ["array", "null"]
+                                        },
                                         "consent": {
                                             "description": "The consent status for email marketing.",
                                             "type": [
@@ -340,6 +370,20 @@
                             "properties": {
                                 "marketing": {
                                     "properties": {
+                                        "can_receive_sms_marketing": {
+                                            "description": "Whether the profile can be sent SMS marketing.",
+                                            "type": ["boolean", "null"]
+                                        },
+                                        "consent_timestamp": {
+                                            "description": "When SMS marketing consent was recorded. Newer API revisions fill this instead of `timestamp`.",
+                                            "format": "date-time",
+                                            "type": ["string", "null"]
+                                        },
+                                        "last_updated": {
+                                            "description": "When the SMS marketing subscription last changed.",
+                                            "format": "date-time",
+                                            "type": ["string", "null"]
+                                        },
                                         "consent": {
                                             "description": "The consent status for SMS marketing.",
                                             "type": [
